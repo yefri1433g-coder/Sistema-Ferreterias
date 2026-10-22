@@ -1,0 +1,37 @@
+# Visual Studio y compilación
+.vs/
+**/.vs/
+bin/
+obj/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.vsidx
+*.cache
+*.log
+*.pdb
+*.dll
+*.exe
+[Dd]ebug/
+[Rr]elease/
+
+# Configuración local o secretos
+.env
+.env.*
+!.env.example
+*.secrets.json
+local.settings.json
+
+# Respaldos, bases locales y archivos generados
+*.bak
+*.mdf
+*.ldf
+*.bacpac
+*.zip
+*.rar
+*.7z
+
+# Sistema operativo
+Thumbs.db
+.DS_Store

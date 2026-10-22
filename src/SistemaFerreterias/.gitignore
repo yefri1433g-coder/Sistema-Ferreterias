@@ -1,0 +1,36 @@
+# Visual Studio and build outputs
+.vs/
+.vs_cache_*/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.cache
+*.log
+*.pdb
+*.exe
+*.dll
+
+# NuGet packages are restored from packages.config
+packages/
+**/packages/
+
+# Local configuration and credentials
+.env
+.env.*
+!**/.env.example
+*.secrets.json
+local.settings.json
+
+# Database files, exports and generated archives
+*.mdf
+*.ldf
+*.bak
+*.bacpac
+*.zip
+*.rar
+*.7z
+
+# OS/editor files
+Thumbs.db
+.DS_Store
