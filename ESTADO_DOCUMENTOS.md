@@ -1,17 +1,17 @@
 # Estado de documentos
 
-Última revisión: 22 de octubre de 2026.
+Última revisión: 23 de octubre de 2026.
 
 | Documento | Estado | Nota |
 |---|---|---|
-| 01 Inspección inicial | COMPLETADO Y APROBADO | Aprobado explícitamente por el estudiante el 16 de octubre. Se verificaron estructura, solución por capas, conexión, catálogo y respaldo según los registros del proyecto. |
-| 02 CRUD simple | COMPLETADO CON OBSERVACIONES | Cierre autorizado por el estudiante el 22 de octubre. Se registran las validaciones disponibles, la revisión por capas y la compilación; las pruebas manuales aún no confirmadas se conservan como observaciones. No habilita otro módulo por sí solo. |
-| 03 CRUD relacional | HABILITADO | Inventarios fue confirmado por el estudiante. Los siguientes módulos requieren validación individual antes de registrarlos como completados. |
-| 04 Maestro detalle | BLOQUEADO | Requiere autorización posterior. |
-| 05 Git colaborativo | BLOQUEADO | Debe realizarse después de los CRUD y antes de Login. |
+| 01 Inspección inicial | COMPLETADO Y APROBADO | El Integrante 1, Yefry Yahir García García, confirmó este documento como completado y aprobado. |
+| 02 CRUD simple | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó este documento como completado. |
+| 03 CRUD relacional | COMPLETADO PARCIAL | El Integrante 1, Yefry Yahir García García, confirmó los módulos Inventarios y Empleados. No se registran otros módulos como probados. |
+| 04 Maestro detalle | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó Traslados: Consultar con detalle, Agregar, Buscar, Editar y Eliminar. |
+| 05 Git colaborativo | PARCIAL | El Integrante 1, Yefry Yahir García García, confirmó su parte: repositorio privado, rama `main` publicada, clon en `C:\2026_Progra2_Integracion` y rama `integrante1` publicada. Faltan ramas de los otros integrantes, Pull Requests y la confirmación de los tres; no está finalizado. |
 | 06 Login y roles | BLOQUEADO | Debe quedar para la etapa final. |
 | 07 Panel de navegación | BLOQUEADO | Requiere autorización posterior. |
-| 08 Dashboard | BLOQUEADO | Requiere autorización posterior. |
+| 08 Dashboard | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó contra SQL Server: Ventas de hoy, Productos activos, Traslados pendientes, Clientes registrados, Ventas de los últimos 7 días, Estado de existencias y Actividad reciente. El diseño se conservó sin modificar `DashboardForms.Designer.cs`. |
 | 09 Revisión del proyecto | BLOQUEADO | Requiere autorización posterior. |
 | 10 Publicación | BLOQUEADO | Requiere autorización posterior. |
 | 11 Publicación complementaria | PENDIENTE | Sin inicio autorizado. |
@@ -41,6 +41,16 @@ No se han iniciado pruebas nuevas ni código adicional con esta actualización d
 
 ## Documento 03: módulos autorizados
 
-- Inventarios (`dbo.Tbl_Inventarios`, `InventariosForms`): el estudiante confirmó el funcionamiento de Consultar, ComboBox de sucursales, Agregar, Buscar, Editar, Eliminar, paginación de diez registros en el listado CRUD y totales dinámicos. No se modificó la base de datos.
+- Inventarios (`dbo.Tbl_Inventarios`, `InventariosForms`): el Integrante 1, Yefry Yahir García García, realizó y confirmó Consultar, ComboBox de sucursales, paginación de diez registros, totales dinámicos, Agregar, Buscar, Editar y Eliminar.
 - Proveedores (`dbo.Tbl_Proveedores`, `ProveedoresForms`): el estudiante confirmó Consultar, Agregar, Buscar, Editar, Eliminar, paginación de diez registros y totales dinámicos. La búsqueda cubre identificador, nombre, contacto, teléfono y correo.
-- Empleados (`dbo.Tbl_Empleados`, `EmpleadosForms`): el estudiante confirmó Consultar, carga de usuarios y sucursales por ComboBox, Agregar, Buscar, Editar, Eliminar, paginación de diez registros y totales dinámicos.
+- Empleados (`dbo.Tbl_Empleados`, `EmpleadosForms`): el Integrante 1, Yefry Yahir García García, realizó y confirmó Consultar, ComboBox de usuarios y sucursales, paginación de diez registros, totales dinámicos, Agregar, Buscar, Editar y Eliminar.
+
+## Documento 04: pruebas confirmadas
+
+- El Integrante 1, Yefry Yahir García García, confirmó en Traslados: Consultar con detalle, Agregar encabezado y detalle, Buscar, Editar y Eliminar.
+- La paginación se realiza en Presentación con diez registros por página y no altera los totales.
+
+## Documento 08: cierre confirmado
+
+- El Integrante 1, Yefry Yahir García García, confirmó el cierre del Dashboard el 23 de octubre de 2026.
+- El Integrante 1 comparó contra SQL Server y confirmó los indicadores de Ventas de hoy, Productos activos, Traslados pendientes, Clientes registrados, Ventas de los últimos 7 días, Estado de existencias y Actividad reciente. El diseño se conservó sin modificar `DashboardForms.Designer.cs`.
