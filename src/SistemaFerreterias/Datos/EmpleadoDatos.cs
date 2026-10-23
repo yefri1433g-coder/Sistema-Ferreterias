@@ -30,13 +30,9 @@ namespace Datos
                            INNER JOIN dbo.Tbl_Usuarios u ON u.id_usuario = e.id_usuario
                            INNER JOIN dbo.Tbl_Sucursales s ON s.id_sucursal = e.id_sucursal
                            WHERE @criterio IS NULL
-                              OR CONVERT(VARCHAR(20), e.id_empleado) LIKE @criterio
-                              OR CONVERT(VARCHAR(20), e.id_usuario) LIKE @criterio
-                              OR CONVERT(VARCHAR(20), e.id_sucursal) LIKE @criterio
                               OR e.nombre LIKE @criterio
                               OR e.apellido LIKE @criterio
                               OR e.cargo LIKE @criterio
-                              OR e.telefono LIKE @criterio
                               OR u.nombre_usuario LIKE @criterio
                               OR s.nombre LIKE @criterio
                            ORDER BY e.id_empleado;";

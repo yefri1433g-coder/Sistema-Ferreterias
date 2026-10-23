@@ -75,12 +75,35 @@ namespace Datos
 
         public DataTable Compras()
         {
-            return Leer(@"SELECT c.id_compra AS Codigo, p.nombre AS Proveedor, c.fecha AS Fecha,
-                                  c.total AS Total,
+            return Leer(@"SELECT c.id_compra AS Codigo, c.id_proveedor AS IdProveedor, c.id_sucursal AS IdSucursal,
+                                  ISNULL(s.nombre, 'Sucursal pendiente') AS Sucursal,
+                                  p.nombre AS Proveedor, c.fecha AS Fecha, c.total AS Total,
                                   (SELECT COUNT(1) FROM Tbl_DetalleDeCompras d WHERE d.id_compra = c.id_compra) AS Lineas
                            FROM Tbl_Compras c
                            INNER JOIN Tbl_Proveedores p ON p.id_proveedor = c.id_proveedor
+                           LEFT JOIN Tbl_Sucursales s ON s.id_sucursal = c.id_sucursal
                            ORDER BY c.fecha DESC, c.id_compra DESC;");
+        }
+
+        public DataTable DetalleCompra(int idCompra)
+        {
+            using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
+            using (SqlCommand cmd = new SqlCommand(@"SELECT d.id_producto AS IdProducto, p.codigo AS CodigoProducto, p.nombre AS Producto,
+                                                           d.cantidad AS Cantidad, d.precio_unitario AS PrecioUnitario,
+                                                           d.cantidad * d.precio_unitario AS Subtotal
+                                                    FROM Tbl_DetalleDeCompras d
+                                                    INNER JOIN Tbl_Productos p ON p.id_producto = d.id_producto
+                                                    WHERE d.id_compra = @idCompra
+                                                    ORDER BY p.nombre;", cn))
+            {
+                cmd.Parameters.Add("@idCompra", SqlDbType.Int).Value = idCompra;
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    DataTable tabla = new DataTable();
+                    da.Fill(tabla);
+                    return tabla;
+                }
+            }
         }
 
         public DataTable ProductosActivos()
@@ -91,6 +114,19 @@ namespace Datos
         public DataTable SucursalesActivas()
         {
             return Leer("SELECT id_sucursal AS Codigo, nombre AS Nombre FROM Tbl_Sucursales WHERE estado = 1 ORDER BY nombre;");
+        }
+
+        public void AsignarSucursalCompra(int idCompra, int idSucursal)
+        {
+            using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
+            using (SqlCommand cmd = new SqlCommand("UPDATE Tbl_Compras SET id_sucursal=@sucursal WHERE id_compra=@compra AND id_sucursal IS NULL", cn))
+            {
+                cmd.Parameters.Add("@sucursal", SqlDbType.Int).Value = idSucursal;
+                cmd.Parameters.Add("@compra", SqlDbType.Int).Value = idCompra;
+                cn.Open();
+                if (cmd.ExecuteNonQuery() != 1)
+                    throw new InvalidOperationException("No se pudo asignar la sucursal. Actualiza la lista y vuelve a intentar.");
+            }
         }
 
         public void GuardarCategoria(int? id, string nombre, string descripcion)
@@ -260,9 +296,10 @@ namespace Datos
                         decimal total = 0;
                         foreach (CompraLineaCatalogo d in detalles) total += d.Subtotal;
                         int idCompra;
-                        using (SqlCommand cmd = new SqlCommand("INSERT INTO Tbl_Compras(id_proveedor,fecha,total) VALUES(@prov,@fecha,@total); SELECT CAST(SCOPE_IDENTITY() AS INT);", cn, tx))
+                        using (SqlCommand cmd = new SqlCommand("INSERT INTO Tbl_Compras(id_proveedor,id_sucursal,fecha,total) VALUES(@prov,@sucursal,@fecha,@total); SELECT CAST(SCOPE_IDENTITY() AS INT);", cn, tx))
                         {
                             cmd.Parameters.Add("@prov", SqlDbType.Int).Value = proveedor;
+                            cmd.Parameters.Add("@sucursal", SqlDbType.Int).Value = sucursal;
                             cmd.Parameters.Add("@fecha", SqlDbType.DateTime).Value = fecha;
                             cmd.Parameters.Add("@total", SqlDbType.Decimal).Value = total;
                             cmd.Parameters["@total"].Precision = 12; cmd.Parameters["@total"].Scale = 2;
@@ -299,6 +336,161 @@ namespace Datos
                     }
                     catch { tx.Rollback(); throw; }
                 }
+            }
+        }
+
+        public void EditarCompra(int idCompra, int proveedor, int sucursal, DateTime fecha, IList<CompraLineaCatalogo> detalles)
+        {
+            if (detalles == null || detalles.Count == 0) throw new InvalidOperationException("Agrega al menos un producto a la compra.");
+            using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
+            {
+                cn.Open();
+                using (SqlTransaction tx = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        int sucursalAnterior;
+                        using (SqlCommand cmd = new SqlCommand("SELECT id_sucursal FROM Tbl_Compras WITH (UPDLOCK) WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            object valor = cmd.ExecuteScalar();
+                            if (valor == null) throw new InvalidOperationException("La compra ya no existe.");
+                            if (valor == DBNull.Value) throw new InvalidOperationException("Esta compra histórica no tiene sucursal asignada. Asígnala antes de editarla.");
+                            sucursalAnterior = Convert.ToInt32(valor);
+                        }
+
+                        DataTable anteriores;
+                        using (SqlCommand cmd = new SqlCommand("SELECT id_producto, cantidad FROM Tbl_DetalleDeCompras WITH (UPDLOCK) WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            using (SqlDataAdapter da = new SqlDataAdapter(cmd)) { anteriores = new DataTable(); da.Fill(anteriores); }
+                        }
+
+                        foreach (DataRow anterior in anteriores.Rows)
+                        {
+                            int producto = Convert.ToInt32(anterior["id_producto"]);
+                            int cantidad = Convert.ToInt32(anterior["cantidad"]);
+                            using (SqlCommand cmd = new SqlCommand("UPDATE Tbl_Stock WITH (UPDLOCK) SET cantidad=cantidad-@cant WHERE id_sucursal=@suc AND id_producto=@prod AND cantidad>=@cant", cn, tx))
+                            {
+                                cmd.Parameters.Add("@cant", SqlDbType.Int).Value = cantidad;
+                                cmd.Parameters.Add("@suc", SqlDbType.Int).Value = sucursalAnterior;
+                                cmd.Parameters.Add("@prod", SqlDbType.Int).Value = producto;
+                                if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("No se puede revertir la compra: el stock cambió o parte de esos productos ya fue consumida.");
+                            }
+                            RegistrarKardexCompra(cn, tx, producto, DateTime.Now, "Salida", cantidad, "Reversión por edición de compra No. " + idCompra);
+                        }
+
+                        decimal total = 0;
+                        foreach (CompraLineaCatalogo detalle in detalles) total += detalle.Subtotal;
+                        using (SqlCommand cmd = new SqlCommand("UPDATE Tbl_Compras SET id_proveedor=@prov,id_sucursal=@suc,fecha=@fecha,total=@total WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@prov", SqlDbType.Int).Value = proveedor;
+                            cmd.Parameters.Add("@suc", SqlDbType.Int).Value = sucursal;
+                            cmd.Parameters.Add("@fecha", SqlDbType.Date).Value = fecha.Date;
+                            cmd.Parameters.Add("@total", SqlDbType.Decimal).Value = total;
+                            cmd.Parameters["@total"].Precision = 12; cmd.Parameters["@total"].Scale = 2;
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("No se pudo actualizar la compra.");
+                        }
+                        using (SqlCommand cmd = new SqlCommand("DELETE FROM Tbl_DetalleDeCompras WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            cmd.ExecuteNonQuery();
+                        }
+                        foreach (CompraLineaCatalogo detalle in detalles)
+                        {
+                            int cantidad = Decimal.ToInt32(detalle.Cantidad);
+                            using (SqlCommand cmd = new SqlCommand("INSERT INTO Tbl_DetalleDeCompras(id_compra,id_producto,cantidad,precio_unitario) VALUES(@id,@prod,@cant,@costo)", cn, tx))
+                            {
+                                cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                                cmd.Parameters.Add("@prod", SqlDbType.Int).Value = detalle.IdProducto;
+                                cmd.Parameters.Add("@cant", SqlDbType.Int).Value = cantidad;
+                                cmd.Parameters.Add("@costo", SqlDbType.Decimal).Value = detalle.CostoUnitario;
+                                cmd.Parameters["@costo"].Precision = 10; cmd.Parameters["@costo"].Scale = 2;
+                                cmd.ExecuteNonQuery();
+                            }
+                            using (SqlCommand cmd = new SqlCommand("UPDATE Tbl_Stock WITH (UPDLOCK) SET cantidad=cantidad+@cant WHERE id_sucursal=@suc AND id_producto=@prod; IF @@ROWCOUNT=0 INSERT INTO Tbl_Stock(id_sucursal,id_producto,cantidad,stock_minimo) VALUES(@suc,@prod,@cant,0);", cn, tx))
+                            {
+                                cmd.Parameters.Add("@cant", SqlDbType.Int).Value = cantidad;
+                                cmd.Parameters.Add("@suc", SqlDbType.Int).Value = sucursal;
+                                cmd.Parameters.Add("@prod", SqlDbType.Int).Value = detalle.IdProducto;
+                                cmd.ExecuteNonQuery();
+                            }
+                            RegistrarKardexCompra(cn, tx, detalle.IdProducto, fecha, "Entrada", cantidad, "Compra No. " + idCompra + " actualizada");
+                        }
+                        tx.Commit();
+                    }
+                    catch { tx.Rollback(); throw; }
+                }
+            }
+        }
+
+        public void EliminarCompra(int idCompra)
+        {
+            using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
+            {
+                cn.Open();
+                using (SqlTransaction tx = cn.BeginTransaction())
+                {
+                    try
+                    {
+                        int sucursal;
+                        using (SqlCommand cmd = new SqlCommand("SELECT id_sucursal FROM Tbl_Compras WITH (UPDLOCK) WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            object valor = cmd.ExecuteScalar();
+                            if (valor == null) throw new InvalidOperationException("La compra ya no existe.");
+                            if (valor == DBNull.Value) throw new InvalidOperationException("Esta compra histórica no tiene sucursal asignada. Asigna la sucursal correcta antes de eliminarla.");
+                            sucursal = Convert.ToInt32(valor);
+                        }
+
+                        DataTable detalles;
+                        using (SqlCommand cmd = new SqlCommand("SELECT id_producto, cantidad FROM Tbl_DetalleDeCompras WITH (UPDLOCK) WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            using (SqlDataAdapter da = new SqlDataAdapter(cmd)) { detalles = new DataTable(); da.Fill(detalles); }
+                        }
+                        foreach (DataRow detalle in detalles.Rows)
+                        {
+                            int producto = Convert.ToInt32(detalle["id_producto"]);
+                            int cantidad = Convert.ToInt32(detalle["cantidad"]);
+                            using (SqlCommand cmd = new SqlCommand("UPDATE Tbl_Stock WITH (UPDLOCK) SET cantidad=cantidad-@cant WHERE id_sucursal=@suc AND id_producto=@prod AND cantidad>=@cant", cn, tx))
+                            {
+                                cmd.Parameters.Add("@cant", SqlDbType.Int).Value = cantidad;
+                                cmd.Parameters.Add("@suc", SqlDbType.Int).Value = sucursal;
+                                cmd.Parameters.Add("@prod", SqlDbType.Int).Value = producto;
+                                if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("No se puede eliminar la compra: el stock cambió o parte de esos productos ya fue consumida.");
+                            }
+                            RegistrarKardexCompra(cn, tx, producto, DateTime.Now, "Salida", cantidad, "Reversión por eliminación de compra No. " + idCompra);
+                        }
+
+                        using (SqlCommand cmd = new SqlCommand("DELETE FROM Tbl_DetalleDeCompras WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            cmd.ExecuteNonQuery();
+                        }
+                        using (SqlCommand cmd = new SqlCommand("DELETE FROM Tbl_Compras WHERE id_compra=@id", cn, tx))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = idCompra;
+                            if (cmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("No se pudo eliminar la compra.");
+                        }
+                        tx.Commit();
+                    }
+                    catch { tx.Rollback(); throw; }
+                }
+            }
+        }
+
+        private static void RegistrarKardexCompra(SqlConnection cn, SqlTransaction tx, int producto, DateTime fecha, string tipo, int cantidad, string descripcion)
+        {
+            using (SqlCommand cmd = new SqlCommand("INSERT INTO Tbl_Kardex(id_producto,fecha,tipo_movimiento,cantidad,saldo,descripcion) VALUES(@prod,@fecha,@tipo,@cant,(SELECT ISNULL(SUM(cantidad),0) FROM Tbl_Stock WHERE id_producto=@prod),@descripcion)", cn, tx))
+            {
+                cmd.Parameters.Add("@prod", SqlDbType.Int).Value = producto;
+                cmd.Parameters.Add("@fecha", SqlDbType.DateTime).Value = fecha;
+                cmd.Parameters.Add("@tipo", SqlDbType.VarChar, 20).Value = tipo;
+                cmd.Parameters.Add("@cant", SqlDbType.Int).Value = cantidad;
+                cmd.Parameters.Add("@descripcion", SqlDbType.VarChar, 150).Value = descripcion;
+                cmd.ExecuteNonQuery();
             }
         }
     }

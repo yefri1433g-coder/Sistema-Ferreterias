@@ -42,7 +42,7 @@ namespace Datos
                     {
                         if (where.Contains("@Filtro"))
                         {
-                            cmd.Parameters.AddWithValue("@Filtro", filtro ?? string.Empty);
+                            cmd.Parameters.Add("@Filtro", System.Data.SqlDbType.VarChar, 100).Value = filtro ?? string.Empty;
                         }
 
                         conn.Open();
@@ -83,7 +83,13 @@ namespace Datos
 
         public List<StockEntidad> MtdBuscar(string filtro)
         {
-            return MtdLeer("WHERE (s.nombre LIKE '%' + @Filtro + '%' OR p.nombre LIKE '%' + @Filtro + '%')", filtro, "buscar en el stock");
+            return MtdLeer(
+                "WHERE (CONVERT(VARCHAR(20), st.id_stock) LIKE '%' + @Filtro + '%' " +
+                "OR s.nombre LIKE '%' + @Filtro + '%' " +
+                "OR p.nombre LIKE '%' + @Filtro + '%' " +
+                "OR CONVERT(VARCHAR(20), st.cantidad) LIKE '%' + @Filtro + '%')",
+                filtro,
+                "buscar en el stock");
         }
 
         // Productos cuya cantidad es menor o igual al minimo (lo usa el Dashboard)

@@ -1,40 +1,68 @@
-# Proyecto Final de Programación II
+# Sistema Ferreterías
 
-Sistema de ferreterías multisucursal para el curso Programación II 2026.
+Aplicación de escritorio en C# y Windows Forms para gestionar usuarios,
+clientes, ventas, pagos, productos, categorías, sucursales, compras,
+inventarios, stock, kardex y traslados. Usa SQL Server.
 
-## Tecnologías y arquitectura
+## Requisitos
 
-- C# con .NET Framework y Windows Forms.
-- SQL Server, `System.Data.SqlClient` y SSMS para administración de la base.
-- Docker para el entorno SQL Server configurado para el curso.
+- Windows y Visual Studio con .NET Framework 4.8.
+- SQL Server local o un contenedor SQL Server.
+- Restaurar los paquetes NuGet al abrir la solución.
 
-La aplicación se organiza en capas:
+## Preparación de la base de datos
 
-`Presentación -> Negocio -> Datos -> SQL Server`
+1. Crea la base ejecutando [`database/scripts/SCRIPT NUEVO2.sql`](database/scripts/SCRIPT%20NUEVO2.sql)
+   en SQL Server Management Studio.
+2. Reemplaza las contraseñas `CAMBIAR_CLAVE` de las cuentas de ejemplo por
+   contraseñas locales antes de usar el sistema.
+3. Si usas el script, la base se llama `db_Ferreteria`; SQL Server suele ignorar
+   mayúsculas y minúsculas en el nombre.
 
-Entidad contiene las clases que transportan información entre las capas.
+Para una base existente, ejecuta también
+[`database/scripts/20261023_compras_sucursal.sql`](database/scripts/20261023_compras_sucursal.sql).
+La migración agrega la sucursal opcional a las compras antiguas sin asignarles una.
+Esas compras quedan bloqueadas para edición hasta que se registre su sucursal correcta.
 
-## Estructura actual
+El código actual usa el esquema de ese script. La migración en
+`database/scripts/legacy/` pertenece a una versión anterior y no se debe ejecutar para
+la versión actual.
 
-- `skills/`: once guías planas de trabajo.
-- `database/`: documentación de conexión, respaldo y el script `SCRIPT NUEVO2.sql`.
-- `docs/COMANDOS_RAPIDOS.md`: comandos de compilación para CMD.
-- `src/SistemaFerreterias/`: solución `SistemaFerreterias.slnx` con Entidad, Datos, Negocio y Presentación.
-- `Docker/Backups/`: respaldo verificado `db_Ferreteria_20261016.bak`.
+## Conexión
 
-## Conexión y estado comprobado
+La aplicación lee primero la variable de usuario `FERRETERIA_CONNECTION_STRING`,
+después la variable del proceso y, si ninguna está definida, usa la conexión
+de `App.config`.
+Para SQL Server con autenticación SQL, define la cadena localmente antes de
+abrir Visual Studio, sustituyendo los valores por los de tu instalación:
 
-La configuración de desarrollo está en `src/SistemaFerreterias/Presentacion/App.config`. `ConexionDatos` puede tomar `FERRETERIA_CONNECTION_STRING`, que prevalece sobre `ConexionSQLServer` del archivo de configuración. No se guardan credenciales reales en el repositorio.
+```powershell
+$env:FERRETERIA_CONNECTION_STRING = 'Server=localhost,1434;Database=db_ferreteria;User Id=sa;Password=<tu-clave>;Encrypt=False;TrustServerCertificate=True'
+```
 
-La conexión a `localhost,1434` y la base `db_Ferreteria` fue verificada. El catálogo cuenta con 17 tablas y 19 claves foráneas; consulta [database/CONEXION_DATABASE.md](database/CONEXION_DATABASE.md) para el detalle. La solución compiló correctamente el 16 de octubre de 2026, sin advertencias ni errores, usando salida aislada.
+No guardes claves reales en `App.config`, scripts compartidos ni en Git.
 
-## Estado de trabajo
+## Ejecutar
 
-Los Documentos 01 y 02 están cerrados. El Documento 02 conserva observaciones de pruebas manuales no confirmadas en [ESTADO_DOCUMENTOS.md](ESTADO_DOCUMENTOS.md). No iniciar otros módulos sin autorización expresa.
+Abre `SistemaFerreterias.slnx` en Visual Studio, restaura NuGet y ejecuta el
+proyecto `Presentacion`. También se puede compilar con MSBuild:
 
-## Reglas de trabajo
+```powershell
+& 'C:\Program Files\Microsoft Visual Studio\18\Insiders\MSBuild\Current\Bin\MSBuild.exe' `
+  '.\SistemaFerreterias.slnx' /t:Build /p:Configuration=Debug /v:minimal
+```
 
-- Mantener las capas, consultas SQL parametrizadas y manejo de errores.
-- Conservar los diseños existentes y no publicar credenciales.
-- Registrar en `MEMORY.md` únicamente hechos comprobados.
-- En Windows, preferir `cmd.exe`; revisar [AGENTS.md](AGENTS.md) y [docs/COMANDOS_RAPIDOS.md](docs/COMANDOS_RAPIDOS.md).
+## Estructura
+
+- `src/`: proyectos `Datos`, `Entidad`, `Negocio` y `Presentacion`.
+- `database/scripts/`: script de creación y scripts antiguos en `legacy/`.
+- `database/data/` y `database/backups/`: espacio para datos exportados y copias locales (ignorados por Git).
+- `docker/`: configuración opcional para SQL Server local.
+- `docs/`: guías y diagramas; aportes en `docs/guides/aportes.md`.
+- `ia/skills/sistema-ferreterias/SKILL.md`: guía de trabajo para este sistema.
+- `MEMORY.md`: resumen técnico y estado del proyecto.
+
+## Equipo
+
+Los integrantes y sus módulos están registrados en
+[`docs/guides/aportes.md`](docs/guides/aportes.md).
