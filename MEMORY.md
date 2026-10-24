@@ -1,6 +1,6 @@
 # Memoria del proyecto
 
-Actualizado: 22 de octubre de 2026.
+Actualizado: 23 de octubre de 2026.
 
 ## Comprobado
 
@@ -16,6 +16,9 @@ Actualizado: 22 de octubre de 2026.
 - La lista de Ventas muestra todos los productos activos y su stock agregado por sucursal, incluso cuando es cero; la aplicación impide vender cantidades superiores a la existencia. La consulta devolvió cinco productos activos para cada una de las cinco sucursales y el estudiante confirmó la pantalla.
 - No hay remoto de GitHub configurado para este proyecto.
 - El 22 de octubre de 2026 se compiló `src/SistemaFerreterias/SistemaFerreterias.slnx` para cerrar documentalmente el CRUD simple: 0 errores y una advertencia `NETSDK1194` por usar una ruta de salida a nivel de solución. No se ejecutaron pruebas manuales nuevas ni se modificó SQL Server.
+- El 23 de octubre de 2026, el Integrante 1, Yefry Yahir García García, realizó y confirmó contra SQL Server los siete indicadores del Dashboard: Ventas de hoy, Productos activos, Traslados pendientes, Clientes registrados, Ventas de los últimos 7 días, Estado de existencias y Actividad reciente. El diseño se conservó sin modificar `DashboardForms.Designer.cs`.
+- El 23 de octubre de 2026, el Integrante 1, Yefry Yahir García García, confirmó como finalizado el Documento 08 — Dashboard.
+- El 23 de octubre de 2026, el Integrante 1, Yefry Yahir García García, probó y confirmó en Traslados: Consultar con detalle, Agregar encabezado y detalle, Buscar, Editar y Eliminar. La paginación muestra diez registros por página y los totales no cambian al navegar entre páginas.
 
 ## CRUD validados por el estudiante
 
@@ -23,13 +26,14 @@ Actualizado: 22 de octubre de 2026.
 - Clientes (`dbo.Tbl_Clientes`, `ClientesForms`): Agregar, Consultar, Buscar y Editar fueron confirmados. Eliminar y Limpiar quedan pendientes de prueba manual. Limpiar conserva IDs 1 a 5 y elimina clientes con `id_cliente > 5` después de confirmación.
 - Sucursales (`dbo.Tbl_Sucursales`, pestaña en `CatalogosGestionForms`): Agregar, Buscar, Editar, Eliminar y paginación fueron confirmados. Limpiar elimina `id_sucursal > 5`, conserva los cinco ejemplos y queda pendiente de prueba manual.
 - Usuarios tiene un botón Limpiar equivalente: conserva IDs 1 a 6 (cinco ejemplos y `admin`) y queda pendiente de prueba manual.
-- Inventarios (`dbo.Tbl_Inventarios`, `InventariosForms`): el estudiante confirmó que Consultar, carga de sucursales, Agregar, Buscar, Editar, Eliminar, paginación del listado CRUD y totales funcionan correctamente. La paginación del CRUD se mantiene en Presentación con diez registros por página y no altera el total.
+- Inventarios (`dbo.Tbl_Inventarios`, `InventariosForms`): el Integrante 1, Yefry Yahir García García, realizó y confirmó Consultar, ComboBox de sucursales, paginación de diez registros, totales dinámicos, Agregar, Buscar, Editar y Eliminar.
 - Proveedores (`dbo.Tbl_Proveedores`, `ProveedoresForms`): el estudiante confirmó que el módulo funciona, incluida la búsqueda por identificador, nombre, contacto, teléfono y correo; las tarjetas resumen se actualizan con el resultado filtrado sin depender de la página actual.
-- Empleados (`dbo.Tbl_Empleados`, `EmpleadosForms`): el estudiante confirmó Consultar, ComboBox de usuarios y sucursales, Agregar, Buscar, Editar, Eliminar, paginación principal de diez registros y tarjetas dinámicas basadas en el resultado filtrado.
+- Empleados (`dbo.Tbl_Empleados`, `EmpleadosForms`): el Integrante 1, Yefry Yahir García García, realizó y confirmó Consultar, ComboBox de usuarios y sucursales, paginación de diez registros, totales dinámicos, Agregar, Buscar, Editar y Eliminar.
 
 ## Decisiones y pendientes
 
 - Se mantienen SQL Server, SSMS y la arquitectura Entidad, Datos, Negocio y Presentación.
 - Se respetan las tablas `Tbl_` y las claves `id_` del esquema actual.
-- Los Documentos 01 y 02 están cerrados. El cierre del Documento 02 fue solicitado por el estudiante el 22 de octubre de 2026; sus pruebas manuales no confirmadas se mantienen como observaciones en `ESTADO_DOCUMENTOS.md`. No se debe iniciar otro módulo sin una nueva confirmación del estudiante.
+- El Integrante 1, Yefry Yahir García García, confirmó como completados y aprobados los Documentos 01 y 02; confirmó parcialmente el Documento 03 para Inventarios y Empleados; y confirmó como completados Traslados del Documento 04 y el Dashboard del Documento 08. No se registran como probados otros módulos.
+- El Integrante 1 confirmó avance parcial del Documento 05: repositorio privado, rama `main` publicada, clon en `C:\2026_Progra2_Integracion` y rama `integrante1` publicada. Faltan las ramas de los otros integrantes, Pull Requests y la confirmación de los tres; el documento no está finalizado.
 - No se almacenan credenciales reales en archivos del proyecto.

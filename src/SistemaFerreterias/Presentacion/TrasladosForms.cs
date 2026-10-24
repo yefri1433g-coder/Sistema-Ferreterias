@@ -34,7 +34,8 @@ namespace Presentacion
         private Label _totalTrasladosVista, _paginaTrasladosVista;
         private Button _anteriorTrasladosVista, _siguienteTrasladosVista;
         private int _paginaTraslados = 1;
-        private const int TrasladosPorPagina = 4;
+        // La paginación se realiza solo en Presentación y no cambia los totales del resultado completo.
+        private const int TrasladosPorPagina = 10;
         private Form _dialogoTraslado;
 
         public TrasladosForms()
