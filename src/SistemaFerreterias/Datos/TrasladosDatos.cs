@@ -193,27 +193,37 @@ namespace Datos
 
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
-                        string QueryAgregar = @"
-                            INSERT INTO Tbl_Traslados (id_empleado, id_sucursal_origen, id_sucursal_destino, fecha, estado)
-                            VALUES (@CodigoEmpleado, @SucursalOrigen, @SucursalDestino, @FechaTraslado, 1);
-                            SELECT CAST(SCOPE_IDENTITY() AS INT);
-                        ";
-
-                        int codigoNuevo;
-
-                        using (SqlCommand cmd = new SqlCommand(QueryAgregar, conn, tx))
+                        try
                         {
-                            cmd.Parameters.AddWithValue("@CodigoEmpleado", traslado.CodigoEmpleado);
-                            cmd.Parameters.AddWithValue("@SucursalOrigen", traslado.SucursalOrigen);
-                            cmd.Parameters.AddWithValue("@SucursalDestino", traslado.SucursalDestino);
-                            cmd.Parameters.AddWithValue("@FechaTraslado", traslado.FechaTraslado);
-                            codigoNuevo = Convert.ToInt32(cmd.ExecuteScalar());
+                            string QueryAgregar = @"
+                                INSERT INTO Tbl_Traslados (id_empleado, id_sucursal_origen, id_sucursal_destino, fecha, estado)
+                                VALUES (@CodigoEmpleado, @SucursalOrigen, @SucursalDestino, @FechaTraslado, 1);
+                                SELECT CAST(SCOPE_IDENTITY() AS INT);
+                            ";
+
+                            int codigoNuevo;
+
+                            using (SqlCommand cmd = new SqlCommand(QueryAgregar, conn, tx))
+                            {
+                                cmd.Parameters.AddWithValue("@CodigoEmpleado", traslado.CodigoEmpleado);
+                                cmd.Parameters.AddWithValue("@SucursalOrigen", traslado.SucursalOrigen);
+                                cmd.Parameters.AddWithValue("@SucursalDestino", traslado.SucursalDestino);
+                                cmd.Parameters.AddWithValue("@FechaTraslado", traslado.FechaTraslado);
+                                codigoNuevo = Convert.ToInt32(cmd.ExecuteScalar());
+                            }
+
+                            // El identificador generado para el encabezado se usa como FK en cada detalle.
+                            MtdInsertarDetalle(conn, tx, codigoNuevo, traslado.Detalles);
+
+                            tx.Commit();
+                            return codigoNuevo;
                         }
-
-                        MtdInsertarDetalle(conn, tx, codigoNuevo, traslado.Detalles);
-
-                        tx.Commit();
-                        return codigoNuevo;
+                        catch
+                        {
+                            // Si falla el encabezado o cualquiera de sus detalles, no se guarda nada.
+                            tx.Rollback();
+                            throw;
+                        }
                     }
                 }
             }
@@ -237,40 +247,49 @@ namespace Datos
 
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
-                        if (MtdLeerEstado(conn, tx, traslado.CodigoTraslado) == EstadosTraslado.Completado)
+                        try
                         {
-                            throw new Exception("El traslado ya fue completado y no se puede editar.");
+                            if (MtdLeerEstado(conn, tx, traslado.CodigoTraslado) == EstadosTraslado.Completado)
+                            {
+                                throw new Exception("El traslado ya fue completado y no se puede editar.");
+                            }
+
+                            string QueryEditar = @"
+                                UPDATE Tbl_Traslados
+                                SET id_empleado = @CodigoEmpleado,
+                                    id_sucursal_origen = @SucursalOrigen,
+                                    id_sucursal_destino = @SucursalDestino,
+                                    fecha = @FechaTraslado
+                                WHERE id_traslado = @CodigoTraslado;
+                            ";
+
+                            using (SqlCommand cmd = new SqlCommand(QueryEditar, conn, tx))
+                            {
+                                cmd.Parameters.AddWithValue("@CodigoEmpleado", traslado.CodigoEmpleado);
+                                cmd.Parameters.AddWithValue("@SucursalOrigen", traslado.SucursalOrigen);
+                                cmd.Parameters.AddWithValue("@SucursalDestino", traslado.SucursalDestino);
+                                cmd.Parameters.AddWithValue("@FechaTraslado", traslado.FechaTraslado);
+                                cmd.Parameters.AddWithValue("@CodigoTraslado", traslado.CodigoTraslado);
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            using (SqlCommand del = new SqlCommand("DELETE FROM Tbl_DetalleTraslado WHERE id_traslado = @CodigoTraslado;", conn, tx))
+                            {
+                                del.Parameters.AddWithValue("@CodigoTraslado", traslado.CodigoTraslado);
+                                del.ExecuteNonQuery();
+                            }
+
+                            MtdInsertarDetalle(conn, tx, traslado.CodigoTraslado, traslado.Detalles);
+
+                            tx.Commit();
+                            return true;
                         }
-
-                        string QueryEditar = @"
-                            UPDATE Tbl_Traslados
-                            SET id_empleado = @CodigoEmpleado,
-                                id_sucursal_origen = @SucursalOrigen,
-                                id_sucursal_destino = @SucursalDestino,
-                                fecha = @FechaTraslado
-                            WHERE id_traslado = @CodigoTraslado;
-                        ";
-
-                        using (SqlCommand cmd = new SqlCommand(QueryEditar, conn, tx))
+                        catch
                         {
-                            cmd.Parameters.AddWithValue("@CodigoEmpleado", traslado.CodigoEmpleado);
-                            cmd.Parameters.AddWithValue("@SucursalOrigen", traslado.SucursalOrigen);
-                            cmd.Parameters.AddWithValue("@SucursalDestino", traslado.SucursalDestino);
-                            cmd.Parameters.AddWithValue("@FechaTraslado", traslado.FechaTraslado);
-                            cmd.Parameters.AddWithValue("@CodigoTraslado", traslado.CodigoTraslado);
-                            cmd.ExecuteNonQuery();
+                            // Se conserva el encabezado y su detalle anterior si la edición falla.
+                            tx.Rollback();
+                            throw;
                         }
-
-                        using (SqlCommand del = new SqlCommand("DELETE FROM Tbl_DetalleTraslado WHERE id_traslado = @CodigoTraslado;", conn, tx))
-                        {
-                            del.Parameters.AddWithValue("@CodigoTraslado", traslado.CodigoTraslado);
-                            del.ExecuteNonQuery();
-                        }
-
-                        MtdInsertarDetalle(conn, tx, traslado.CodigoTraslado, traslado.Detalles);
-
-                        tx.Commit();
-                        return true;
                     }
                 }
             }
@@ -411,25 +430,34 @@ namespace Datos
 
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
-                        if (MtdLeerEstado(conn, tx, codigoTraslado) == EstadosTraslado.Completado)
+                        try
                         {
-                            throw new Exception("No se puede eliminar un traslado completado.");
-                        }
+                            if (MtdLeerEstado(conn, tx, codigoTraslado) == EstadosTraslado.Completado)
+                            {
+                                throw new Exception("No se puede eliminar un traslado completado.");
+                            }
 
-                        using (SqlCommand delDet = new SqlCommand("DELETE FROM Tbl_DetalleTraslado WHERE id_traslado = @CodigoTraslado;", conn, tx))
+                            using (SqlCommand delDet = new SqlCommand("DELETE FROM Tbl_DetalleTraslado WHERE id_traslado = @CodigoTraslado;", conn, tx))
+                            {
+                                delDet.Parameters.AddWithValue("@CodigoTraslado", codigoTraslado);
+                                delDet.ExecuteNonQuery();
+                            }
+
+                            using (SqlCommand del = new SqlCommand("DELETE FROM Tbl_Traslados WHERE id_traslado = @CodigoTraslado;", conn, tx))
+                            {
+                                del.Parameters.AddWithValue("@CodigoTraslado", codigoTraslado);
+                                del.ExecuteNonQuery();
+                            }
+
+                            tx.Commit();
+                            return true;
+                        }
+                        catch
                         {
-                            delDet.Parameters.AddWithValue("@CodigoTraslado", codigoTraslado);
-                            delDet.ExecuteNonQuery();
+                            // Si no se eliminan ambas partes, se revierte la operación completa.
+                            tx.Rollback();
+                            throw;
                         }
-
-                        using (SqlCommand del = new SqlCommand("DELETE FROM Tbl_Traslados WHERE id_traslado = @CodigoTraslado;", conn, tx))
-                        {
-                            del.Parameters.AddWithValue("@CodigoTraslado", codigoTraslado);
-                            del.ExecuteNonQuery();
-                        }
-
-                        tx.Commit();
-                        return true;
                     }
                 }
             }

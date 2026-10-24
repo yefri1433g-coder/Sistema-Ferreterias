@@ -22,8 +22,13 @@ namespace Presentacion
         private Form _dialogoPago;
         private DataTable _pagos = new DataTable();
         private DataTable _ventas = new DataTable();
+        private DataTable _metodosPago;
+        private int? _idPagoEdicion;
+        private int _idVentaOriginalEdicion;
+        private decimal _montoOriginalEdicion;
+        private DateTime _fechaPagoEdicion;
         private int _pagina = 1;
-        private const int PagosPorPagina = 4;
+        private const int PagosPorPagina = 10;
 
         public PagosForms()
         {
@@ -34,12 +39,40 @@ namespace Presentacion
 
         private void PagosForms_Load(object sender, EventArgs e)
         {
-            cmbMetodo.Items.Clear();
-            cmbMetodo.Items.AddRange(new object[] { "Efectivo", "Tarjeta", "Transferencia" });
-            cmbMetodo.SelectedIndex = 0;
+            try
+            {
+                CargarMetodosPago();
+                CargarVentas(null);
+                CargarHistorial();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("No se pudieron cargar los catálogos de Pagos. " + ex.Message,
+                    "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-            CargarVentas(null);
-            CargarHistorial();
+        /// <summary>
+        /// Carga los métodos permitidos en el esquema actual, que guarda el método como texto.
+        /// Se enlazan código y descripción para mantener un uso uniforme de los ComboBox.
+        /// </summary>
+        private void CargarMetodosPago()
+        {
+            DataTable metodos = new DataTable();
+            metodos.Columns.Add("Valor", typeof(string));
+            metodos.Columns.Add("Descripcion", typeof(string));
+            metodos.Rows.Add("Efectivo", "Efectivo");
+            metodos.Rows.Add("Tarjeta de Crédito", "Tarjeta de Crédito");
+            metodos.Rows.Add("Tarjeta de Débito", "Tarjeta de Débito");
+            metodos.Rows.Add("Tarjeta", "Tarjeta");
+            metodos.Rows.Add("Transferencia", "Transferencia");
+            _metodosPago = metodos;
+
+            cmbMetodo.DataSource = null;
+            cmbMetodo.DisplayMember = "Descripcion";
+            cmbMetodo.ValueMember = "Valor";
+            cmbMetodo.DataSource = metodos;
+            cmbMetodo.SelectedIndex = metodos.Rows.Count > 0 ? 0 : -1;
         }
 
         private void PrepararDisenoPagos()
@@ -50,7 +83,14 @@ namespace Presentacion
             _dialogoPago.Controls.AddRange(controlesEditor);
             ConfigurarEditorPagoCompacto();
             EstiloAplicacion.AplicarDialogo(_dialogoPago);
-            _dialogoPago.FormClosed += (s, e) => CargarHistorial();
+            _dialogoPago.FormClosed += (s, e) =>
+            {
+                _idPagoEdicion = null;
+                _idVentaOriginalEdicion = 0;
+                _montoOriginalEdicion = 0m;
+                btnRegistrar.Text = "Pagar";
+                CargarHistorial();
+            };
 
             TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(22, 18, 22, 18), BackColor = Color.FromArgb(241, 246, 246), ColumnCount = 1, RowCount = 3 };
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 110)); layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
@@ -65,13 +105,16 @@ namespace Presentacion
             Panel lista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(16, 12, 16, 10) };
             Panel barra = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.White };
             barra.Controls.Add(new Label { Text = "Pagos recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            barra.Controls.Add(new Label { Text = "Historial de pagos recibidos", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            barra.Controls.Add(new Label { Text = "Historial · doble clic edita · Supr elimina", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 350, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
             Button nuevo = CrearBotonPago("+ Nuevo registro", true); nuevo.Click += (s, e) => { btnNuevo_Click(s, e); _dialogoPago.Text = "Registrar pago"; _dialogoPago.ShowDialog(this); };
             _buscarPagos = new TextBox { Width = 190, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle };
             _buscarPagos.TextChanged += (s, e) => { _pagina = 1; MostrarHistorialPagos(); };
             acciones.Controls.Add(nuevo); acciones.Controls.Add(_buscarPagos); barra.Controls.Add(acciones);
             _gridHistorial = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
+            _gridHistorial.CellClick += _gridHistorial_CellClick;
+            _gridHistorial.CellDoubleClick += _gridHistorial_CellDoubleClick;
+            _gridHistorial.KeyDown += _gridHistorial_KeyDown;
             _gridHistorial.ColumnHeadersDefaultCellStyle.BackColor = Color.White; _gridHistorial.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131); _gridHistorial.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold); _gridHistorial.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White; _gridHistorial.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77); _gridHistorial.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241); _gridHistorial.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56); _gridHistorial.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridHistorial.RowTemplate.Height = 42;
             _gridHistorial.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridHistorial.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             _textoRegistros = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };
@@ -123,7 +166,14 @@ namespace Presentacion
         private void MostrarHistorialPagos()
         {
             if (_gridHistorial == null) return;
-            var filtrados = _pagos.AsEnumerable().Where(r => String.IsNullOrWhiteSpace(_buscarPagos.Text) || Convert.ToString(r["id_pago"]).IndexOf(_buscarPagos.Text, StringComparison.CurrentCultureIgnoreCase) >= 0 || Convert.ToString(r["cliente"]).IndexOf(_buscarPagos.Text, StringComparison.CurrentCultureIgnoreCase) >= 0 || Convert.ToString(r["metodo_pago"]).IndexOf(_buscarPagos.Text, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
+            string criterio = _buscarPagos.Text.Trim();
+            var filtrados = _pagos.AsEnumerable().Where(r =>
+                String.IsNullOrWhiteSpace(criterio) ||
+                Convert.ToString(r["id_pago"]).IndexOf(criterio, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
+                Convert.ToString(r["id_venta"]).IndexOf(criterio, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
+                Convert.ToString(r["monto"]).IndexOf(criterio, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
+                Convert.ToString(r["metodo_pago"]).IndexOf(criterio, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
+                Convert.ToString(r["cliente"]).IndexOf(criterio, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();
             int paginas = Math.Max(1, (int)Math.Ceiling(filtrados.Count / (double)PagosPorPagina)); _pagina = Math.Max(1, Math.Min(_pagina, paginas));
             DataTable pagina = _pagos.Clone(); foreach (DataRow fila in filtrados.Skip((_pagina - 1) * PagosPorPagina).Take(PagosPorPagina)) pagina.ImportRow(fila);
             _gridHistorial.DataSource = pagina;
@@ -131,7 +181,7 @@ namespace Presentacion
             _gridHistorial.Columns["cliente"].HeaderText = "CLIENTE"; _gridHistorial.Columns["cliente"].FillWeight = 27;
             _gridHistorial.Columns["metodo_pago"].HeaderText = "MÉTODO"; _gridHistorial.Columns["metodo_pago"].FillWeight = 20;
             _gridHistorial.Columns["fecha"].HeaderText = "FECHA"; _gridHistorial.Columns["fecha"].DefaultCellStyle.Format = "dd MMM yyyy"; _gridHistorial.Columns["fecha"].FillWeight = 20;
-            _gridHistorial.Columns["monto"].HeaderText = "IMPORTE"; _gridHistorial.Columns["monto"].DefaultCellStyle.Format = "'Q 'N2"; _gridHistorial.Columns["monto"].FillWeight = 19;
+            _gridHistorial.Columns["monto"].HeaderText = "IMPORTE"; _gridHistorial.Columns["monto"].DefaultCellStyle.Format = "'Q '#,##0.00"; _gridHistorial.Columns["monto"].FillWeight = 19;
             _gridHistorial.Columns["id_venta"].Visible = false; _gridHistorial.ClearSelection();
             int desde = filtrados.Count == 0 ? 0 : ((_pagina - 1) * PagosPorPagina) + 1, hasta = Math.Min(_pagina * PagosPorPagina, filtrados.Count);
             _textoRegistros.Text = "Mostrando " + desde + "-" + hasta + " de " + filtrados.Count + " registros"; _textoPagina.Text = _pagina + " de " + paginas;
@@ -143,6 +193,94 @@ namespace Presentacion
         }
 
         private void CambiarPagina(int cambio) { _pagina += cambio; MostrarHistorialPagos(); }
+
+        // Al seleccionar una fila, prepara sus datos en los controles existentes del editor.
+        private void _gridHistorial_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= _gridHistorial.Rows.Count) return;
+            CargarPagoEnEditor(_gridHistorial.Rows[e.RowIndex]);
+        }
+
+        // El doble clic abre el editor ya cargado para el pago seleccionado.
+        private void _gridHistorial_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= _gridHistorial.Rows.Count) return;
+
+            CargarPagoEnEditor(_gridHistorial.Rows[e.RowIndex]);
+            if (!_idPagoEdicion.HasValue) return;
+
+            _dialogoPago.Text = "Editar pago";
+            _dialogoPago.ShowDialog(this);
+        }
+
+        // La tecla Supr elimina el pago de la fila seleccionada después de pedir confirmación.
+        private void _gridHistorial_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Delete || _gridHistorial.CurrentRow == null) return;
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+            EliminarPagoSeleccionado(_gridHistorial.CurrentRow);
+        }
+
+        private void CargarPagoEnEditor(DataGridViewRow fila)
+        {
+            try
+            {
+                _idPagoEdicion = Convert.ToInt32(fila.Cells["id_pago"].Value);
+                _idVentaOriginalEdicion = Convert.ToInt32(fila.Cells["id_venta"].Value);
+                _montoOriginalEdicion = Convert.ToDecimal(fila.Cells["monto"].Value);
+                _fechaPagoEdicion = Convert.ToDateTime(fila.Cells["fecha"].Value);
+
+                // Reutiliza el catálogo de ventas y la FK id_venta como valor seleccionado.
+                CargarVentas(_idVentaOriginalEdicion);
+                cmbVenta.SelectedValue = _idVentaOriginalEdicion;
+
+                string metodo = Convert.ToString(fila.Cells["metodo_pago"].Value);
+                AgregarMetodoSiHaceFalta(metodo);
+                cmbMetodo.SelectedValue = metodo;
+                nudMonto.Value = Math.Min(_montoOriginalEdicion, nudMonto.Maximum);
+                btnRegistrar.Text = "Guardar cambios";
+            }
+            catch (Exception ex)
+            {
+                _idPagoEdicion = null;
+                MessageBox.Show("No se pudieron cargar los datos del pago seleccionado. " + ex.Message,
+                    "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AgregarMetodoSiHaceFalta(string metodo)
+        {
+            if (_metodosPago == null || String.IsNullOrWhiteSpace(metodo)) return;
+
+            bool existe = _metodosPago.AsEnumerable().Any(r =>
+                string.Equals(Convert.ToString(r["Valor"]), metodo, StringComparison.OrdinalIgnoreCase));
+            if (!existe)
+                _metodosPago.Rows.Add(metodo, metodo);
+        }
+
+        private void EliminarPagoSeleccionado(DataGridViewRow fila)
+        {
+            if (fila == null || fila.Cells["id_pago"].Value == null) return;
+
+            int idPago = Convert.ToInt32(fila.Cells["id_pago"].Value);
+            DialogResult confirmacion = MessageBox.Show(
+                "¿Deseas eliminar el pago No. " + idPago + "? Esta acción no se puede deshacer.",
+                "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirmacion != DialogResult.Yes) return;
+
+            string mensaje;
+            bool eliminado = _negocio.MtdEliminar(idPago, out mensaje);
+            MessageBox.Show(mensaje, "Pagos", MessageBoxButtons.OK,
+                eliminado ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+            if (eliminado)
+            {
+                _idPagoEdicion = null;
+                CargarHistorial();
+            }
+        }
 
         private void CargarVentas(int? idSeleccionar)
         {
@@ -216,17 +354,40 @@ namespace Presentacion
             lblPagadoValor.Text = "Q " + pagado.ToString("N2");
             lblSaldoValor.Text = _saldo > 0 ? "Q " + _saldo.ToString("N2") : "Q 0.00 (pagada)";
 
-            dgvPagos.DataSource = _negocio.MtdListarPagos(idVenta);
-            if (dgvPagos.Columns.Contains("Monto"))
-                dgvPagos.Columns["Monto"].DefaultCellStyle.Format = "N2";
+            try
+            {
+                // Consulta los pagos de la venta seleccionada y muestra un mensaje claro si falla SQL.
+                dgvPagos.DataSource = _negocio.MtdListarPagos(idVenta);
+                if (dgvPagos.Columns.Contains("Monto"))
+                    dgvPagos.Columns["Monto"].DefaultCellStyle.Format = "N2";
+            }
+            catch (Exception ex)
+            {
+                dgvPagos.DataSource = null;
+                MessageBox.Show("No se pudieron consultar los pagos de esta venta. " + ex.Message,
+                    "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             bool pendiente = _saldo > 0;
-            nudMonto.Enabled = pendiente;
-            cmbMetodo.Enabled = pendiente;
-            btnRegistrar.Enabled = pendiente;
+            bool enEdicion = _idPagoEdicion.HasValue;
+            decimal montoMaximo = pendiente ? _saldo : 0m;
 
-            nudMonto.Maximum = pendiente ? _saldo : 0;
-            nudMonto.Value = pendiente ? _saldo : 0;
+            // Al editar, permite conservar el pago actual y valida el máximo en Negocio.
+            if (enEdicion)
+            {
+                montoMaximo = _saldo;
+                if (idVenta == _idVentaOriginalEdicion)
+                    montoMaximo += _montoOriginalEdicion;
+            }
+
+            bool controlesPagoActivos = pendiente || (enEdicion && montoMaximo > 0);
+            nudMonto.Enabled = controlesPagoActivos;
+            cmbMetodo.Enabled = controlesPagoActivos;
+            btnRegistrar.Enabled = controlesPagoActivos;
+
+            nudMonto.Maximum = Math.Max(0m, montoMaximo);
+            decimal montoInicial = enEdicion ? _montoOriginalEdicion : (pendiente ? _saldo : 0m);
+            nudMonto.Value = Math.Min(montoInicial, nudMonto.Maximum);
         }
 
         private void LimpiarResumen()
@@ -252,36 +413,49 @@ namespace Presentacion
 
         private void btnRegistrar_Click(object sender, EventArgs e)
         {
-            DataRowView fila = cmbVenta.SelectedItem as DataRowView;
-            if (fila == null)
+            if (cmbVenta.SelectedValue == null || cmbMetodo.SelectedValue == null)
             {
-                MessageBox.Show("Seleccione una venta.", "Pagos",
+                MessageBox.Show("Seleccione una venta y un método de pago.", "Pagos",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            int idVenta = Convert.ToInt32(fila["id_venta"]);
+            int idVenta = Convert.ToInt32(cmbVenta.SelectedValue);
 
             Pago pago = new Pago
             {
+                IdPago = _idPagoEdicion.HasValue ? _idPagoEdicion.Value : 0,
                 IdVenta = idVenta,
-                Fecha = DateTime.Now,
+                Fecha = _idPagoEdicion.HasValue ? _fechaPagoEdicion : DateTime.Now,
                 Monto = nudMonto.Value,
-                MetodoPago = cmbMetodo.Text
+                MetodoPago = Convert.ToString(cmbMetodo.SelectedValue)
             };
 
             string mensaje;
-            bool ok = _negocio.MtdRegistrar(pago, out mensaje);
+            bool ok = _idPagoEdicion.HasValue
+                ? _negocio.MtdEditar(pago, out mensaje)
+                : _negocio.MtdRegistrar(pago, out mensaje);
 
             MessageBox.Show(mensaje, "Pagos", MessageBoxButtons.OK,
                 ok ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
 
-            if (ok)
+            if (ok && _idPagoEdicion.HasValue)
+            {
+                _idPagoEdicion = null;
+                _dialogoPago.Close();
+            }
+            else if (ok)
                 CargarVentas(idVenta);
         }
 
         private void btnNuevo_Click(object sender, EventArgs e)
         {
+            _idPagoEdicion = null;
+            _idVentaOriginalEdicion = 0;
+            _montoOriginalEdicion = 0m;
+            _fechaPagoEdicion = DateTime.Now;
+            btnRegistrar.Text = "Pagar";
+            _dialogoPago.Text = "Registrar pago";
             cmbMetodo.SelectedIndex = 0;
             CargarVentas(null);
 
@@ -305,7 +479,14 @@ namespace Presentacion
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             Form contenedor = ((Control)sender).FindForm();
-            if (contenedor != null && contenedor != this) contenedor.Close();
+            if (contenedor != null && contenedor != this)
+            {
+                _idPagoEdicion = null;
+                _idVentaOriginalEdicion = 0;
+                _montoOriginalEdicion = 0m;
+                btnRegistrar.Text = "Pagar";
+                contenedor.Close();
+            }
         }
     }
 }

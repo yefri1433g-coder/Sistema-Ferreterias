@@ -117,7 +117,7 @@ namespace Presentacion
             fila.Controls.Add(CrearTarjetaIndicador("VENTAS DE HOY", lblValorSucursales, "↗", verde, ""), 0, 0);
             fila.Controls.Add(CrearTarjetaIndicador("PRODUCTOS", lblValorProductos, "▤", Color.FromArgb(242, 164, 74), ""), 1, 0);
             fila.Controls.Add(CrearTarjetaIndicador("PEDIDOS PENDIENTES", lblValorProveedores, "◷", Color.FromArgb(93, 130, 238), ""), 2, 0);
-            fila.Controls.Add(CrearTarjetaIndicador("CLIENTES ACTIVOS", lblValorStockBajo, "♙", Color.FromArgb(157, 119, 222), ""), 3, 0);
+            fila.Controls.Add(CrearTarjetaIndicador("CLIENTES REGISTRADOS", lblValorStockBajo, "♙", Color.FromArgb(157, 119, 222), ""), 3, 0);
             return fila;
         }
 
