@@ -20,6 +20,11 @@ namespace Negocio
         }
         public DataTable Proveedores() { return datos.Proveedores(); }
         public DataTable Compras() { return datos.Compras(); }
+        public DataTable DetalleCompra(int idCompra)
+        {
+            if (idCompra <= 0) throw new InvalidOperationException("Selecciona una compra válida.");
+            return datos.DetalleCompra(idCompra);
+        }
         public DataTable ProductosActivos() { return datos.ProductosActivos(); }
         public DataTable SucursalesActivas() { return datos.SucursalesActivas(); }
         public void GuardarCategoria(int? id, string nombre, string descripcion)
@@ -79,9 +84,32 @@ namespace Negocio
         public int GuardarCompra(int proveedor, int sucursal, DateTime fecha, IList<CompraLineaCatalogo> detalles)
         {
             if (proveedor <= 0 || sucursal <= 0) throw new InvalidOperationException("Selecciona proveedor y sucursal.");
-            foreach (CompraLineaCatalogo d in detalles)
-                if (d.Cantidad <= 0 || d.CostoUnitario < 0) throw new InvalidOperationException("La cantidad debe ser mayor que cero y el costo no puede ser negativo.");
+            ValidarLineasCompra(detalles);
             return datos.GuardarCompra(proveedor, sucursal, fecha, detalles);
+        }
+        public void EditarCompra(int idCompra, int proveedor, int sucursal, DateTime fecha, IList<CompraLineaCatalogo> detalles)
+        {
+            if (idCompra <= 0) throw new InvalidOperationException("Selecciona una compra válida para editar.");
+            if (proveedor <= 0 || sucursal <= 0) throw new InvalidOperationException("Selecciona proveedor y sucursal.");
+            ValidarLineasCompra(detalles);
+            datos.EditarCompra(idCompra, proveedor, sucursal, fecha, detalles);
+        }
+        public void EliminarCompra(int idCompra)
+        {
+            if (idCompra <= 0) throw new InvalidOperationException("Selecciona una compra válida para eliminar.");
+            datos.EliminarCompra(idCompra);
+        }
+        public void AsignarSucursalCompra(int idCompra, int idSucursal)
+        {
+            if (idCompra <= 0 || idSucursal <= 0) throw new InvalidOperationException("Selecciona una compra y una sucursal válidas.");
+            datos.AsignarSucursalCompra(idCompra, idSucursal);
+        }
+        private static void ValidarLineasCompra(IList<CompraLineaCatalogo> detalles)
+        {
+            if (detalles == null || detalles.Count == 0) throw new InvalidOperationException("Agrega al menos un producto a la compra.");
+            foreach (CompraLineaCatalogo d in detalles)
+                if (d == null || d.IdProducto <= 0 || d.Cantidad <= 0 || d.Cantidad != Decimal.Truncate(d.Cantidad) || d.CostoUnitario < 0)
+                    throw new InvalidOperationException("Cada producto debe tener una cantidad entera mayor que cero y un costo no negativo.");
         }
     }
 }

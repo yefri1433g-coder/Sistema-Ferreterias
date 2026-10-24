@@ -34,14 +34,6 @@ namespace Presentacion
         private int _numeroPaginaExistencias = 1;
         private const int ExistenciasPorPagina = 4;
 
-        // La lista completa permanece en memoria. Solo la porción mostrada se pagina en Presentación.
-        private List<InventariosEntidad> _listaInventarios = new List<InventariosEntidad>();
-        private int _numeroPaginaInventarios = 1;
-        private const int InventariosPorPagina = 10;
-        private Label _paginaInventarios;
-        private Button _anteriorInventarios;
-        private Button _siguienteInventarios;
-
         public InventariosForms()
         {
             InitializeComponent();
@@ -148,7 +140,6 @@ namespace Presentacion
         {
             try
             {
-                MtdPrepararPaginacionInventarios();
                 MtdCargarCombos();
                 MtdConsultarExistencias();
                 MtdLimpiarCampos();
@@ -309,23 +300,13 @@ namespace Presentacion
 
         private void MtdConsultar()
         {
-            _numeroPaginaInventarios = 1;
             MtdMostrarLista(_inventariosNegocio.MtdConsultar());
         }
 
         private void MtdMostrarLista(List<InventariosEntidad> lista)
         {
-            // La paginación se realiza aquí, en Presentación; Datos y Negocio entregan la lista completa.
-            _listaInventarios = lista ?? new List<InventariosEntidad>();
-            int totalPaginas = Math.Max(1, (int)Math.Ceiling(_listaInventarios.Count / (double)InventariosPorPagina));
-            _numeroPaginaInventarios = Math.Max(1, Math.Min(_numeroPaginaInventarios, totalPaginas));
-            List<InventariosEntidad> pagina = _listaInventarios
-                .Skip((_numeroPaginaInventarios - 1) * InventariosPorPagina)
-                .Take(InventariosPorPagina)
-                .ToList();
-
             dgvInventarios.DataSource = null;
-            dgvInventarios.DataSource = pagina;
+            dgvInventarios.DataSource = lista;
 
             // Encabezados con nombres amigables y columnas ocultas
             AyudaForms.MtdTitulo(dgvInventarios, "CodigoInventario", "Código");
@@ -335,38 +316,13 @@ namespace Presentacion
             AyudaForms.MtdOcultar(dgvInventarios, "CodigoSucursal");
             AyudaForms.MtdFormato(dgvInventarios, "FechaInventario", "dd/MM/yyyy");
 
-            // El total siempre usa la lista completa o filtrada, nunca solo los diez de la página.
-            lblTotalRegistros.Text = "Total Registros: " + _listaInventarios.Count;
-            _paginaInventarios.Text = "Página " + _numeroPaginaInventarios + " de " + totalPaginas;
-            _anteriorInventarios.Enabled = _numeroPaginaInventarios > 1;
-            _siguienteInventarios.Enabled = _numeroPaginaInventarios < totalPaginas;
-        }
-
-        private void MtdPrepararPaginacionInventarios()
-        {
-            // Se agregan al panel inferior existente para no editar el archivo Designer.cs.
-            Panel panelPaginacion = new Panel { Dock = DockStyle.Right, Width = 250 };
-            _anteriorInventarios = new Button { Text = "<", Left = 4, Top = 10, Width = 36, Height = 30 };
-            _paginaInventarios = new Label { Left = 48, Top = 16, Width = 140, TextAlign = ContentAlignment.MiddleCenter, Text = "Página 1 de 1" };
-            _siguienteInventarios = new Button { Text = ">", Left = 196, Top = 10, Width = 36, Height = 30 };
-
-            _anteriorInventarios.Click += (s, e) => MtdCambiarPaginaInventarios(-1);
-            _siguienteInventarios.Click += (s, e) => MtdCambiarPaginaInventarios(1);
-            panelPaginacion.Controls.AddRange(new Control[] { _anteriorInventarios, _paginaInventarios, _siguienteInventarios });
-            panelInferior.Controls.Add(panelPaginacion);
-        }
-
-        private void MtdCambiarPaginaInventarios(int cambio)
-        {
-            _numeroPaginaInventarios += cambio;
-            MtdMostrarLista(_listaInventarios);
+            lblTotalRegistros.Text = "Total Registros: " + lista.Count;
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             try
             {
-                _numeroPaginaInventarios = 1;
                 MtdMostrarLista(_inventariosNegocio.MtdBuscar(txtBuscar.Text));
             }
             catch (Exception ex)
@@ -440,12 +396,6 @@ namespace Presentacion
         {
             _codigoSeleccionado = item.CodigoInventario;
             _modo = string.Empty;
-
-            // El ComboBox debe tener su catálogo antes de asignar la FK con SelectedValue.
-            if (cboSucursal.DataSource == null)
-            {
-                MtdCargarCombos();
-            }
 
             txtCodigo.Text = item.CodigoInventario.ToString();
             cboSucursal.SelectedValue = item.CodigoSucursal;

@@ -21,22 +21,32 @@ namespace Presentacion
 
         // Variables de control: registro cargado en Gestionar y modo actual (Agregar / Editar)
         private int _codigoSeleccionado = 0;
+        private int _codigoSucursalSeleccionado = 0;
+        private int _codigoProductoSeleccionado = 0;
         private string _modo = string.Empty;
         private readonly Label[] _resumenStock = new Label[3];
         private readonly Label[] _detalleResumenStock = new Label[3];
         private DataGridView _gridStockResumen;
         private TextBox _buscarStockResumen;
+        private CheckBox _seleccionarTodoStock;
         private Label _totalStockResumen;
         private List<StockEntidad> _listaStockResumen = new List<StockEntidad>();
         private Form _dialogoStock;
+        private Label _tituloEditorStock;
+        private ComboBox _cboSucursalEditorStock, _cboProductoEditorStock;
+        private NumericUpDown _nudCantidadEditorStock, _nudMinimoEditorStock;
+        private Button _guardarEditorStock, _limpiarEditorStock;
+        private Button _editarStockResumen;
         private Button _anteriorStock, _siguienteStock;
         private Label _paginaStock;
         private int _paginaActualStock = 1;
-        private const int FilasPorPaginaStock = 4;
+        private const int FilasPorPaginaStock = 10;
 
         public StockForms()
         {
             InitializeComponent();
+            // La consulta ya no abre el editor al hacer doble clic.
+            dgvStock.CellDoubleClick -= dgv_CellDoubleClick;
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoStock();
             PrepararDialogoStock();
@@ -57,16 +67,11 @@ namespace Presentacion
             tabControl1.SizeMode = TabSizeMode.Fixed;
 
             tabPage1.Controls.Clear();
-            TabPage consultaCompleta = new TabPage("Consulta completa") { BackColor = Color.White };
-            consultaCompleta.Controls.Add(PanelPrincipal);
-            Button volver = new Button { Text = "< Volver al resumen", Dock = DockStyle.Top, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(23, 143, 112), TextAlign = ContentAlignment.MiddleLeft, Cursor = Cursors.Hand };
-            volver.FlatAppearance.BorderSize = 0;
-            volver.Click += (s, e) => tabControl1.SelectedTab = tabPage1;
-            consultaCompleta.Controls.Add(volver);
             tabControl1.TabPages.Clear();
             tabControl1.TabPages.Add(tabPage1);
-            tabControl1.TabPages.Add(consultaCompleta);
-            tabControl1.TabPages.Add(tabPage2);
+            // Se retiran de la interfaz las pestañas antiguas de consulta y gestionar.
+            tabPage2.Dispose();
+            PanelPrincipal.Dispose();
 
             TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16), BackColor = fondo };
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 108F));
@@ -75,11 +80,7 @@ namespace Presentacion
             Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = fondo };
             encabezado.Controls.Add(new Label { Text = "Inicio  /  Stock", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(102, 123, 131) });
             encabezado.Controls.Add(new Label { Text = "Stock", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = tinta });
-            encabezado.Controls.Add(new Label { Text = "Detecta productos por reabastecer y evita faltantes.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(102, 123, 131) });
-            LinkLabel administrar = new LinkLabel { Text = "Consulta completa", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, LinkColor = Color.FromArgb(23, 143, 112), Font = new Font("Segoe UI", 8.5F), Location = new Point(Math.Max(0, encabezado.ClientSize.Width - 175), 26) };
-            administrar.Click += (s, e) => tabControl1.SelectedTab = consultaCompleta;
-            encabezado.Controls.Add(administrar);
-            encabezado.Resize += (s, e) => administrar.Left = Math.Max(0, encabezado.ClientSize.Width - administrar.Width - 5);
+            encabezado.Controls.Add(new Label { Text = "Existencias por sucursal; cada movimiento queda registrado en Kardex.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(102, 123, 131) });
 
             Panel resumen = new Panel { Dock = DockStyle.Fill, BackColor = fondo, Padding = new Padding(0, 0, 0, 10) };
             TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = fondo };
@@ -103,22 +104,41 @@ namespace Presentacion
 
             Panel lista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(16, 12, 16, 10) };
             TableLayoutPanel tabla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, BackColor = Color.White, Margin = Padding.Empty };
-            tabla.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
+            tabla.RowStyles.Add(new RowStyle(SizeType.Absolute, 96F));
             tabla.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tabla.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             Panel barra = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
-            barra.Controls.Add(new Label { Text = "Stock reciente", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = tinta });
-            barra.Controls.Add(new Label { Text = "Consulta y administra las existencias", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
-            FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 410, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
-            Button nuevo = CrearBotonStock("+ Nuevo", true); nuevo.Width = 128; nuevo.Height = 29; nuevo.Click += (s, e) => AbrirEditorStock(null);
-            Button eliminar = CrearBotonStock("Eliminar", false); eliminar.Width = 78; eliminar.Height = 29; eliminar.ForeColor = Color.FromArgb(185, 28, 28); eliminar.BackColor = Color.White; eliminar.FlatAppearance.BorderColor = Color.FromArgb(222, 231, 230); eliminar.Click += (s, e) => EliminarStockResumen();
-            _buscarStockResumen = new TextBox { Width = 190, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar stock", ForeColor = Color.FromArgb(135, 151, 156), BackColor = Color.White };
+            barra.Controls.Add(new Label { Text = "Existencias por producto y sucursal", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = tinta });
+            barra.Controls.Add(new Label { Text = "Consulta, filtra y administra el stock desde esta pantalla", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 38, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 2, 0, 0) };
+            _buscarStockResumen = new TextBox { Width = 180, Height = 28, Margin = new Padding(0, 1, 5, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar stock", ForeColor = Color.FromArgb(135, 151, 156), BackColor = Color.White };
             _buscarStockResumen.Enter += (s, e) => { if (_buscarStockResumen.Text == "Buscar stock") { _buscarStockResumen.Clear(); _buscarStockResumen.ForeColor = Color.FromArgb(45, 64, 70); } };
             _buscarStockResumen.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarStockResumen.Text)) { _buscarStockResumen.Text = "Buscar stock"; _buscarStockResumen.ForeColor = Color.FromArgb(135, 151, 156); } };
             _buscarStockResumen.TextChanged += (s, e) => { _paginaActualStock = 1; FiltrarStockResumen(); };
-            acciones.Controls.Add(nuevo); acciones.Controls.Add(eliminar); acciones.Controls.Add(_buscarStockResumen); barra.Controls.Add(acciones);
+            Button limpiar = CrearBotonStock("Limpiar", false); limpiar.Width = 80; limpiar.Height = 30; limpiar.Click += (s, e) => { _buscarStockResumen.Text = ""; _buscarStockResumen.Focus(); };
+            _seleccionarTodoStock = new CheckBox { Text = "Seleccionar", AutoSize = true, Margin = new Padding(8, 7, 2, 0), Font = new Font("Segoe UI", 8F), ForeColor = tinta };
+            _seleccionarTodoStock.CheckedChanged += (s, e) =>
+            {
+                if (_seleccionarTodoStock.Checked) _gridStockResumen.SelectAll();
+                else _gridStockResumen.ClearSelection();
+            };
+            Button imprimir = CrearBotonStock("Imprimir", false); imprimir.Width = 88; imprimir.Height = 30; imprimir.Click += btnImprimir_Click;
+            Button exportar = CrearBotonStock("Exportar", false); exportar.Width = 88; exportar.Height = 30; exportar.Click += btnExportar_Click;
+            _editarStockResumen = CrearBotonStock("Editar", false); _editarStockResumen.Width = 82; _editarStockResumen.Height = 30; _editarStockResumen.Click += (s, e) => EditarStockResumen();
+            Button eliminar = CrearBotonStock("Eliminar", false); eliminar.Width = 82; eliminar.Height = 30; eliminar.ForeColor = Color.FromArgb(185, 28, 28); eliminar.FlatAppearance.BorderColor = Color.FromArgb(222, 231, 230); eliminar.Click += (s, e) => EliminarStockResumen();
+            Button nuevo = CrearBotonStock("+ Nuevo", true); nuevo.Width = 96; nuevo.Height = 30; nuevo.Click += (s, e) => AbrirEditorStock();
+            acciones.Controls.Add(_buscarStockResumen);
+            acciones.Controls.Add(limpiar);
+            acciones.Controls.Add(_seleccionarTodoStock);
+            acciones.Controls.Add(imprimir);
+            acciones.Controls.Add(exportar);
+            acciones.Controls.Add(_editarStockResumen);
+            acciones.Controls.Add(eliminar);
+            acciones.Controls.Add(nuevo);
+            barra.Controls.Add(acciones);
 
-            _gridStockResumen = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(233, 239, 241), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 40, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
+            _gridStockResumen = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(233, 239, 241), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 40, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true, Font = new Font("Segoe UI", 9F) };
+            _gridStockResumen.SelectionChanged += (s, e) => ActualizarEstadoBotonEditarStock();
             _gridStockResumen.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
             _gridStockResumen.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131);
             _gridStockResumen.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
@@ -130,7 +150,6 @@ namespace Presentacion
             _gridStockResumen.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5);
             _gridStockResumen.AlternatingRowsDefaultCellStyle.BackColor = Color.White;
             _gridStockResumen.RowTemplate.Height = 42;
-            _gridStockResumen.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirEditorStock(_gridStockResumen.Rows[e.RowIndex].Tag as StockEntidad); };
             _gridStockResumen.CellFormatting += (s, e) =>
             {
                 if (e.RowIndex < 0 || _gridStockResumen.Columns[e.ColumnIndex].Name != "Estado" || e.Value == null) return;
@@ -159,35 +178,182 @@ namespace Presentacion
 
         private void PrepararDialogoStock()
         {
-            _dialogoStock = new Form { Text = "Nuevo stock", ClientSize = new Size(820, 390), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
-            tabPage2.Controls.Remove(PanelPrincipalGestionar);
-            PanelPrincipalGestionar.Dock = DockStyle.Fill;
-            panelEncabezadoGestionar.Visible = false;
-            PanelCerrarGestionar.Visible = false;
-            _dialogoStock.Controls.Add(PanelPrincipalGestionar);
+            _dialogoStock = new Form
+            {
+                Text = "Stock",
+                ClientSize = new Size(980, 350),
+                BackColor = Color.White,
+                Font = new Font("Segoe UI", 9F),
+                FormBorderStyle = FormBorderStyle.None,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                ShowInTaskbar = false,
+                StartPosition = FormStartPosition.CenterParent
+            };
+
+            Panel encabezado = new Panel { Dock = DockStyle.Top, Height = 68, BackColor = Color.FromArgb(15, 34, 46) };
+            _tituloEditorStock = new Label
+            {
+                Text = "Stock · Editar registro",
+                Left = 24,
+                Top = 9,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                ForeColor = Color.White
+            };
+            encabezado.Controls.Add(_tituloEditorStock);
+            encabezado.Controls.Add(new Label
+            {
+                Text = "Actualiza las existencias de la sucursal.",
+                Left = 26,
+                Top = 37,
+                AutoSize = true,
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = Color.FromArgb(220, 229, 234)
+            });
+            Button cancelar = new Button
+            {
+                Text = "Cancelar",
+                Width = 100,
+                Height = 34,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Left = 850,
+                Top = 14,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(15, 34, 46),
+                ForeColor = Color.White,
+                Cursor = Cursors.Hand
+            };
+            cancelar.FlatAppearance.BorderColor = Color.FromArgb(190, 205, 214);
+            cancelar.Click += (s, e) => btnCancelar_Click(s, e);
+            encabezado.Controls.Add(cancelar);
+            encabezado.Resize += (s, e) => cancelar.Left = encabezado.ClientSize.Width - cancelar.Width - 20;
+
+            Panel contenido = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(22, 18, 22, 8) };
+            _cboSucursalEditorStock = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            _cboProductoEditorStock = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            _nudCantidadEditorStock = CrearCantidadEditorStock();
+            _nudMinimoEditorStock = CrearCantidadEditorStock();
+
+            TableLayoutPanel campos = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 2,
+                BackColor = Color.White,
+                Margin = Padding.Empty
+            };
+            campos.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            campos.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            campos.RowStyles.Add(new RowStyle(SizeType.Absolute, 72F));
+            campos.RowStyles.Add(new RowStyle(SizeType.Absolute, 72F));
+            campos.Controls.Add(CrearCampoEditorStock("Sucursal *", _cboSucursalEditorStock), 0, 0);
+            campos.Controls.Add(CrearCampoEditorStock("Producto *", _cboProductoEditorStock), 1, 0);
+            campos.Controls.Add(CrearCampoEditorStock("Cantidad", _nudCantidadEditorStock), 0, 1);
+            campos.Controls.Add(CrearCampoEditorStock("Stock mínimo", _nudMinimoEditorStock), 1, 1);
+
+            _guardarEditorStock = CrearBotonEditorStock("Guardar", Color.FromArgb(23, 143, 112), Color.White);
+            _guardarEditorStock.Click += (s, e) => btnGuardar_Click(s, e);
+            _limpiarEditorStock = CrearBotonEditorStock("Limpiar", Color.White, Color.FromArgb(23, 43, 53));
+            _limpiarEditorStock.FlatAppearance.BorderColor = Color.FromArgb(215, 225, 228);
+            _limpiarEditorStock.Click += (s, e) => btnLimpiar_Click(s, e);
+            FlowLayoutPanel acciones = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 54,
+                FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false,
+                BackColor = Color.White,
+                Padding = new Padding(0, 6, 0, 0)
+            };
+            acciones.Controls.Add(_limpiarEditorStock);
+            acciones.Controls.Add(_guardarEditorStock);
+            contenido.Controls.Add(campos);
+            contenido.Controls.Add(acciones);
+
+            _dialogoStock.Controls.Add(contenido);
+            _dialogoStock.Controls.Add(encabezado);
+        }
+
+        private static NumericUpDown CrearCantidadEditorStock()
+        {
+            return new NumericUpDown
+            {
+                Minimum = 0,
+                Maximum = 1000000,
+                ThousandsSeparator = true,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right
+            };
+        }
+
+        private static Panel CrearCampoEditorStock(string titulo, Control campo)
+        {
+            Panel panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 0, 14, 6) };
+            TableLayoutPanel campoLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                Margin = Padding.Empty
+            };
+            campoLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22F));
+            campoLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            campoLayout.Controls.Add(new Label
+            {
+                Text = titulo,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.FromArgb(102, 123, 131),
+                Font = new Font("Segoe UI", 8.5F)
+            }, 0, 0);
+            campo.Dock = DockStyle.Fill;
+            campo.Font = new Font("Segoe UI", 9F);
+            campoLayout.Controls.Add(campo, 0, 1);
+            panel.Controls.Add(campoLayout);
+            return panel;
+        }
+
+        private static Button CrearBotonEditorStock(string texto, Color fondo, Color tinta)
+        {
+            return new Button
+            {
+                Text = texto,
+                Width = 126,
+                Height = 34,
+                Margin = new Padding(8, 0, 0, 0),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = fondo,
+                ForeColor = tinta,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 9F)
+            };
+        }
+
+        private void AbrirEditorStock()
+        {
+            btnNuevo_Click(this, EventArgs.Empty);
+            _dialogoStock.Text = "Nuevo registro de stock";
+            _tituloEditorStock.Text = "Stock · Nuevo registro";
+            _limpiarEditorStock.Visible = true;
+            _dialogoStock.DialogResult = DialogResult.None;
+            _dialogoStock.ShowDialog(this);
+            MtdVolverAModoConsulta();
         }
 
         private void AbrirEditorStock(StockEntidad item)
         {
-            if (item == null)
-            {
-                btnNuevo_Click(this, EventArgs.Empty);
-                _dialogoStock.Text = "Nuevo registro de stock";
-                btnEliminar.Visible = false;
-            }
-            else
-            {
-                MtdCargarEnCampos(item);
-                _modo = "Editar";
-                MtdHabilitarCampos(true, false);
-                btnEliminar.Visible = true;
-                btnEditar.Visible = false;
-                _dialogoStock.Text = "Editar registro de stock";
-            }
-            btnNuevo.Visible = false;
-            btnEditar.Visible = false;
+            _codigoSeleccionado = item.CodigoStock;
+            _codigoSucursalSeleccionado = item.CodigoSucursal;
+            _codigoProductoSeleccionado = item.CodigoProducto;
+            _modo = "Editar";
+            _cboSucursalEditorStock.SelectedValue = item.CodigoSucursal;
+            _cboProductoEditorStock.SelectedValue = item.CodigoProducto;
+            _nudCantidadEditorStock.Value = item.Cantidad;
+            _nudMinimoEditorStock.Value = item.StockMinimo;
+            MtdHabilitarCampos(true, false);
+            _dialogoStock.Text = "Editar registro de stock";
+            _tituloEditorStock.Text = "Stock · Editar registro";
+            _limpiarEditorStock.Visible = false;
             _dialogoStock.DialogResult = DialogResult.None;
-            EstiloAplicacion.AplicarDialogo(_dialogoStock);
             _dialogoStock.ShowDialog(this);
             MtdVolverAModoConsulta();
         }
@@ -212,29 +378,46 @@ namespace Presentacion
         {
             if (_gridStockResumen == null) return;
             string criterio = _buscarStockResumen.Text == "Buscar stock" ? "" : _buscarStockResumen.Text.Trim();
-            List<StockEntidad> filtrados = String.IsNullOrEmpty(criterio) ? _listaStockResumen : _listaStockResumen.Where(x => (x.NombreProducto ?? "").IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0 || (x.NombreSucursal ?? "").IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            List<StockEntidad> filtrados = String.IsNullOrEmpty(criterio)
+                ? _listaStockResumen
+                : _listaStockResumen.Where(x =>
+                    x.CodigoStock.ToString().IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    x.CodigoProducto.ToString().IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    x.NombreProducto.IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    x.NombreSucursal.IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    x.Cantidad.ToString().IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    x.StockMinimo.ToString().IndexOf(criterio, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
             int paginas = Math.Max(1, (int)Math.Ceiling(filtrados.Count / (double)FilasPorPaginaStock));
             _paginaActualStock = Math.Max(1, Math.Min(_paginaActualStock, paginas));
             List<StockEntidad> paginaActual = filtrados.Skip((_paginaActualStock - 1) * FilasPorPaginaStock).Take(FilasPorPaginaStock).ToList();
             DataTable tabla = new DataTable();
-            tabla.Columns.Add("CodigoInterno", typeof(int)); tabla.Columns.Add("Producto"); tabla.Columns.Add("Código"); tabla.Columns.Add("Sucursal"); tabla.Columns.Add("Existencia", typeof(int)); tabla.Columns.Add("Estado");
+            tabla.Columns.Add("CodigoStock", typeof(int));
+            tabla.Columns.Add("Producto");
+            tabla.Columns.Add("CodigoProducto", typeof(int));
+            tabla.Columns.Add("Sucursal");
+            tabla.Columns.Add("Cantidad", typeof(int));
+            tabla.Columns.Add("StockMinimo", typeof(int));
+            tabla.Columns.Add("Estado");
             foreach (StockEntidad item in paginaActual)
             {
-                tabla.Rows.Add(item.CodigoStock, item.NombreProducto, "ST-" + item.CodigoProducto.ToString("00000"), item.NombreSucursal, item.Cantidad, item.Cantidad <= 0 ? "Agotado" : item.Cantidad <= item.StockMinimo ? "Bajo" : "Correcto");
+                tabla.Rows.Add(item.CodigoStock, item.NombreProducto, item.CodigoProducto, item.NombreSucursal, item.Cantidad, item.StockMinimo,
+                    item.Cantidad <= 0 ? "Agotado" : item.Cantidad <= item.StockMinimo ? "Bajo" : "Correcto");
             }
             _gridStockResumen.DataSource = tabla;
-            _gridStockResumen.Columns["CodigoInterno"].Visible = false;
+            _gridStockResumen.Columns["CodigoStock"].HeaderText = "CÓDIGO STOCK"; _gridStockResumen.Columns["CodigoStock"].FillWeight = 14;
             _gridStockResumen.Columns["Producto"].HeaderText = "PRODUCTO"; _gridStockResumen.Columns["Producto"].FillWeight = 27;
-            _gridStockResumen.Columns["Código"].HeaderText = "CÓDIGO"; _gridStockResumen.Columns["Código"].FillWeight = 15;
+            _gridStockResumen.Columns["CodigoProducto"].HeaderText = "CÓDIGO PRODUCTO"; _gridStockResumen.Columns["CodigoProducto"].FillWeight = 16;
             _gridStockResumen.Columns["Sucursal"].HeaderText = "SUCURSAL"; _gridStockResumen.Columns["Sucursal"].FillWeight = 24;
-            _gridStockResumen.Columns["Existencia"].HeaderText = "EXISTENCIA"; _gridStockResumen.Columns["Existencia"].FillWeight = 16;
-            _gridStockResumen.Columns["Estado"].HeaderText = "NIVEL"; _gridStockResumen.Columns["Estado"].FillWeight = 14;
+            _gridStockResumen.Columns["Cantidad"].HeaderText = "CANTIDAD"; _gridStockResumen.Columns["Cantidad"].FillWeight = 12;
+            _gridStockResumen.Columns["StockMinimo"].HeaderText = "STOCK MÍNIMO"; _gridStockResumen.Columns["StockMinimo"].FillWeight = 14;
+            _gridStockResumen.Columns["Estado"].HeaderText = "NIVEL"; _gridStockResumen.Columns["Estado"].FillWeight = 13;
             _gridStockResumen.ClearSelection();
             foreach (DataGridViewRow fila in _gridStockResumen.Rows)
             {
-                int id = Convert.ToInt32(fila.Cells["CodigoInterno"].Value);
+                int id = Convert.ToInt32(fila.Cells["CodigoStock"].Value);
                 fila.Tag = paginaActual.First(x => x.CodigoStock == id);
             }
+            ActualizarEstadoBotonEditarStock();
             int desde = filtrados.Count == 0 ? 0 : ((_paginaActualStock - 1) * FilasPorPaginaStock) + 1;
             int hasta = Math.Min(_paginaActualStock * FilasPorPaginaStock, filtrados.Count);
             _totalStockResumen.Text = "Mostrando " + desde + "-" + hasta + " de " + filtrados.Count + " registros";
@@ -263,9 +446,44 @@ namespace Presentacion
             if (_gridStockResumen == null || _gridStockResumen.CurrentRow == null || !_gridStockResumen.CurrentRow.Selected) { AyudaForms.MtdAviso("Selecciona un registro de stock primero."); return; }
             StockEntidad item = _gridStockResumen.CurrentRow.Tag as StockEntidad;
             if (item == null) return;
-            MtdCargarEnCampos(item);
-            _modo = "Editar";
+            _codigoSeleccionado = item.CodigoStock;
             btnEliminar_Click(this, EventArgs.Empty);
+        }
+
+        private void ActualizarEstadoBotonEditarStock()
+        {
+            // El botón queda disponible incluso cuando el usuario aún no eligió una fila;
+            // así puede mostrar un mensaje claro en lugar de parecer deshabilitado.
+            if (_editarStockResumen != null) _editarStockResumen.Enabled = true;
+        }
+
+        private void EditarStockResumen()
+        {
+            if (_gridStockResumen == null)
+            {
+                AyudaForms.MtdAviso("Selecciona un registro de stock primero.");
+                return;
+            }
+
+            DataGridViewRow filaSeleccionada = _gridStockResumen.SelectedRows.Count > 0
+                ? _gridStockResumen.SelectedRows[0]
+                : _gridStockResumen.CurrentRow;
+            if (filaSeleccionada == null || filaSeleccionada.Cells["CodigoStock"].Value == null)
+            {
+                AyudaForms.MtdAviso("Haz clic en la fila del registro que deseas editar.");
+                return;
+            }
+
+            int codigoStock = Convert.ToInt32(filaSeleccionada.Cells["CodigoStock"].Value);
+            StockEntidad item = filaSeleccionada.Tag as StockEntidad;
+            if (item == null) item = _listaStockResumen.FirstOrDefault(x => x.CodigoStock == codigoStock);
+            if (item == null)
+            {
+                AyudaForms.MtdAviso("No se encontró el registro de stock seleccionado.");
+                return;
+            }
+
+            AbrirEditorStock(item);
         }
 
         private static Button CrearBotonStock(string texto, bool principal)
@@ -330,8 +548,8 @@ namespace Presentacion
         // Llena los ComboBox desde la capa Negocio
         private void MtdCargarCombos()
         {
-            AyudaForms.MtdLlenarCombo(cboSucursal, _catalogosNegocio.MtdSucursales());
-            AyudaForms.MtdLlenarCombo(cboProducto, _catalogosNegocio.MtdProductos());
+            AyudaForms.MtdLlenarCombo(_cboSucursalEditorStock, _catalogosNegocio.MtdSucursales());
+            AyudaForms.MtdLlenarCombo(_cboProductoEditorStock, _catalogosNegocio.MtdProductos());
         }
 
         // =====================================================
@@ -345,18 +563,6 @@ namespace Presentacion
 
         private void MtdMostrarLista(List<StockEntidad> lista)
         {
-            dgvStock.DataSource = null;
-            dgvStock.DataSource = lista;
-
-            // Encabezados con nombres amigables y columnas ocultas
-            AyudaForms.MtdTitulo(dgvStock, "CodigoStock", "Código");
-            AyudaForms.MtdTitulo(dgvStock, "NombreSucursal", "Sucursal");
-            AyudaForms.MtdTitulo(dgvStock, "NombreProducto", "Producto");
-            AyudaForms.MtdTitulo(dgvStock, "StockMinimo", "Stock mínimo");
-            AyudaForms.MtdOcultar(dgvStock, "CodigoSucursal", "CodigoProducto");
-
-
-            lblTotalRegistros.Text = "Total Registros: " + lista.Count;
             ActualizarStockResumen(lista);
         }
 
@@ -387,24 +593,24 @@ namespace Presentacion
 
         private void ChkSeleccionar_CheckedChanged(object sender, EventArgs e)
         {
-            if (ChkSeleccionar.Checked)
+            if (_seleccionarTodoStock != null && _seleccionarTodoStock.Checked)
             {
-                dgvStock.SelectAll();
+                _gridStockResumen.SelectAll();
             }
             else
             {
-                dgvStock.ClearSelection();
+                _gridStockResumen.ClearSelection();
             }
         }
 
         private void btnImprimir_Click(object sender, EventArgs e)
         {
-            AyudaForms.MtdImprimir(dgvStock, "Stock");
+            AyudaForms.MtdImprimir(_gridStockResumen, "Stock");
         }
 
         private void btnExportar_Click(object sender, EventArgs e)
         {
-            AyudaForms.MtdExportarCsv(dgvStock, "Stock");
+            AyudaForms.MtdExportarCsv(_gridStockResumen, "Stock");
         }
 
         private void btnCerrar_Click(object sender, EventArgs e)
@@ -412,99 +618,71 @@ namespace Presentacion
             this.Close();
         }
 
-        // Doble clic en una fila: la carga en la pestaña Gestionar
+        // La edición por doble clic está deshabilitada; el registro se crea con Nuevo.
         private void dgv_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0)
-            {
-                return;
-            }
-
-            StockEntidad item = dgvStock.Rows[e.RowIndex].DataBoundItem as StockEntidad;
-
-            if (item != null)
-            {
-                MtdCargarEnCampos(item);
-                tabControl1.SelectedTab = tabPage2;
-            }
+            // Intencionalmente sin acción.
         }
 
         // =====================================================
         // GESTIONAR: METODOS DE APOYO
         // =====================================================
 
-        private void MtdCargarEnCampos(StockEntidad item)
-        {
-            _codigoSeleccionado = item.CodigoStock;
-            _modo = string.Empty;
-
-            txtCodigo.Text = item.CodigoStock.ToString();
-            cboSucursal.SelectedValue = item.CodigoSucursal;
-            cboProducto.SelectedValue = item.CodigoProducto;
-            nudCantidad.Value = item.Cantidad;
-            nudStockMinimo.Value = item.StockMinimo;
-
-            MtdHabilitarCampos(false, false);
-        }
-
         private StockEntidad MtdObtenerDeCampos()
         {
-            if (_modo == "Agregar")
+            if (_modo == "Editar")
             {
                 return new StockEntidad
                 (
-                    AyudaForms.MtdValorCombo(cboSucursal),
-                    AyudaForms.MtdValorCombo(cboProducto),
-                    (int)nudCantidad.Value,
-                    (int)nudStockMinimo.Value
+                    _codigoSeleccionado,
+                    _codigoSucursalSeleccionado,
+                    String.Empty,
+                    _codigoProductoSeleccionado,
+                    String.Empty,
+                    (int)_nudCantidadEditorStock.Value,
+                    (int)_nudMinimoEditorStock.Value
                 );
             }
-
             return new StockEntidad
-                (
-                    _codigoSeleccionado,
-                    AyudaForms.MtdValorCombo(cboSucursal),
-                    string.Empty,
-                    AyudaForms.MtdValorCombo(cboProducto),
-                    string.Empty,
-                    (int)nudCantidad.Value,
-                    (int)nudStockMinimo.Value
-                );
+            (
+                AyudaForms.MtdValorCombo(_cboSucursalEditorStock),
+                AyudaForms.MtdValorCombo(_cboProductoEditorStock),
+                (int)_nudCantidadEditorStock.Value,
+                (int)_nudMinimoEditorStock.Value
+            );
         }
 
         private void MtdLimpiarCampos()
         {
-            txtCodigo.Clear();
-            if (cboSucursal.Items.Count > 0)
+            if (_cboSucursalEditorStock.Items.Count > 0)
             {
-                cboSucursal.SelectedIndex = 0;
+                _cboSucursalEditorStock.SelectedIndex = 0;
             }
-            if (cboProducto.Items.Count > 0)
+            if (_cboProductoEditorStock.Items.Count > 0)
             {
-                cboProducto.SelectedIndex = 0;
+                _cboProductoEditorStock.SelectedIndex = 0;
             }
-            nudCantidad.Value = 0;
-            nudStockMinimo.Value = 0;
+            _nudCantidadEditorStock.Value = 0;
+            _nudMinimoEditorStock.Value = 0;
         }
 
         // habilitar: activa o desactiva los campos | esNuevo: los campos clave solo se activan al agregar
         private void MtdHabilitarCampos(bool habilitar, bool esNuevo)
         {
-            cboSucursal.Enabled = habilitar && esNuevo;
-            cboProducto.Enabled = habilitar && esNuevo;
-            nudCantidad.Enabled = habilitar;
-            nudStockMinimo.Enabled = habilitar;
+            _cboSucursalEditorStock.Enabled = habilitar && esNuevo;
+            _cboProductoEditorStock.Enabled = habilitar && esNuevo;
+            _nudCantidadEditorStock.Enabled = habilitar;
+            _nudMinimoEditorStock.Enabled = habilitar;
         }
 
         private void MtdVolverAModoConsulta()
         {
             _codigoSeleccionado = 0;
+            _codigoSucursalSeleccionado = 0;
+            _codigoProductoSeleccionado = 0;
             _modo = string.Empty;
             MtdLimpiarCampos();
             MtdHabilitarCampos(false, false);
-            btnEliminar.Visible = false;
-            btnNuevo.Visible = true;
-            btnEditar.Visible = true;
             if (_dialogoStock != null && _dialogoStock.Visible) _dialogoStock.DialogResult = DialogResult.OK;
         }
 
@@ -518,7 +696,7 @@ namespace Presentacion
             _codigoSeleccionado = 0;
             _modo = "Agregar";
             MtdHabilitarCampos(true, true);
-            cboSucursal.Focus();
+            _cboSucursalEditorStock.Focus();
         }
 
         private void btnEditar_Click(object sender, EventArgs e)
@@ -537,24 +715,17 @@ namespace Presentacion
         {
             try
             {
-                if (_modo == string.Empty)
+                if (_modo != "Agregar" && _modo != "Editar")
                 {
-                    AyudaForms.MtdAviso("Presiona Nuevo o Editar antes de guardar.");
+                    AyudaForms.MtdAviso("Usa Nuevo o Editar para guardar un registro de stock.");
                     return;
                 }
 
                 StockEntidad entidad = MtdObtenerDeCampos();
+                if (_modo == "Agregar") _stockNegocio.MtdAgregar(entidad);
+                else _stockNegocio.MtdEditar(entidad);
 
-                if (_modo == "Agregar")
-                {
-                    _stockNegocio.MtdAgregar(entidad);
-                }
-                else
-                {
-                    _stockNegocio.MtdEditar(entidad);
-                }
-
-                AyudaForms.MtdInfo("Registro guardado correctamente.");
+                AyudaForms.MtdInfo(_modo == "Agregar" ? "Registro guardado correctamente." : "Registro actualizado correctamente.");
                 MtdConsultar();
                 MtdVolverAModoConsulta();
             }

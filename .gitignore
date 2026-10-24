@@ -1,37 +1,36 @@
-# Visual Studio y compilación
+# Visual Studio and build outputs
 .vs/
-**/.vs/
-bin/
-obj/
+.vs_cache_*/
 **/bin/
 **/obj/
 *.user
 *.suo
-*.vsidx
 *.cache
 *.log
 *.pdb
-*.dll
 *.exe
-[Dd]ebug/
-[Rr]elease/
+*.dll
 
-# Configuración local o secretos
+# NuGet packages are restored from packages.config
+packages/
+**/packages/
+
+# Local configuration and credentials
 .env
 .env.*
-!.env.example
+!**/.env.example
 *.secrets.json
 local.settings.json
 
-# Respaldos, bases locales y archivos generados
-*.bak
+# Database files, exports and generated archives
 *.mdf
 *.ldf
+*.bak
 *.bacpac
 *.zip
 *.rar
 *.7z
 
-# Sistema operativo
+# OS/editor files
 Thumbs.db
 .DS_Store

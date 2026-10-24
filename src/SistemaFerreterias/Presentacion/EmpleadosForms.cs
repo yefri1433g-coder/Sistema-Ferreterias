@@ -335,10 +335,9 @@ namespace Presentacion
             _totalEmpleadosVista.Text = "Mostrando " + desde + "-" + hasta + " de " + lista.Count + " registros";
             _paginaEmpleadosVista.Text = _paginaVistaEmpleados + " de " + paginas;
             _anteriorEmpleadosVista.Enabled = _paginaVistaEmpleados > 1; _siguienteEmpleadosVista.Enabled = _paginaVistaEmpleados < paginas;
-            // Las tarjetas usan el resultado completo de la búsqueda, no solo la página visible.
-            _resumenEmpleados[0].Text = lista.Count.ToString("N0");
-            _resumenEmpleados[1].Text = lista.Count(x => x.Estado).ToString("N0");
-            _resumenEmpleados[2].Text = lista.Select(x => x.IdSucursal).Distinct().Count().ToString("N0");
+            _resumenEmpleados[0].Text = _empleadosTotales.Count.ToString("N0");
+            _resumenEmpleados[1].Text = _empleadosTotales.Count(x => x.Estado).ToString("N0");
+            _resumenEmpleados[2].Text = _empleadosTotales.Select(x => x.IdSucursal).Distinct().Count().ToString("N0");
         }
 
         private void CambiarPaginaEmpleado(int cambio)

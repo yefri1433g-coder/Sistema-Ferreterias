@@ -16,6 +16,15 @@ namespace Datos
         {
             try
             {
+                string conexionDelUsuario = Environment.GetEnvironmentVariable(
+                    "FERRETERIA_CONNECTION_STRING", EnvironmentVariableTarget.User);
+
+                if (!string.IsNullOrWhiteSpace(conexionDelUsuario))
+                {
+                    _cadenaConexion = conexionDelUsuario;
+                    return;
+                }
+
                 string conexionPorEntorno = Environment.GetEnvironmentVariable("FERRETERIA_CONNECTION_STRING");
 
                 if (!string.IsNullOrWhiteSpace(conexionPorEntorno))
