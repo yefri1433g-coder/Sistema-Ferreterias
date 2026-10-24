@@ -7,7 +7,8 @@ namespace Entidad
     {
         public int IdVenta { get; set; }
         public int IdCliente { get; set; }
-        public int IdSucursal { get; set; }   // solo se usa para descontar el stock
+        public string NombreCliente { get; set; }
+        public int IdSucursal { get; set; }   // se guarda en la venta y se usa para el inventario
         public DateTime Fecha { get; set; }
         public decimal Total { get; set; }
         public string MetodoPago { get; set; }
