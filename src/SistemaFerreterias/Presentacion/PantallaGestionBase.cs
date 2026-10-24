@@ -13,7 +13,7 @@ namespace Presentacion
     {
         private readonly CatalogosGestionNegocio negocio = new CatalogosGestionNegocio();
         private readonly TabControl moduloHost = new TabControl();
-        private DataGridView gridCategorias, gridProductos, gridSucursales, gridCompra, gridHistorialCompras;
+        private DataGridView gridCategorias, gridProductos, gridSucursales, gridCompra, gridHistorialCompras, gridDetalleCompra;
         private const int RegistrosPorPaginaSucursales = 10;
         private DataTable _sucursales = new DataTable();
         private int _paginaSucursal = 1;
@@ -32,7 +32,7 @@ namespace Presentacion
         private int paginaCategoria = 1;
         private Button btnCategoriaAnterior, btnCategoriaSiguiente;
         private Label lblPaginaCategorias;
-        private const int RegistrosPorPaginaCompras = 8;
+        private const int RegistrosPorPaginaCompras = 10;
         private DataTable comprasTodas = new DataTable();
         private DataTable comprasFiltradas = new DataTable();
         private int paginaCompra = 1;
@@ -43,6 +43,8 @@ namespace Presentacion
         private TableLayoutPanel layoutCompras;
         private Control panelCapturaCompra, panelDetalleCompra, panelAccionesCompra;
         private Button btnNuevoCompra;
+        private Button btnEditarCompra, btnEliminarCompra, btnGuardarCompra;
+        private int? compraIdEdicion;
 
         private int? catId;
         private TextBox prodCodigo, prodNombre, prodDescripcion;
@@ -171,12 +173,14 @@ namespace Presentacion
             encabezado.Controls.Add(tituloLista);
             encabezado.Controls.Add(descripcionLista);
 
-            FlowLayoutPanel barra = new FlowLayoutPanel { Dock = estiloModerno ? DockStyle.Right : DockStyle.Fill, Width = estiloModerno ? 390 : 335, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
+            FlowLayoutPanel barra = new FlowLayoutPanel { Dock = estiloModerno ? DockStyle.Right : DockStyle.Fill, Width = estiloModerno ? (listaProductos ? 475 : 390) : 335, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
             Button nuevo = new Button { Text = "+ Nuevo registro", Width = estiloModerno ? 112 : 150, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(23, 143, 112), ForeColor = Color.White, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
             nuevo.FlatAppearance.BorderSize = 0;
             if (estiloModerno) Redondear(nuevo, 7);
             nuevo.Click += (s, e) => AbrirNuevoRegistro(page.Text);
             Button eliminar = new Button { Text = "Eliminar", Width = 82, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(254, 242, 242), ForeColor = Color.FromArgb(185, 28, 28), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand, Visible = estiloModerno && (listaSucursales || listaProductos || listaCategorias) };
+            Button editar = new Button { Text = "Editar", Width = 72, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(51, 68, 78), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand, Visible = listaProductos, Enabled = false };
+            editar.Click += (s, e) => EditarProductoSeleccionado();
             filtroPantalla = new TextBox { Width = estiloModerno ? 160 : 250, Height = 30, Margin = new Padding(8, 0, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = estiloModerno ? BorderStyle.FixedSingle : BorderStyle.Fixed3D };
             if (estiloModerno)
             {
@@ -192,9 +196,11 @@ namespace Presentacion
             eliminar.Enabled = false;
             eliminar.Click += (s, e) => EliminarRegistroDePantalla(page.Text, gridLista);
             gridLista.SelectionChanged += (s, e) => eliminar.Enabled = gridLista.CurrentRow != null;
+            gridLista.SelectionChanged += (s, e) => editar.Enabled = listaProductos && gridLista.SelectedRows.Count > 0;
             filtroPantalla.TextChanged += (s, e) => AplicarFiltroPantalla(page.Text, gridLista);
             barra.Controls.Add(nuevo);
             barra.Controls.Add(eliminar);
+            barra.Controls.Add(editar);
             barra.Controls.Add(filtroPantalla);
             pieLista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
             lblTotalRegistros = new Label { Dock = DockStyle.Left, Width = 220, TextAlign = ContentAlignment.MiddleLeft, ForeColor = Color.FromArgb(119, 136, 145), Font = new Font("Segoe UI", 8.5F) };
@@ -583,15 +589,36 @@ namespace Presentacion
             gridProductos.CellDoubleClick += (s,e) =>
             {
                 if (e.RowIndex < 0) return;
-                DataRowView r = gridProductos.Rows[e.RowIndex].DataBoundItem as DataRowView;
-                if (r == null) return;
-                prodId = Convert.ToInt32(r["Codigo"]); prodCodigo.Text = Convert.ToString(r["SKU"]);
-                prodNombre.Text = Convert.ToString(r["Nombre"]); prodDescripcion.Text = Convert.ToString(r["Descripcion"]);
-                prodCosto.Value = Math.Max(prodCosto.Minimum, Math.Min(prodCosto.Maximum, Convert.ToDecimal(r["Costo"])));
-                prodPrecio.Value = Math.Max(prodPrecio.Minimum, Math.Min(prodPrecio.Maximum, Convert.ToDecimal(r["Precio"])));
-                prodCategoria.SelectedValue = Convert.ToInt32(r["IdCategoria"]); prodActivo.Checked = Convert.ToBoolean(r["Activo"]);
-                AbrirEditor("Productos · Editar registro");
+                CargarProductoParaEditar(gridProductos.Rows[e.RowIndex]);
             };
+        }
+
+        private void EditarProductoSeleccionado()
+        {
+            DataGridViewRow fila = gridProductos != null && gridProductos.SelectedRows.Count > 0
+                ? gridProductos.SelectedRows[0]
+                : null;
+            if (fila == null)
+            {
+                MessageBox.Show("Selecciona primero el producto que deseas editar.", "Editar producto", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            CargarProductoParaEditar(fila);
+        }
+
+        private void CargarProductoParaEditar(DataGridViewRow fila)
+        {
+            DataRowView registro = fila == null ? null : fila.DataBoundItem as DataRowView;
+            if (registro == null) return;
+            prodId = Convert.ToInt32(registro["Codigo"]);
+            prodCodigo.Text = Convert.ToString(registro["SKU"]);
+            prodNombre.Text = Convert.ToString(registro["Nombre"]);
+            prodDescripcion.Text = Convert.ToString(registro["Descripcion"]);
+            prodCosto.Value = Math.Max(prodCosto.Minimum, Math.Min(prodCosto.Maximum, Convert.ToDecimal(registro["Costo"])));
+            prodPrecio.Value = Math.Max(prodPrecio.Minimum, Math.Min(prodPrecio.Maximum, Convert.ToDecimal(registro["Precio"])));
+            prodCategoria.SelectedValue = Convert.ToInt32(registro["IdCategoria"]);
+            prodActivo.Checked = Convert.ToBoolean(registro["Activo"]);
+            AbrirEditor("Productos · Editar registro");
         }
 
         private void FiltrarProductosDePantalla()
@@ -602,7 +629,10 @@ namespace Presentacion
             DataView vista = new DataView(tablaProductos);
             vista.RowFilter = String.IsNullOrWhiteSpace(texto)
                 ? ""
-                : "Convert([SKU], 'System.String') LIKE '%" + texto + "%' OR Convert([Nombre], 'System.String') LIKE '%" + texto + "%' OR Convert([Categoria], 'System.String') LIKE '%" + texto + "%";
+                : "Convert([Codigo], 'System.String') LIKE '%" + texto + "%' OR "
+                    + "Convert([SKU], 'System.String') LIKE '%" + texto + "%' OR "
+                    + "Convert([Nombre], 'System.String') LIKE '%" + texto + "%' OR "
+                    + "Convert([Categoria], 'System.String') LIKE '%" + texto + "%'";
             productosFiltrados = vista.ToTable();
             paginaProducto = 1;
             MostrarPaginaProductos();
@@ -727,7 +757,7 @@ namespace Presentacion
 
             Panel foot=new Panel{Dock=DockStyle.Fill};
             panelAccionesCompra = foot;
-            Boton(foot,"Guardar compra y actualizar inventario",15,8,300,(s,e)=>GuardarCompra());
+            btnGuardarCompra = Boton(foot,"Guardar compra y actualizar inventario",15,8,300,(s,e)=>GuardarCompra());
             Boton(foot,"Quitar línea",330,8,140,(s,e)=>QuitarLinea());
 
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -751,7 +781,7 @@ namespace Presentacion
             Panel encabezado = new Panel { Dock = DockStyle.Top, Height = 44, BackColor = Color.White };
             Label titulo = new Label { Text = "Compras recientes", Left = 4, Top = 1, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
             Label descripcion = new Label { Text = "Historial de compras y recepción", Left = 5, Top = 23, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) };
-            FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 335, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
+            FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 515, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
             filtroCompras = new TextBox { Width = 190, Height = 28, Margin = new Padding(8, 0, 0, 0), Text = "Buscar compras", ForeColor = Color.FromArgb(135, 151, 156), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle };
             filtroCompras.Enter += (s, e) => { if (filtroCompras.Text == "Buscar compras") { filtroCompras.Clear(); filtroCompras.ForeColor = Color.FromArgb(45, 64, 70); } };
             filtroCompras.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(filtroCompras.Text)) { filtroCompras.Text = "Buscar compras"; filtroCompras.ForeColor = Color.FromArgb(135, 151, 156); } };
@@ -760,11 +790,19 @@ namespace Presentacion
             btnNuevoCompra.FlatAppearance.BorderSize = 0;
             btnNuevoCompra.Click += (s, e) =>
             {
-                lineas.Clear(); MostrarLineas(); compraFecha.Value = DateTime.Today;
+                compraIdEdicion = null;
+                dialogoCompra.Text = "Nueva compra";
+                btnGuardarCompra.Text = "Guardar compra y actualizar inventario";
+                compraFecha.Value = DateTime.Today;
+                lineas.Clear(); MostrarLineas();
                 EstiloAplicacion.AplicarDialogo(dialogoCompra);
                 dialogoCompra.ShowDialog(this);
             };
-            acciones.Controls.Add(btnNuevoCompra); acciones.Controls.Add(filtroCompras);
+            btnEditarCompra = new Button { Text = "Editar", Width = 76, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, Enabled = false, Cursor = Cursors.Hand };
+            btnEditarCompra.Click += (s, e) => AbrirEdicionCompraSeleccionada();
+            btnEliminarCompra = new Button { Text = "Eliminar", Width = 76, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, ForeColor = Color.Firebrick, Enabled = false, Cursor = Cursors.Hand };
+            btnEliminarCompra.Click += (s, e) => EliminarCompraSeleccionada();
+            acciones.Controls.Add(btnNuevoCompra); acciones.Controls.Add(btnEditarCompra); acciones.Controls.Add(btnEliminarCompra); acciones.Controls.Add(filtroCompras);
             encabezado.Controls.Add(titulo); encabezado.Controls.Add(descripcion); encabezado.Controls.Add(acciones);
             gridHistorialCompras = CrearGrid();
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
@@ -777,7 +815,21 @@ namespace Presentacion
             btnCompraSiguiente.Click += (s, e) => CambiarPaginaCompra(1);
             paginacion.Controls.Add(btnCompraAnterior); paginacion.Controls.Add(lblPaginaCompras); paginacion.Controls.Add(btnCompraSiguiente);
             pie.Controls.Add(lblTotalCompras); pie.Controls.Add(paginacion);
-            panel.Controls.Add(gridHistorialCompras); panel.Controls.Add(pie); panel.Controls.Add(encabezado);
+            TableLayoutPanel consulta = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, BackColor = Color.White };
+            consulta.RowStyles.Add(new RowStyle(SizeType.Percent, 62F));
+            consulta.RowStyles.Add(new RowStyle(SizeType.Percent, 38F));
+            Panel panelDetalle = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(0, 5, 0, 0) };
+            Label tituloDetalle = new Label { Text = "Detalle de la compra seleccionada", Dock = DockStyle.Top, Height = 25, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
+            gridDetalleCompra = CrearGrid();
+            gridDetalleCompra.ReadOnly = true;
+            gridDetalleCompra.AllowUserToAddRows = false;
+            gridDetalleCompra.AllowUserToDeleteRows = false;
+            panelDetalle.Controls.Add(gridDetalleCompra);
+            panelDetalle.Controls.Add(tituloDetalle);
+            consulta.Controls.Add(gridHistorialCompras, 0, 0);
+            consulta.Controls.Add(panelDetalle, 0, 1);
+            gridHistorialCompras.SelectionChanged += (s, e) => { CargarDetalleCompraSeleccionada(); ActualizarBotonEditarCompra(); };
+            panel.Controls.Add(consulta); panel.Controls.Add(pie); panel.Controls.Add(encabezado);
             Redondear(panel, 12);
             return panel;
         }
@@ -788,7 +840,7 @@ namespace Presentacion
             string texto = filtroCompras.Text == "Buscar compras" ? "" : (filtroCompras.Text ?? "").Trim();
             texto = texto.Replace("'", "''").Replace("%", "[%]").Replace("*", "[*]");
             DataView vista = new DataView(comprasTodas);
-            vista.RowFilter = String.IsNullOrWhiteSpace(texto) ? "" : "Convert([Codigo], 'System.String') LIKE '%" + texto + "%' OR Convert([Proveedor], 'System.String') LIKE '%" + texto + "%'";
+            vista.RowFilter = String.IsNullOrWhiteSpace(texto) ? "" : "Convert([Codigo], 'System.String') LIKE '%" + texto + "%' OR Convert([Proveedor], 'System.String') LIKE '%" + texto + "%' OR Convert([Sucursal], 'System.String') LIKE '%" + texto + "%'";
             comprasFiltradas = vista.ToTable();
             paginaCompra = 1;
             MostrarPaginaCompras();
@@ -842,10 +894,178 @@ namespace Presentacion
             gridHistorialCompras.RowTemplate.Height = 36;
             if (gridHistorialCompras.Columns.Contains("Codigo")) gridHistorialCompras.Columns["Codigo"].HeaderText = "COMPRA";
             if (gridHistorialCompras.Columns.Contains("Proveedor")) gridHistorialCompras.Columns["Proveedor"].HeaderText = "PROVEEDOR";
+            if (gridHistorialCompras.Columns.Contains("Sucursal")) gridHistorialCompras.Columns["Sucursal"].HeaderText = "SUCURSAL";
+            if (gridHistorialCompras.Columns.Contains("IdProveedor")) gridHistorialCompras.Columns["IdProveedor"].Visible = false;
+            if (gridHistorialCompras.Columns.Contains("IdSucursal")) gridHistorialCompras.Columns["IdSucursal"].Visible = false;
             if (gridHistorialCompras.Columns.Contains("Fecha")) { gridHistorialCompras.Columns["Fecha"].HeaderText = "FECHA"; gridHistorialCompras.Columns["Fecha"].DefaultCellStyle.Format = "dd MMM yyyy"; }
             if (gridHistorialCompras.Columns.Contains("Total")) { gridHistorialCompras.Columns["Total"].HeaderText = "TOTAL"; gridHistorialCompras.Columns["Total"].DefaultCellStyle.Format = "'Q' #,##0.00"; }
             if (gridHistorialCompras.Columns.Contains("Codigo")) gridHistorialCompras.Columns["Codigo"].HeaderText = "COMPRA";
             gridHistorialCompras.ClearSelection();
+            ActualizarBotonEditarCompra();
+        }
+
+        private void CargarDetalleCompraSeleccionada()
+        {
+            if (gridDetalleCompra == null || gridHistorialCompras == null || gridHistorialCompras.SelectedRows.Count == 0)
+            {
+                if (gridDetalleCompra != null) gridDetalleCompra.DataSource = null;
+                return;
+            }
+
+            try
+            {
+                int idCompra = Convert.ToInt32(gridHistorialCompras.SelectedRows[0].Cells["Codigo"].Value);
+                gridDetalleCompra.DataSource = negocio.DetalleCompra(idCompra);
+                Estilizar(gridDetalleCompra);
+                if (gridDetalleCompra.Columns.Contains("IdProducto")) gridDetalleCompra.Columns["IdProducto"].Visible = false;
+                if (gridDetalleCompra.Columns.Contains("CodigoProducto")) gridDetalleCompra.Columns["CodigoProducto"].HeaderText = "CÓDIGO PRODUCTO";
+                if (gridDetalleCompra.Columns.Contains("Producto")) gridDetalleCompra.Columns["Producto"].HeaderText = "PRODUCTO";
+                if (gridDetalleCompra.Columns.Contains("Cantidad")) gridDetalleCompra.Columns["Cantidad"].HeaderText = "CANTIDAD";
+                if (gridDetalleCompra.Columns.Contains("PrecioUnitario"))
+                {
+                    gridDetalleCompra.Columns["PrecioUnitario"].HeaderText = "PRECIO UNITARIO";
+                    gridDetalleCompra.Columns["PrecioUnitario"].DefaultCellStyle.Format = "'Q' #,##0.00";
+                }
+                if (gridDetalleCompra.Columns.Contains("Subtotal"))
+                {
+                    gridDetalleCompra.Columns["Subtotal"].HeaderText = "SUBTOTAL";
+                    gridDetalleCompra.Columns["Subtotal"].DefaultCellStyle.Format = "'Q' #,##0.00";
+                }
+            }
+            catch (Exception ex)
+            {
+                gridDetalleCompra.DataSource = null;
+                MostrarError(ex);
+            }
+        }
+
+        private void ActualizarBotonEditarCompra()
+        {
+            if (btnEditarCompra == null) return;
+            bool puedeGestionar = gridHistorialCompras != null && gridHistorialCompras.SelectedRows.Count > 0;
+            btnEditarCompra.Enabled = puedeGestionar;
+            if (btnEliminarCompra != null) btnEliminarCompra.Enabled = puedeGestionar;
+        }
+
+        private void EliminarCompraSeleccionada()
+        {
+            if (gridHistorialCompras == null || gridHistorialCompras.SelectedRows.Count == 0) return;
+            DataGridViewRow fila = gridHistorialCompras.SelectedRows[0];
+            int id = Convert.ToInt32(fila.Cells["Codigo"].Value);
+            string proveedor = Convert.ToString(fila.Cells["Proveedor"].Value);
+            DialogResult confirmar = MessageBox.Show(
+                "¿Eliminar la compra No. " + id + " de " + proveedor + "? También se revertirá su existencia en la sucursal y se registrará en Kardex. Si el stock ya se consumió, la operación se cancelará.",
+                "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirmar != DialogResult.Yes) return;
+
+            if (Ejecutar(() =>
+            {
+                if (fila.Cells["IdSucursal"].Value == DBNull.Value)
+                {
+                    int? sucursal = SolicitarSucursalCompraHistorica();
+                    if (!sucursal.HasValue) return;
+                    negocio.AsignarSucursalCompra(id, sucursal.Value);
+                }
+                negocio.EliminarCompra(id);
+                RefrescarTodo();
+                MessageBox.Show("La compra No. " + id + " fue eliminada y el inventario se actualizó.", "Compra eliminada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }))
+                CargarDetalleCompraSeleccionada();
+        }
+
+        private void AbrirEdicionCompraSeleccionada()
+        {
+            if (gridHistorialCompras == null || gridHistorialCompras.SelectedRows.Count == 0) return;
+            DataGridViewRow fila = gridHistorialCompras.SelectedRows[0];
+            int id = Convert.ToInt32(fila.Cells["Codigo"].Value);
+            Ejecutar(() =>
+            {
+                if (fila.Cells["IdSucursal"].Value == DBNull.Value)
+                {
+                    int? sucursal = SolicitarSucursalCompraHistorica();
+                    if (!sucursal.HasValue) return;
+                    negocio.AsignarSucursalCompra(id, sucursal.Value);
+                    RefrescarTodo();
+                }
+
+                DataRow[] comprasEncontradas = comprasTodas.Select("Codigo = " + id);
+                if (comprasEncontradas.Length == 0) throw new InvalidOperationException("No se encontró la compra seleccionada. Actualiza la lista e intenta de nuevo.");
+                DataRow compra = comprasEncontradas[0];
+                compraIdEdicion = id;
+                DataTable detalle = negocio.DetalleCompra(compraIdEdicion.Value);
+                if (detalle.Rows.Count == 0) throw new InvalidOperationException("La compra no contiene productos para editar.");
+                compraProveedor.SelectedValue = Convert.ToInt32(compra["IdProveedor"]);
+                compraSucursal.SelectedValue = Convert.ToInt32(compra["IdSucursal"]);
+                compraFecha.Value = Convert.ToDateTime(compra["Fecha"]);
+                lineas.Clear();
+                foreach (DataRow r in detalle.Rows)
+                {
+                    lineas.Add(new CompraLineaCatalogo
+                    {
+                        IdProducto = Convert.ToInt32(r["IdProducto"]),
+                        Producto = Convert.ToString(r["Producto"]),
+                        Cantidad = Convert.ToDecimal(r["Cantidad"]),
+                        CostoUnitario = Convert.ToDecimal(r["PrecioUnitario"])
+                    });
+                }
+                MostrarLineas();
+                btnGuardarCompra.Text = "Actualizar compra e inventario";
+                dialogoCompra.Text = "Editar compra No. " + compraIdEdicion.Value;
+                EstiloAplicacion.AplicarDialogo(dialogoCompra);
+                dialogoCompra.ShowDialog(this);
+            });
+        }
+
+        private int? SolicitarSucursalCompraHistorica()
+        {
+            DataTable sucursales = negocio.SucursalesActivas();
+            if (sucursales.Rows.Count == 0) throw new InvalidOperationException("No hay sucursales activas para asignar a la compra.");
+
+            using (Form dialogo = new Form
+            {
+                Text = "Asignar sucursal a compra histórica",
+                StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                ShowInTaskbar = false,
+                ClientSize = new Size(430, 165),
+                Font = new Font("Segoe UI", 9F)
+            })
+            {
+                Label indicacion = new Label
+                {
+                    Text = "Selecciona la sucursal donde realmente se recibieron estos productos. La asignación no cambia el stock.",
+                    Left = 16, Top = 14, Width = 398, Height = 42
+                };
+                ComboBox sucursal = new ComboBox
+                {
+                    Left = 16, Top = 62, Width = 398, DropDownStyle = ComboBoxStyle.DropDownList,
+                    DataSource = sucursales, DisplayMember = "Nombre", ValueMember = "Codigo"
+                };
+                sucursal.SelectedIndex = -1;
+                Button aceptar = new Button { Text = "Asignar", Left = 236, Top = 112, Width = 86, Height = 32 };
+                Button cancelar = new Button { Text = "Cancelar", Left = 328, Top = 112, Width = 86, Height = 32, DialogResult = DialogResult.Cancel };
+                aceptar.Click += (s, e) =>
+                {
+                    if (sucursal.SelectedItem == null)
+                    {
+                        MessageBox.Show("Selecciona la sucursal correcta para continuar.", "Sucursal requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+                    dialogo.DialogResult = DialogResult.OK;
+                    dialogo.Close();
+                };
+                dialogo.Controls.Add(indicacion);
+                dialogo.Controls.Add(sucursal);
+                dialogo.Controls.Add(aceptar);
+                dialogo.Controls.Add(cancelar);
+                dialogo.AcceptButton = aceptar;
+                dialogo.CancelButton = cancelar;
+
+                if (dialogo.ShowDialog(this) != DialogResult.OK) return null;
+                return Convert.ToInt32(sucursal.SelectedValue);
+            }
         }
         private static Panel CrearSeccionCompra(string titulo, out DataGridView grid)
         {
@@ -1042,11 +1262,20 @@ namespace Presentacion
                     throw new InvalidOperationException("Registra proveedores y sucursales activas primero.");
                 int proveedor = Convert.ToInt32(((DataRowView)compraProveedor.SelectedItem)["Codigo"]);
                 int sucursal = Convert.ToInt32(((DataRowView)compraSucursal.SelectedItem)["Codigo"]);
-                int id = negocio.GuardarCompra(proveedor, sucursal, compraFecha.Value, lineas);
+                int? idEditado = compraIdEdicion;
+                int id;
+                if (idEditado.HasValue)
+                {
+                    negocio.EditarCompra(idEditado.Value, proveedor, sucursal, compraFecha.Value, lineas);
+                    id = idEditado.Value;
+                }
+                else id = negocio.GuardarCompra(proveedor, sucursal, compraFecha.Value, lineas);
                 lineas.Clear();
+                compraIdEdicion = null;
+                btnGuardarCompra.Text = "Guardar compra y actualizar inventario";
                 MostrarLineas();
                 RefrescarTodo();
-                MessageBox.Show("Compra No. " + id + " guardada. El inventario y el kardex fueron actualizados.", "Compra guardada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Compra No. " + id + (idEditado.HasValue ? " actualizada" : " guardada") + ". El inventario y el kardex fueron actualizados.", "Compra", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 dialogoCompra.Close();
             });
         }

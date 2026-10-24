@@ -1,0 +1,444 @@
+[1mdiff --git a/src/SistemaFerreterias/Presentacion/VentasForms.cs b/src/SistemaFerreterias/Presentacion/VentasForms.cs[m
+[1mindex fcdc51b..d628679 100644[m
+[1m--- a/src/SistemaFerreterias/Presentacion/VentasForms.cs[m
+[1m+++ b/src/SistemaFerreterias/Presentacion/VentasForms.cs[m
+[36m@@ -14,17 +14,17 @@[m [mnamespace Presentacion[m
+     {[m
+         private readonly VentaNegocio _negocio = new VentaNegocio();[m
+         private readonly ClienteNegocio _clientes = new ClienteNegocio();[m
+[32m+[m[32m        private readonly PagoNegocio _historial = new PagoNegocio();[m
+         private readonly BindingList<DetalleVenta> _detalle = new BindingList<DetalleVenta>();[m
+         private readonly Label[] _resumenVentas = new Label[3];[m
+         private DataGridView _gridVentas;[m
+         private TextBox _buscarVentas;[m
+         private Label _textoRegistros, _textoPagina;[m
+[31m-        private Button _anterior, _siguiente, _editarVenta, _eliminarVenta;[m
+[32m+[m[32m        private Button _anterior, _siguiente;[m
+         private Form _dialogoVenta;[m
+         private DataTable _ventas = new DataTable();[m
+[31m-        private Venta _ventaEnEdicion;[m
+         private int _pagina = 1;[m
+[31m-        private const int VentasPorPagina = 10;[m
+[32m+[m[32m        private const int VentasPorPagina = 4;[m
+         private bool _cargando = true;[m
+ [m
+         public VentasForms()[m
+[36m@@ -40,7 +40,6 @@[m [mnamespace Presentacion[m
+             cboPago.Items.Add("Transferencia");[m
+             cboPago.Items.Add("Tarjeta de Crédito");[m
+             cboPago.Items.Add("Tarjeta de Débito");[m
+[31m-            cboPago.Items.Add("Pendiente");[m
+ [m
+             cboSucursal.DisplayMember = "Texto";[m
+             cboSucursal.ValueMember = "Id";[m
+[36m@@ -67,7 +66,6 @@[m [mnamespace Presentacion[m
+             _dialogoVenta.Controls.AddRange(controlesEditor);[m
+             ConfigurarEditorVentaCompacto();[m
+             EstiloAplicacion.AplicarDialogo(_dialogoVenta);[m
+[31m-            EnmarcarDialogoVenta();[m
+             _dialogoVenta.FormClosed += (s, e) => CargarVentas();[m
+ [m
+             TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(22, 18, 22, 18), BackColor = Color.FromArgb(241, 246, 246), ColumnCount = 1, RowCount = 3 };[m
+[36m@@ -84,16 +82,12 @@[m [mnamespace Presentacion[m
+             Panel barra = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.White };[m
+             barra.Controls.Add(new Label { Text = "Ventas recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });[m
+             barra.Controls.Add(new Label { Text = "Historial de ventas y clientes", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });[m
+[31m-            FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 530, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };[m
+[32m+[m[32m            FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 350, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };[m
+             Button nuevo = CrearBotonVenta("+ Nuevo registro", true); nuevo.Click += (s, e) => { Nuevo(); _dialogoVenta.Text = "Nueva venta"; _dialogoVenta.ShowDialog(this); };[m
+[31m-            _editarVenta = CrearBotonVenta("Editar", false); _editarVenta.Width = 78; _editarVenta.Click += (s, e) => EditarVentaSeleccionada(); _editarVenta.Enabled = false;[m
+[31m-            _eliminarVenta = CrearBotonVenta("Eliminar", false); _eliminarVenta.Width = 82; _eliminarVenta.Click += (s, e) => EliminarVentaSeleccionada(); _eliminarVenta.Enabled = false;[m
+             _buscarVentas = new TextBox { Width = 190, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle };[m
+             _buscarVentas.TextChanged += (s, e) => { _pagina = 1; MostrarVentas(); };[m
+[31m-            acciones.Controls.Add(nuevo); acciones.Controls.Add(_editarVenta); acciones.Controls.Add(_eliminarVenta); acciones.Controls.Add(_buscarVentas); barra.Controls.Add(acciones);[m
+[32m+[m[32m            acciones.Controls.Add(nuevo); acciones.Controls.Add(_buscarVentas); barra.Controls.Add(acciones);[m
+             _gridVentas = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };[m
+[31m-            _gridVentas.SelectionChanged += (s, e) => ActualizarAccionesVentaSeleccionada();[m
+[31m-            _gridVentas.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) ConsultarVentaSeleccionada(); };[m
+             _gridVentas.ColumnHeadersDefaultCellStyle.BackColor = Color.White; _gridVentas.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131); _gridVentas.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold); _gridVentas.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White; _gridVentas.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77); _gridVentas.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241); _gridVentas.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56); _gridVentas.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridVentas.RowTemplate.Height = 42;[m
+             _gridVentas.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridVentas.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;[m
+             _textoRegistros = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };[m
+[36m@@ -107,17 +101,6 @@[m [mnamespace Presentacion[m
+             Text = "Ventas"; BackColor = Color.FromArgb(241, 246, 246); MinimumSize = new Size(980, 620);[m
+         }[m
+ [m
+[31m-        private void EnmarcarDialogoVenta()[m
+[31m-        {[m
+[31m-            Panel cabecera = _dialogoVenta.Controls["cabeceraComunDialogo"] as Panel;[m
+[31m-            Panel contenido = _dialogoVenta.Controls["contenidoComunDialogo"] as Panel;[m
+[31m-            if (cabecera == null || contenido == null) return;[m
+[31m-[m
+[31m-            _dialogoVenta.BackColor = Color.FromArgb(71, 85, 105);[m
+[31m-            cabecera.Bounds = new Rectangle(2, 2, _dialogoVenta.ClientSize.Width - 4, 58);[m
+[31m-            contenido.Bounds = new Rectangle(2, 62, _dialogoVenta.ClientSize.Width - 4, _dialogoVenta.ClientSize.Height - 64);[m
+[31m-        }[m
+[31m-[m
+         private void ConfigurarEditorVentaCompacto()[m
+         {[m
+             foreach (Control control in _dialogoVenta.Controls) control.Anchor = AnchorStyles.Top | AnchorStyles.Left;[m
+[36m@@ -149,30 +132,19 @@[m [mnamespace Presentacion[m
+ [m
+         private void CargarVentas()[m
+         {[m
+[31m-            try { _ventas = _negocio.ListarVentas(); MostrarVentas(); }[m
+[32m+[m[32m            try { _ventas = _historial.MtdListarVentas(); MostrarVentas(); }[m
+             catch (Exception ex) { MessageBox.Show("No se pudo cargar el historial de ventas. " + ex.Message, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error); }[m
+         }[m
+ [m
+         private void MostrarVentas()[m
+         {[m
+             if (_gridVentas == null) return;[m
+[31m-            string criterio = (_buscarVentas.Text ?? string.Empty).Trim();[m
+[31m-            var filtradas = _ventas.AsEnumerable().Where(r =>[m
+[31m-                string.IsNullOrEmpty(criterio) ||[m
+[31m-                Convert.ToString(r["id_venta"]).IndexOf(criterio, StringComparison.CurrentCultureIgnoreCase) >= 0 ||[m
+[31m-                Convert.ToString(r["cliente"]).IndexOf(criterio, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();[m
+[31m-            int totalRegistros = filtradas.Count;[m
+[31m-            int paginas = Math.Max(1, (int)Math.Ceiling(totalRegistros / (double)VentasPorPagina));[m
+[31m-            _pagina = Math.Max(1, Math.Min(_pagina, paginas));[m
+[31m-            DataTable pagina = _ventas.Clone();[m
+[31m-            foreach (DataRow fila in filtradas.Skip((_pagina - 1) * VentasPorPagina).Take(VentasPorPagina))[m
+[31m-                pagina.ImportRow(fila);[m
+[31m-            _pagina = Math.Max(1, Math.Min(_pagina, paginas));[m
+[32m+[m[32m            var filtradas = _ventas.AsEnumerable().Where(r => String.IsNullOrWhiteSpace(_buscarVentas.Text) || Convert.ToString(r["id_venta"]).IndexOf(_buscarVentas.Text, StringComparison.CurrentCultureIgnoreCase) >= 0 || Convert.ToString(r["cliente"]).IndexOf(_buscarVentas.Text, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList();[m
+[32m+[m[32m            int paginas = Math.Max(1, (int)Math.Ceiling(filtradas.Count / (double)VentasPorPagina)); _pagina = Math.Max(1, Math.Min(_pagina, paginas));[m
+[32m+[m[32m            DataTable pagina = _ventas.Clone(); foreach (DataRow fila in filtradas.Skip((_pagina - 1) * VentasPorPagina).Take(VentasPorPagina)) pagina.ImportRow(fila);[m
+             _gridVentas.DataSource = pagina;[m
+             _gridVentas.Columns["id_venta"].HeaderText = "VENTA"; _gridVentas.Columns["id_venta"].FillWeight = 18;[m
+             _gridVentas.Columns["cliente"].HeaderText = "CLIENTE"; _gridVentas.Columns["cliente"].FillWeight = 28;[m
+[31m-            _gridVentas.Columns["sucursal"].HeaderText = "SUCURSAL"; _gridVentas.Columns["sucursal"].FillWeight = 24;[m
+[31m-            _gridVentas.Columns["id_sucursal"].Visible = false;[m
+             _gridVentas.Columns["fecha"].HeaderText = "FECHA"; _gridVentas.Columns["fecha"].DefaultCellStyle.Format = "dd MMM yyyy"; _gridVentas.Columns["fecha"].FillWeight = 20;[m
+             _gridVentas.Columns["total"].HeaderText = "TOTAL";[m
+             _gridVentas.Columns["total"].DefaultCellStyle.Format = "Q #,##0.00";[m
+[36m@@ -180,9 +152,8 @@[m [mnamespace Presentacion[m
+             _gridVentas.Columns["total"].FillWeight = 18;[m
+             _gridVentas.Columns["pagado"].Visible = false;[m
+             _gridVentas.ClearSelection();[m
+[31m-            ActualizarAccionesVentaSeleccionada();[m
+[31m-            int desde = totalRegistros == 0 ? 0 : ((_pagina - 1) * VentasPorPagina) + 1, hasta = Math.Min(_pagina * VentasPorPagina, totalRegistros);[m
+[31m-            _textoRegistros.Text = "Mostrando " + desde + "-" + hasta + " de " + totalRegistros + " registros"; _textoPagina.Text = _pagina + " de " + paginas;[m
+[32m+[m[32m            int desde = filtradas.Count == 0 ? 0 : ((_pagina - 1) * VentasPorPagina) + 1, hasta = Math.Min(_pagina * VentasPorPagina, filtradas.Count);[m
+[32m+[m[32m            _textoRegistros.Text = "Mostrando " + desde + "-" + hasta + " de " + filtradas.Count + " registros"; _textoPagina.Text = _pagina + " de " + paginas;[m
+             _anterior.Enabled = _pagina > 1; _siguiente.Enabled = _pagina < paginas;[m
+             var hoy = _ventas.AsEnumerable().Where(r => r.Field<DateTime>("fecha").Date == DateTime.Today).ToList(); decimal totalHoy = hoy.Sum(r => r.Field<decimal>("total"));[m
+             _resumenVentas[0].Text = hoy.Count.ToString("N0"); _resumenVentas[1].Text = "Q " + totalHoy.ToString("N2"); _resumenVentas[2].Text = (hoy.Count == 0 ? 0 : totalHoy / hoy.Count).ToString("Q #,##0.00", CultureInfo.GetCultureInfo("es-GT"));[m
+[36m@@ -190,220 +161,6 @@[m [mnamespace Presentacion[m
+ [m
+         private void CambiarPagina(int cambio) { _pagina += cambio; MostrarVentas(); }[m
+ [m
+[31m-        private void ConsultarVentaSeleccionada()[m
+[31m-        {[m
+[31m-            bool pendiente;[m
+[31m-            int idVenta = VentaSeleccionadaId(out pendiente);[m
+[31m-            if (idVenta <= 0) return;[m
+[31m-[m
+[31m-            try[m
+[31m-            {[m
+[31m-                Venta venta = _negocio.Consultar(idVenta);[m
+[31m-                if (venta == null)[m
+[31m-                {[m
+[31m-                    MessageBox.Show("No se encontró la venta seleccionada.", "Consulta de ventas", MessageBoxButtons.OK, MessageBoxIcon.Information);[m
+[31m-                    return;[m
+[31m-                }[m
+[31m-[m
+[31m-                ConfigurarModoConsulta(venta);[m
+[31m-                _dialogoVenta.ShowDialog(this);[m
+[31m-            }[m
+[31m-            catch (Exception ex)[m
+[31m-            {[m
+[31m-                MessageBox.Show("No se pudo consultar la venta. " + ex.Message, "Consulta de ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);[m
+[31m-            }[m
+[31m-            finally[m
+[31m-            {[m
+[31m-                ConfigurarModoCaptura();[m
+[31m-            }[m
+[31m-        }[m
+[31m-[m
+[31m-        private void ConfigurarModoConsulta(Venta venta)[m
+[31m-        {[m
+[31m-            _dialogoVenta.Text = "Consulta de venta No. " + venta.IdVenta;[m
+[31m-            lblTitulo.Text = "Venta No. " + venta.IdVenta;[m
+[31m-            lblSubtitulo.Text = "Fecha: " + venta.Fecha.ToString("dd/MM/yyyy HH:mm");[m
+[31m-            lblTitulo.Visible = true;[m
+[31m-            lblSubtitulo.Visible = true;[m
+[31m-            lblTitulo.SetBounds(24, 18, 500, 32);[m
+[31m-            lblSubtitulo.SetBounds(26, 57, 500, 22);[m
+[31m-[m
+[31m-            bool tieneSucursal = venta.IdSucursal > 0;[m
+[31m-            lblSucursal.Visible = tieneSucursal; cboSucursal.Visible = tieneSucursal;[m
+[31m-            if (tieneSucursal)[m
+[31m-            {[m
+[31m-                lblSucursal.Text = "Sucursal";[m
+[31m-                lblSucursal.SetBounds(454, 98, 100, 22);[m
+[31m-                cboSucursal.SetBounds(454, 122, 410, 30);[m
+[31m-                cboSucursal.Enabled = false;[m
+[31m-                cboSucursal.SelectedValue = venta.IdSucursal;[m
+[31m-            }[m
+[31m-            lblCliente.Visible = true; cboCliente.Visible = true; cboCliente.Enabled = false;[m
+[31m-            lblCliente.SetBounds(24, 98, 90, 22); cboCliente.SetBounds(24, 122, 410, 30);[m
+[31m-            cboCliente.SelectedValue = venta.IdCliente;[m
+[31m-            lblProducto.Visible = false; cboProducto.Visible = false;[m
+[31m-            lblCantidad.Visible = false; nudCantidad.Visible = false;[m
+[31m-            btnAgregar.Visible = false;[m
+[31m-            lblPago.Visible = false; cboPago.Visible = false;[m
+[31m-[m
+[31m-            dgvDetalle.DataSource = new BindingList<DetalleVenta>(venta.Detalles);[m
+[31m-            dgvDetalle.ReadOnly = true;[m
+[31m-            dgvDetalle.SetBounds(24, 174, 840, 290);[m
+[31m-            ConfigurarGrid();[m
+[31m-            btnQuitar.Visible = false;[m
+[31m-            lblTotal.Visible = true; lblTotalValor.Visible = true;[m
+[31m-            lblTotal.SetBounds(650, 478, 82, 34); lblTotalValor.SetBounds(735, 478, 125, 34);[m
+[31m-            lblTotalValor.Text = "Q " + venta.Total.ToString("N2");[m
+[31m-            btnNuevo.Visible = false; btnGuardar.Visible = false;[m
+[31m-            btnCerrar.Visible = true; btnCerrar.Text = "Cerrar"; btnCerrar.SetBounds(24, 548, 120, 40);[m
+[31m-        }[m
+[31m-[m
+[31m-        private void ConfigurarModoCaptura()[m
+[31m-        {[m
+[31m-            ConfigurarEditorVentaCompacto();[m
+[31m-            _dialogoVenta.Text = _ventaEnEdicion == null ? "Nueva venta" : "Editar venta No. " + _ventaEnEdicion.IdVenta;[m
+[31m-            lblTitulo.Visible = false; lblSubtitulo.Visible = false;[m
+[31m-            lblSucursal.Visible = true; cboSucursal.Visible = true;[m
+[31m-            lblCliente.Visible = true; cboCliente.Visible = true; cboCliente.Enabled = true;[m
+[31m-            lblProducto.Visible = true; cboProducto.Visible = true;[m
+[31m-            lblCantidad.Visible = true; nudCantidad.Visible = true;[m
+[31m-            nudCantidad.Enabled = true;[m
+[31m-            btnAgregar.Visible = true;[m
+[31m-            lblPago.Visible = true; cboPago.Visible = true;[m
+[31m-            cboPago.Enabled = _ventaEnEdicion == null;[m
+[31m-            dgvDetalle.DataSource = _detalle;[m
+[31m-            dgvDetalle.ReadOnly = false;[m
+[31m-            dgvDetalle.SetBounds(24, 244, 840, 220);[m
+[31m-            btnQuitar.Visible = true;[m
+[31m-            lblTotal.Visible = true; lblTotalValor.Visible = true;[m
+[31m-            lblTotal.SetBounds(584, 478, 82, 34); lblTotalValor.SetBounds(668, 478, 190, 34);[m
+[31m-            btnNuevo.Visible = true; btnGuardar.Visible = true;[m
+[31m-            btnGuardar.Text = _ventaEnEdicion == null ? "Guardar venta" : "Actualizar venta";[m
+[31m-            btnAgregar.Text = _ventaEnEdicion == null ? "Agregar" : "Aplicar";[m
+[31m-            lblSucursal.Text = _ventaEnEdicion == null ? "Sucursal" : "Sucursal original";[m
+[31m-            if (_ventaEnEdicion != null) lblSucursal.Width = 150;[m
+[31m-            btnCerrar.Visible = true; btnCerrar.Text = "Cerrar"; btnCerrar.SetBounds(354, 548, 120, 40);[m
+[31m-            ConfigurarGrid();[m
+[31m-            ActualizarTotal();[m
+[31m-        }[m
+[31m-[m
+[31m-        private void ActualizarAccionesVentaSeleccionada()[m
+[31m-        {[m
+[31m-            DataRowView fila = _gridVentas == null || _gridVentas.SelectedRows.Count == 0[m
+[31m-                ? null[m
+[31m-                : _gridVentas.SelectedRows[0].DataBoundItem as DataRowView;[m
+[31m-            bool pendiente = fila != null && fila.Row.Table.Columns.Contains("pagado") && Convert.ToDecimal(fila["pagado"]) == 0m;[m
+[31m-            if (_editarVenta != null) _editarVenta.Enabled = pendiente;[m
+[31m-            if (_eliminarVenta != null) _eliminarVenta.Enabled = pendiente;[m
+[31m-        }[m
+[31m-[m
+[31m-        private int VentaSeleccionadaId(out bool pendiente)[m
+[31m-        {[m
+[31m-            pendiente = false;[m
+[31m-            DataRowView fila = _gridVentas.SelectedRows.Count == 0 ? null : _gridVentas.SelectedRows[0].DataBoundItem as DataRowView;[m
+[31m-            if (fila == null) return 0;[m
+[31m-            pendiente = fila.Row.Table.Columns.Contains("pagado") && Convert.ToDecimal(fila["pagado"]) == 0m;[m
+[31m-            return Convert.ToInt32(fila["id_venta"]);[m
+[31m-        }[m
+[31m-[m
+[31m-        private void EditarVentaSeleccionada()[m
+[31m-        {[m
+[31m-            bool pendiente;[m
+[31m-            int idVenta = VentaSeleccionadaId(out pendiente);[m
+[31m-            if (idVenta <= 0) return;[m
+[31m-            if (!pendiente)[m
+[31m-            {[m
+[31m-                MessageBox.Show("Solo se pueden editar ventas pendientes, sin pagos registrados.", "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);[m
+[31m-                return;[m
+[31m-            }[m
+[31m-[m
+[31m-            try[m
+[31m-            {[m
+[31m-                Venta venta = _negocio.Obtener(idVenta);[m
+[31m-                if (venta == null) throw new InvalidOperationException("No se encontró la venta seleccionada.");[m
+[31m-                Nuevo();[m
+[31m-                _ventaEnEdicion = venta;[m
+[31m-                _dialogoVenta.Text = "Editar venta No. " + idVenta;[m
+[31m-                lblSucursal.Text = "Sucursal original";[m
+[31m-                lblSucursal.Width = 150;[m
+[31m-                btnGuardar.Text = "Actualizar venta";[m
+[31m-                btnAgregar.Text = "Aplicar";[m
+[31m-                cboSucursal.SelectedIndex = -1;[m
+[31m-                if (venta.IdSucursal > 0)[m
+[31m-                    cboSucursal.SelectedValue = venta.IdSucursal;[m
+[31m-                cboCliente.SelectedValue = venta.IdCliente;[m
+[31m-                cboPago.SelectedItem = "Pendiente";[m
+[31m-                cboPago.Enabled = false;[m
+[31m-                foreach (DetalleVenta detalle in venta.Detalles)[m
+[31m-                    _detalle.Add(new DetalleVenta { IdProducto = detalle.IdProducto, Codigo = detalle.Codigo, Producto = detalle.Producto, Cantidad = detalle.Cantidad, PrecioUnitario = detalle.PrecioUnitario });[m
+[31m-                ActualizarTotal();[m
+[31m-                _dialogoVenta.ShowDialog(this);[m
+[31m-            }[m
+[31m-            catch (Exception ex)[m
+[31m-            {[m
+[31m-                MessageBox.Show("No se pudo abrir la venta. " + ex.Message, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);[m
+[31m-            }[m
+[31m-        }[m
+[31m-[m
+[31m-        private void EliminarVentaSeleccionada()[m
+[31m-        {[m
+[31m-            bool pendiente;[m
+[31m-            int idVenta = VentaSeleccionadaId(out pendiente);[m
+[31m-            if (idVenta <= 0) return;[m
+[31m-            if (!pendiente)[m
+[31m-            {[m
+[31m-                MessageBox.Show("Solo se pueden eliminar ventas pendientes, sin pagos registrados.", "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);[m
+[31m-                return;[m
+[31m-            }[m
+[31m-[m
+[31m-            try[m
+[31m-            {[m
+[31m-                int idSucursal = SucursalSeleccionadaId();[m
+[31m-                if (idSucursal <= 0) idSucursal = ElegirSucursalOriginal();[m
+[31m-                if (idSucursal <= 0) return;[m
+[31m-                DialogResult confirmacion = MessageBox.Show([m
+[31m-                    "Se restaurará el inventario de la sucursal original registrada y se eliminarán los detalles de la venta No. " + idVenta + ". ¿Deseas continuar?",[m
+[31m-                    "Eliminar venta pendiente", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);[m
+[31m-                if (confirmacion != DialogResult.Yes) return;[m
+[31m-[m
+[31m-                string error = _negocio.EliminarPendiente(idVenta, idSucursal);[m
+[31m-                if (error != "")[m
+[31m-                {[m
+[31m-                    MessageBox.Show(error, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);[m
+[31m-                    return;[m
+[31m-                }[m
+[31m-                CargarVentas();[m
+[31m-            }[m
+[31m-            catch (Exception ex)[m
+[31m-            {[m
+[31m-                MessageBox.Show("No se pudo eliminar la venta. " + ex.Message, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);[m
+[31m-            }[m
+[31m-        }[m
+[31m-[m
+[31m-        private int SucursalSeleccionadaId()[m
+[31m-        {[m
+[31m-            DataRowView fila = _gridVentas == null || _gridVentas.SelectedRows.Count == 0[m
+[31m-                ? null[m
+[31m-                : _gridVentas.SelectedRows[0].DataBoundItem as DataRowView;[m
+[31m-            if (fila == null || !fila.Row.Table.Columns.Contains("id_sucursal") || fila["id_sucursal"] == DBNull.Value)[m
+[31m-                return 0;[m
+[31m-            return Convert.ToInt32(fila["id_sucursal"]);[m
+[31m-        }[m
+[31m-[m
+[31m-        private int ElegirSucursalOriginal()[m
+[31m-        {[m
+[31m-            using (Form dialogo = new Form { Text = "Sucursal original", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MinimizeBox = false, MaximizeBox = false, ShowInTaskbar = false, ClientSize = new Size(390, 150) })[m
+[31m-            {[m
+[31m-                Label instruccion = new Label { Left = 18, Top = 14, Width = 350, Height = 38, Text = "Este registro no tiene sucursal guardada. Selecciona dónde se registró para restaurar el inventario." };[m
+[31m-                ComboBox sucursal = new ComboBox { Left = 18, Top = 58, Width = 350, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Texto", ValueMember = "Id", DataSource = _negocio.ListarSucursales() };[m
+[31m-                Button aceptar = new Button { Text = "Continuar", Left = 202, Top = 103, Width = 80, DialogResult = DialogResult.OK };[m
+[31m-                Button cancelar = new Button { Text = "Cancelar", Left = 288, Top = 103, Width = 80, DialogResult = DialogResult.Cancel };[m
+[31m-                dialogo.Controls.AddRange(new Control[] { instruccion, sucursal, aceptar, cancelar });[m
+[31m-                dialogo.AcceptButton = aceptar; dialogo.CancelButton = cancelar;[m
+[31m-                return dialogo.ShowDialog(this) == DialogResult.OK && sucursal.SelectedValue != null ? Convert.ToInt32(sucursal.SelectedValue) : 0;[m
+[31m-            }[m
+[31m-        }[m
+[31m-[m
+         private void ConfigurarGrid()[m
+         {[m
+             if (dgvDetalle.Columns["IdProducto"] != null)[m
+[36m@@ -435,15 +192,7 @@[m [mnamespace Presentacion[m
+ [m
+             cboProducto.DisplayMember = "Texto";[m
+             cboProducto.ValueMember = "IdProducto";[m
+[31m-            var productos = _negocio.ListarProductos(sucursal.Id);[m
+[31m-            if (_ventaEnEdicion != null)[m
+[31m-                foreach (ProductoVenta producto in productos)[m
+[31m-                {[m
+[31m-                    DetalleVenta anterior = _ventaEnEdicion.Detalles.FirstOrDefault(d => d.IdProducto == producto.IdProducto);[m
+[31m-                    if (anterior != null) producto.Existencia += anterior.Cantidad;[m
+[31m-                }[m
+[31m-            cboProducto.DataSource = productos;[m
+[31m-            ActualizarTotal();[m
+[32m+[m[32m            cboProducto.DataSource = _negocio.ListarProductos(sucursal.Id);[m
+         }[m
+ [m
+         private void ActualizarTotal()[m
+[36m@@ -452,18 +201,11 @@[m [mnamespace Presentacion[m
+             lblTotalValor.Text = "Q " + total.ToString("N2");[m
+ [m
+             // No se puede cambiar de sucursal mientras haya productos en la venta[m
+[31m-            cboSucursal.Enabled = _detalle.Count == 0 || (_ventaEnEdicion != null && cboSucursal.SelectedIndex < 0);[m
+[32m+[m[32m            cboSucursal.Enabled = _detalle.Count == 0;[m
+         }[m
+ [m
+         private void Nuevo()[m
+         {[m
+[31m-            _ventaEnEdicion = null;[m
+[31m-            if (_dialogoVenta != null) _dialogoVenta.Text = "Nueva venta";[m
+[31m-            lblSucursal.Text = "Sucursal";[m
+[31m-            lblSucursal.Width = 90;[m
+[31m-            btnGuardar.Text = "Guardar venta";[m
+[31m-            btnAgregar.Text = "Agregar";[m
+[31m-            cboPago.Enabled = true;[m
+             _detalle.Clear();[m
+             cboPago.SelectedIndex = -1;[m
+             nudCantidad.Value = 1;[m
+[36m@@ -489,12 +231,11 @@[m [mnamespace Presentacion[m
+             int cantidad = (int)nudCantidad.Value;[m
+             DetalleVenta existente = _detalle.FirstOrDefault(d => d.IdProducto == p.IdProducto);[m
+             int yaAgregado = existente == null ? 0 : existente.Cantidad;[m
+[31m-            int cantidadFinal = existente != null && _ventaEnEdicion != null ? cantidad : yaAgregado + cantidad;[m
+ [m
+[31m-            if (cantidadFinal > p.Existencia)[m
+[32m+[m[32m            if (yaAgregado + cantidad > p.Existencia)[m
+             {[m
+                 MessageBox.Show([m
+[31m-                    "Stock insuficiente. Disponible para esta venta: " + p.Existencia + ".",[m
+[32m+[m[32m                    "Stock insuficiente. Disponible: " + p.Existencia + ", ya agregado: " + yaAgregado + ".",[m
+                     "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);[m
+                 return;[m
+             }[m
+[36m@@ -502,7 +243,7 @@[m [mnamespace Presentacion[m
+             if (existente != null)[m
+             {[m
+                 int indice = _detalle.IndexOf(existente);[m
+[31m-                existente.Cantidad = _ventaEnEdicion != null ? cantidad : cantidadFinal;[m
+[32m+[m[32m                existente.Cantidad += cantidad;[m
+                 _detalle.ResetItem(indice);[m
+             }[m
+             else[m
+[36m@@ -544,14 +285,13 @@[m [mnamespace Presentacion[m
+ [m
+             Venta v = new Venta[m
+             {[m
+[31m-                IdVenta = _ventaEnEdicion == null ? 0 : _ventaEnEdicion.IdVenta,[m
+                 IdCliente = cliente == null ? 0 : cliente.IdCliente,[m
+                 IdSucursal = sucursal == null ? 0 : sucursal.Id,[m
+[31m-                MetodoPago = _ventaEnEdicion == null ? cboPago.Text : "Pendiente",[m
+[32m+[m[32m                MetodoPago = cboPago.Text,[m
+                 Detalles = _detalle.ToList()[m
+             };[m
+ [m
+[31m-            string error = _ventaEnEdicion == null ? _negocio.Guardar(v) : _negocio.ActualizarPendiente(v);[m
+[32m+[m[32m            string error = _negocio.Guardar(v);[m
+ [m
+             if (error != "")[m
+             {[m
+[36m@@ -559,18 +299,12 @@[m [mnamespace Presentacion[m
+                 return;[m
+             }[m
+ [m
+[31m-            string estadoPago = string.Equals(v.MetodoPago, "Pendiente", StringComparison.OrdinalIgnoreCase)[m
+[31m-                ? "\nSaldo pendiente disponible en Pagos."[m
+[31m-                : "";[m
+[31m-[m
+             MessageBox.Show([m
+[31m-                (_ventaEnEdicion == null ? "Venta No. " + v.IdVenta + " guardada." : "Venta No. " + v.IdVenta + " actualizada.") + "\nTotal: Q " + v.Total.ToString("N2") + estadoPago,[m
+[32m+[m[32m                "Venta No. " + v.IdVenta + " guardada.\nTotal: Q " + v.Total.ToString("N2"),[m
+                 "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Information);[m
+ [m
+[31m-            bool estabaEditando = _ventaEnEdicion != null;[m
+             Nuevo();[m
+             CargarProductos();   // refresca las existencias[m
+[31m-            if (estabaEditando) _dialogoVenta.Close();[m
+         }[m
+ [m
+         private void btnCerrar_Click(object sender, EventArgs e)[m

@@ -16,6 +16,17 @@ namespace Datos
         {
             try
             {
+                // La cadena del usuario permite usar autenticación SQL sin guardar
+                // contraseñas en el repositorio.
+                string conexionDelUsuario = Environment.GetEnvironmentVariable(
+                    "FERRETERIA_CONNECTION_STRING", EnvironmentVariableTarget.User);
+
+                if (!string.IsNullOrWhiteSpace(conexionDelUsuario))
+                {
+                    _cadenaConexion = conexionDelUsuario;
+                    return;
+                }
+
                 string conexionPorEntorno = Environment.GetEnvironmentVariable("FERRETERIA_CONNECTION_STRING");
 
                 if (!string.IsNullOrWhiteSpace(conexionPorEntorno))
@@ -28,7 +39,7 @@ namespace Datos
                 if (configuracion == null || string.IsNullOrWhiteSpace(configuracion.ConnectionString))
                 {
                     throw new ConfigurationErrorsException(
-                        "No existe una cadena de conexión llamada 'ConexionSQLServer' en App.config.");
+                        "No existe una cadena de conexión llamada 'ConexionSQLServer' en App.config ni está definida FERRETERIA_CONNECTION_STRING.");
                 }
 
                 _cadenaConexion = configuracion.ConnectionString;

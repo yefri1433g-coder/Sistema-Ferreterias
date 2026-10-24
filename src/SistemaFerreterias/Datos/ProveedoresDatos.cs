@@ -29,13 +29,7 @@ namespace Datos
                     string QueryConsultar = @"
                         SELECT id_proveedor AS CodigoProveedor, nombre AS NombreProveedor, Contacto, Telefono, Correo, Direccion
                         FROM Tbl_Proveedores
-                        -- Búsqueda por PK y atributos principales del proveedor.
-                        WHERE (@Filtro = ''
-                               OR CONVERT(VARCHAR(20), id_proveedor) LIKE '%' + @Filtro + '%'
-                               OR nombre LIKE '%' + @Filtro + '%'
-                               OR contacto LIKE '%' + @Filtro + '%'
-                               OR telefono LIKE '%' + @Filtro + '%'
-                               OR correo LIKE '%' + @Filtro + '%')
+                        WHERE (@Filtro = '' OR nombre LIKE '%' + @Filtro + '%')
                         ORDER BY id_proveedor;
                     ";
 
@@ -84,8 +78,56 @@ namespace Datos
                 return MtdConsultar();
             }
 
-            // MtdLeer concentra el SELECT parametrizado para Consultar y Buscar.
-            return MtdLeer(filtro.Trim());
+            List<ProveedoresEntidad> lista = new List<ProveedoresEntidad>();
+
+            try
+            {
+                using (SqlConnection conn = _conexionDatos.MtdObtenerConexionBDD())
+                {
+                    string QueryBuscar = @"
+                        SELECT id_proveedor AS CodigoProveedor,
+                               nombre AS NombreProveedor,
+                               contacto,
+                               telefono,
+                               correo,
+                               direccion
+                        FROM dbo.Tbl_Proveedores
+                        WHERE nombre LIKE '%' + @Nombre + '%'
+                        ORDER BY id_proveedor;
+                    ";
+
+                    using (SqlCommand cmd = new SqlCommand(QueryBuscar, conn))
+                    {
+                        // El valor de búsqueda se envía como parámetro, no se concatena al SQL.
+                        cmd.Parameters.Add("@Nombre", SqlDbType.VarChar, 100).Value = filtro.Trim();
+                        conn.Open();
+
+                        using (SqlDataReader rd = cmd.ExecuteReader())
+                        {
+                            while (rd.Read())
+                            {
+                                ProveedoresEntidad item = new ProveedoresEntidad
+                                (
+                                    Convert.ToInt32(rd["CodigoProveedor"]),
+                                    rd["NombreProveedor"].ToString(),
+                                    rd["contacto"].ToString(),
+                                    rd["telefono"].ToString(),
+                                    rd["correo"].ToString(),
+                                    rd["direccion"].ToString()
+                                );
+
+                                lista.Add(item);
+                            }
+                        }
+                    }
+                }
+
+                return lista;
+            }
+            catch (SqlException ex)
+            {
+                throw ErrorDatos.Traducir(ex, "buscar proveedores");
+            }
         }
 
         // =====================================================

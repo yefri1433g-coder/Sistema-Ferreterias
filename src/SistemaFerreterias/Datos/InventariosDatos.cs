@@ -30,13 +30,7 @@ namespace Datos
                                s.nombre AS NombreSucursal, i.fecha AS FechaInventario, i.descripcion AS Descripcion
                         FROM Tbl_Inventarios i
                         INNER JOIN Tbl_Sucursales s ON s.id_sucursal = i.id_sucursal
-                        -- El mismo filtro permite localizar los cuatro campos principales del inventario.
-                        WHERE (@Filtro = ''
-                               OR CONVERT(VARCHAR(20), i.id_inventario) LIKE '%' + @Filtro + '%'
-                               OR CONVERT(VARCHAR(20), i.id_sucursal) LIKE '%' + @Filtro + '%'
-                               OR s.nombre LIKE '%' + @Filtro + '%'
-                               OR CONVERT(VARCHAR(10), i.fecha, 103) LIKE '%' + @Filtro + '%'
-                               OR i.descripcion LIKE '%' + @Filtro + '%')
+                        WHERE (@Filtro = '' OR s.nombre LIKE '%' + @Filtro + '%' OR i.descripcion LIKE '%' + @Filtro + '%')
                         ORDER BY i.id_inventario DESC;
                     ";
 
