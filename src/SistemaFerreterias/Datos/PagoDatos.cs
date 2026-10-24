@@ -64,7 +64,8 @@ namespace Datos
 
                 using (SqlDataAdapter da = new SqlDataAdapter(sql, cn))
                 {
-                    da.SelectCommand.Parameters.AddWithValue("@id", idVenta);
+                    // El identificador de venta es int en SQL Server; se declara el tipo explícitamente.
+                    da.SelectCommand.Parameters.Add("@id", SqlDbType.Int).Value = idVenta;
                     da.Fill(dt);
                 }
             }
@@ -93,6 +94,31 @@ namespace Datos
             }
         }
 
+        // Calcula el máximo disponible al editar un pago, excluyendo ese mismo registro.
+        public decimal MtdObtenerSaldoParaEditar(int idVenta, int idPago)
+        {
+            using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
+            {
+                string sql = @"SELECT v.total - ISNULL(SUM(p.monto), 0)
+                               FROM Tbl_Ventas v
+                               LEFT JOIN Tbl_Pagos p
+                                   ON p.id_venta = v.id_venta AND p.id_pago <> @pago
+                               WHERE v.id_venta = @venta
+                               GROUP BY v.total";
+
+                using (SqlCommand cmd = new SqlCommand(sql, cn))
+                {
+                    cmd.Parameters.Add("@venta", SqlDbType.Int).Value = idVenta;
+                    cmd.Parameters.Add("@pago", SqlDbType.Int).Value = idPago;
+                    cn.Open();
+                    object resultado = cmd.ExecuteScalar();
+                    return resultado == null || resultado == DBNull.Value
+                        ? 0m
+                        : Convert.ToDecimal(resultado);
+                }
+            }
+        }
+
         public bool MtdInsertar(Pago pago)
         {
             using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
@@ -110,6 +136,48 @@ namespace Datos
 
                     return cmd.ExecuteNonQuery() > 0;
                 }
+            }
+        }
+
+        // Actualiza un pago por su PK, manteniendo parametrizados todos los valores.
+        public bool MtdActualizar(Pago pago)
+        {
+            using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
+            {
+                string sql = @"UPDATE Tbl_Pagos
+                               SET id_venta = @venta,
+                                   fecha = @fecha,
+                                   monto = @monto,
+                                   metodo_pago = @metodo
+                               WHERE id_pago = @id";
+
+                using (SqlCommand cmd = new SqlCommand(sql, cn))
+                {
+                    cmd.Parameters.Add("@venta", SqlDbType.Int).Value = pago.IdVenta;
+                    cmd.Parameters.Add("@fecha", SqlDbType.DateTime).Value = pago.Fecha;
+                    SqlParameter monto = cmd.Parameters.Add("@monto", SqlDbType.Decimal);
+                    monto.Precision = 12;
+                    monto.Scale = 2;
+                    monto.Value = pago.Monto;
+                    cmd.Parameters.Add("@metodo", SqlDbType.VarChar, 30).Value = pago.MetodoPago;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = pago.IdPago;
+
+                    cn.Open();
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        // Elimina únicamente el pago identificado por su clave primaria.
+        public bool MtdEliminar(int idPago)
+        {
+            using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
+            using (SqlCommand cmd = new SqlCommand(
+                "DELETE FROM Tbl_Pagos WHERE id_pago = @id", cn))
+            {
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = idPago;
+                cn.Open();
+                return cmd.ExecuteNonQuery() > 0;
             }
         }
     }
