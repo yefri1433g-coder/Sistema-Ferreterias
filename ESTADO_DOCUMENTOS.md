@@ -1,6 +1,6 @@
 # Estado de documentos
 
-Última revisión: 23 de octubre de 2026.
+Última revisión: 28 de octubre de 2026.
 
 | Documento | Estado | Nota |
 |---|---|---|
@@ -9,7 +9,7 @@
 | 03 CRUD relacional | COMPLETADO PARCIAL | El Integrante 1, Yefry Yahir García García, confirmó los módulos Inventarios y Empleados. No se registran otros módulos como probados. |
 | 04 Maestro detalle | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó Traslados: Consultar con detalle, Agregar, Buscar, Editar y Eliminar. |
 | 05 Git colaborativo | PARCIAL | El Integrante 1, Yefry Yahir García García, confirmó su parte: repositorio privado, rama `main` publicada, clon en `C:\2026_Progra2_Integracion` y rama `integrante1` publicada. Faltan ramas de los otros integrantes, Pull Requests y la confirmación de los tres; no está finalizado. |
-| 06 Login y roles | BLOQUEADO | Debe quedar para la etapa final. |
+| 06 Login y roles | IMPLEMENTADO; PENDIENTE INTEGRACIÓN Y VALIDACIÓN FINAL | El 28 de octubre se aplicó la migración de roles y accesos configurables, el usuario y rol conectados se muestran en los encabezados de los CRUD de Usuarios y Roles, y la solución compiló. El estudiante confirmó que el Login funciona. Falta validar la navegación por rol y los encabezados, integrar los cambios a `main` y ejecutar la aplicación en esa rama. |
 | 07 Panel de navegación | BLOQUEADO | Requiere autorización posterior. |
 | 08 Dashboard | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó contra SQL Server: Ventas de hoy, Productos activos, Traslados pendientes, Clientes registrados, Ventas de los últimos 7 días, Estado de existencias y Actividad reciente. El diseño se conservó sin modificar `DashboardForms.Designer.cs`. |
 | 09 Revisión del proyecto | BLOQUEADO | Requiere autorización posterior. |

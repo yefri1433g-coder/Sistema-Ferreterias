@@ -12,9 +12,11 @@ namespace Negocio
     public class UsuarioNegocio
     {
         private readonly UsuarioDatos _datos = new UsuarioDatos();
+        private readonly RolNegocio _roles = new RolNegocio();
         // Se conservan los cinco usuarios de ejemplo y la cuenta admin.
         private const int UltimoIdUsuarioOriginal = 6;
 
+        // Valida los campos y coordina la consulta de acceso con la capa Datos.
         public Usuario Login(string nombreUsuario, string contrasena, out string mensaje)
         {
             mensaje = "";
@@ -31,7 +33,17 @@ namespace Negocio
                 return null;
             }
 
-            Usuario usuario = _datos.Validar(nombreUsuario.Trim(), contrasena);
+            Usuario usuario;
+            try
+            {
+                // Pide a Datos validar la cuenta y devolver su rol.
+                usuario = _datos.Validar(nombreUsuario.Trim(), contrasena);
+            }
+            catch (Exception ex)
+            {
+                mensaje = "No fue posible validar el acceso. " + ex.Message;
+                return null;
+            }
 
             if (usuario == null)
                 mensaje = "Usuario o contraseña incorrectos.";
@@ -42,6 +54,12 @@ namespace Negocio
         public List<Usuario> Listar()
         {
             return _datos.Listar();
+        }
+
+        public List<string> ListarRoles()
+        {
+            // Devuelve los roles activos que se pueden asignar a usuarios.
+            return _roles.Listar().Select(r => r.NombreRol).ToList();
         }
 
         public List<Usuario> Buscar(string texto)

@@ -13,6 +13,7 @@ namespace Presentacion
         private readonly DashboardNegocio _dashboardNegocio = new DashboardNegocio();
         private PanelGrafico graficoVentas, graficoInventario;
         private FlowLayoutPanel listaActividad;
+        private Panel panelAccesosRapidos;
         public event Action<string> NavegacionSolicitada;
 
         private readonly Color fondo = Color.FromArgb(239, 245, 244);
@@ -158,6 +159,7 @@ namespace Presentacion
             fila.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35F));
             Panel actividad = CrearTarjetaSeccion("Actividad reciente", "Movimientos registrados", listaActividad, new Padding(5, 5, 7, 5));
             Panel accesos = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(12, 96, 86), Margin = new Padding(5), Padding = new Padding(17) };
+            panelAccesosRapidos = accesos;
             Label etiqueta = new Label { Text = "ACCESO RÁPIDO", Location = new Point(18, 17), Size = new Size(220, 18), Font = new Font("Segoe UI", 7F, FontStyle.Bold), ForeColor = Color.FromArgb(127, 237, 202), BackColor = Color.Transparent };
             Label pregunta = new Label { Text = "¿Qué necesitas hacer?", Location = new Point(18, 39), Size = new Size(250, 26), Font = new Font("Segoe UI", 11F, FontStyle.Bold), ForeColor = Color.White, BackColor = Color.Transparent };
             btnActualizar.Text = "+  Nueva venta";
@@ -172,13 +174,7 @@ namespace Presentacion
             accesos.Controls.Add(pregunta);
             accesos.Controls.Add(btnActualizar);
             accesos.Controls.Add(btnCerrar);
-            accesos.Resize += (s, e) =>
-            {
-                int ancho = Math.Max(88, (accesos.ClientSize.Width - 48) / 2);
-                btnActualizar.Width = ancho;
-                btnCerrar.Left = btnActualizar.Right + 10;
-                btnCerrar.Width = ancho;
-            };
+            accesos.Resize += (s, e) => AjustarAccesosRapidos();
             Redondear(accesos, 15);
             fila.Controls.Add(actividad, 0, 0);
             fila.Controls.Add(accesos, 1, 0);
@@ -284,6 +280,39 @@ namespace Presentacion
         {
             Action<string> navegar = NavegacionSolicitada;
             if (navegar != null) navegar(modulo);
+        }
+
+        public void ConfigurarAccesosRapidos(ICollection<string> modulosPermitidos)
+        {
+            bool puedeVender = modulosPermitidos != null && modulosPermitidos.Contains("Ventas");
+            bool puedeVerProductos = modulosPermitidos != null && modulosPermitidos.Contains("Productos");
+            btnActualizar.Visible = puedeVender;
+            btnCerrar.Visible = puedeVerProductos;
+            if (panelAccesosRapidos != null)
+                panelAccesosRapidos.Visible = puedeVender || puedeVerProductos;
+            AjustarAccesosRapidos();
+        }
+
+        private void AjustarAccesosRapidos()
+        {
+            if (panelAccesosRapidos == null) return;
+            int ancho = Math.Max(88, panelAccesosRapidos.ClientSize.Width - 48);
+            if (btnActualizar.Visible && btnCerrar.Visible)
+            {
+                ancho = Math.Max(88, (panelAccesosRapidos.ClientSize.Width - 48) / 2);
+                btnActualizar.Left = 18;
+                btnCerrar.Left = btnActualizar.Right + 10;
+            }
+            else if (btnActualizar.Visible)
+            {
+                btnActualizar.Left = 18;
+            }
+            else if (btnCerrar.Visible)
+            {
+                btnCerrar.Left = 18;
+            }
+            btnActualizar.Width = ancho;
+            btnCerrar.Width = ancho;
         }
 
         private void btnActualizar_Click(object sender, EventArgs e) { MtdActualizar(); }

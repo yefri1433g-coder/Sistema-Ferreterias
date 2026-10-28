@@ -13,6 +13,7 @@ namespace Presentacion
     {
         private const int RegistrosPorPagina = 10;
         private readonly UsuarioNegocio _negocio = new UsuarioNegocio();
+        private readonly Usuario _usuarioSesion;
         private List<Usuario> _usuarios = new List<Usuario>();
         private List<Usuario> _usuariosTotales = new List<Usuario>();
         private int _idSeleccionado = 0;
@@ -27,8 +28,14 @@ namespace Presentacion
         private const int UsuariosPorPaginaVista = 4;
 
         public UsuariosForms()
+            : this(null)
+        {
+        }
+
+        public UsuariosForms(Usuario usuarioSesion)
         {
             InitializeComponent();
+            _usuarioSesion = usuarioSesion;
             PrepararDisenoUsuarios();
             EstiloAplicacion.Aplicar(this);
             MinimumSize = new System.Drawing.Size(780, 520);
@@ -57,6 +64,17 @@ namespace Presentacion
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 110)); layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(18, 10, 18, 8) };
             encabezado.Controls.Add(new Label { Text = "Inicio  /  Usuarios", Location = new Point(18, 6), AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            Label usuarioConectado = new Label
+            {
+                Text = TextoUsuarioConectado(),
+                Dock = DockStyle.Right,
+                Width = 300,
+                TextAlign = ContentAlignment.MiddleRight,
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(54, 76, 79),
+                AutoEllipsis = true
+            };
+            encabezado.Controls.Add(usuarioConectado);
             encabezado.Controls.Add(new Label { Text = "Usuarios", Location = new Point(18, 25), AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
             encabezado.Controls.Add(new Label { Text = "Gestiona cuentas, roles y acceso al sistema.", Location = new Point(18, 66), AutoSize = true, Font = new Font("Segoe UI", 9F), ForeColor = Color.FromArgb(95, 116, 125) });
 
@@ -94,6 +112,12 @@ namespace Presentacion
             lista.Controls.Add(_gridUsuariosVista); lista.Controls.Add(pie); lista.Controls.Add(barra);
             layout.Controls.Add(encabezado, 0, 0); layout.Controls.Add(tarjetas, 0, 1); layout.Controls.Add(lista, 0, 2); Controls.Add(layout);
             Text = "Usuarios"; BackColor = Color.FromArgb(241, 246, 246); MinimumSize = new Size(980, 620);
+        }
+
+        private string TextoUsuarioConectado()
+        {
+            if (_usuarioSesion == null) return "Sesión no disponible";
+            return "Conectado: " + _usuarioSesion.NombreUsuario + " | Rol: " + _usuarioSesion.Rol;
         }
 
         private static Button CrearBotonUsuarioVista(string texto, bool primario)
@@ -141,7 +165,7 @@ namespace Presentacion
             TextBox contrasena = new TextBox { Left = 24, Top = 162, Width = 452, MaxLength = 100, UseSystemPasswordChar = true, Text = usuario == null ? "" : usuario.Contrasena };
             Label lRol = new Label { Text = "Rol", Left = 24, Top = 204, AutoSize = true };
             ComboBox rol = new ComboBox { Left = 24, Top = 226, Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
-            rol.Items.AddRange(new object[] { "Administrador", "Cajero", "Bodeguero", "Vendedor", "Supervisor" });
+            rol.Items.AddRange(_negocio.ListarRoles().Cast<object>().ToArray());
             if (usuario != null) rol.SelectedItem = usuario.Rol;
             else rol.SelectedIndex = 0;
             CheckBox activo = new CheckBox { Text = "Usuario activo", Left = 300, Top = 228, AutoSize = true, Checked = usuario == null || usuario.Estado };
@@ -173,10 +197,8 @@ namespace Presentacion
 
         private void UsuariosForms_Load(object sender, EventArgs e)
         {
-            cboRol.Items.AddRange(new object[]
-            {
-                "Administrador", "Cajero", "Bodeguero", "Vendedor", "Supervisor"
-            });
+            cboRol.Items.Clear();
+            cboRol.Items.AddRange(_negocio.ListarRoles().Cast<object>().ToArray());
             CargarUsuarios();
             Limpiar();
         }

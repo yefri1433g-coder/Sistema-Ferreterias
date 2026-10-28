@@ -98,6 +98,7 @@
     <Compile Include="KardexDatos.cs" />
     <Compile Include="PagoDatos.cs" />
     <Compile Include="ProveedoresDatos.cs" />
+    <Compile Include="RolDatos.cs" />
     <Compile Include="StockDatos.cs" />
     <Compile Include="TrasladosDatos.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

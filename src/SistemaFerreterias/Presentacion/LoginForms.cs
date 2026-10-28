@@ -326,7 +326,7 @@ namespace Presentacion
                 return;
             }
 
-            MenuPrincipalForms menu = new MenuPrincipalForms();
+            MenuPrincipalForms menu = new MenuPrincipalForms(usuario);
             menu.FormClosed += (s, args) => Application.Exit();
             menu.Show();
             this.Hide();
