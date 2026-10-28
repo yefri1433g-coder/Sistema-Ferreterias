@@ -5,18 +5,21 @@ using Entidad;
 
 namespace Negocio
 {
+    // CLASE ClienteNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class ClienteNegocio
     {
         private readonly ClienteDatos _datos = new ClienteDatos();
         // El conjunto de ejemplo conservado corresponde a los IDs del 1 al 5.
         private const int UltimoIdClienteOriginal = 5;
 
+        // CONSULTAR: Listar
         public List<Cliente> Listar()
         {
             return _datos.Listar();
         }
 
         // Si el criterio está vacío, devuelve todos los clientes.
+        // BUSCAR: Buscar
         public List<Cliente> Buscar(string nombre)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -26,6 +29,7 @@ namespace Negocio
         }
 
         // Alta independiente para mantener clara la operación Agregar.
+        // AGREGAR: Agregar
         public string Agregar(Cliente cliente)
         {
             if (cliente == null)
@@ -38,6 +42,7 @@ namespace Negocio
         }
 
         // Devuelve "" si todo salió bien, o el mensaje de error.
+        // GUARDAR: Guardar
         public string Guardar(Cliente c)
         {
             if (string.IsNullOrWhiteSpace(c.Nombre))
@@ -74,6 +79,7 @@ namespace Negocio
         }
 
         // Valida los datos y actualiza únicamente el cliente identificado por su PK.
+        // EDITAR: Editar
         public string Editar(Cliente cliente)
         {
             if (cliente == null)
@@ -107,6 +113,7 @@ namespace Negocio
             return "";
         }
 
+        // ELIMINAR: Eliminar
         public void Eliminar(int idCliente)
         {
             if (idCliente <= 0)
@@ -115,6 +122,7 @@ namespace Negocio
             _datos.Eliminar(idCliente);
         }
 
+        // ELIMINAR: EliminarClientesDePrueba
         public int EliminarClientesDePrueba()
         {
             return _datos.EliminarPosterioresA(UltimoIdClienteOriginal);

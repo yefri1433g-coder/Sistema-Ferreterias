@@ -6,20 +6,24 @@ using Entidad;
 
 namespace Datos
 {
+    // CLASE EmpleadoDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class EmpleadoDatos
     {
         private readonly ConexionDatos _conexion = new ConexionDatos();
 
+        // CONSULTAR: Listar
         public List<Empleado> Listar()
         {
             return Consultar(null);
         }
 
+        // BUSCAR: Buscar
         public List<Empleado> Buscar(string criterio)
         {
             return Consultar(criterio);
         }
 
+        // CONSULTAR: Consultar
         private List<Empleado> Consultar(string criterio)
         {
             List<Empleado> lista = new List<Empleado>();
@@ -77,6 +81,7 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: ListarUsuariosActivos
         public List<ComboItemEntidad> ListarUsuariosActivos()
         {
             return ListarOpciones(
@@ -85,6 +90,7 @@ namespace Datos
                 "consultar usuarios activos");
         }
 
+        // CONSULTAR: ListarSucursalesActivas
         public List<ComboItemEntidad> ListarSucursalesActivas()
         {
             return ListarOpciones(
@@ -93,6 +99,7 @@ namespace Datos
                 "consultar sucursales activas");
         }
 
+        // CONSULTAR: ListarOpciones
         private List<ComboItemEntidad> ListarOpciones(string sql, string accion)
         {
             List<ComboItemEntidad> lista = new List<ComboItemEntidad>();
@@ -120,6 +127,7 @@ namespace Datos
             }
         }
 
+        // AGREGAR: Agregar
         public void Agregar(Empleado empleado)
         {
             const string sql = @"INSERT INTO dbo.Tbl_Empleados
@@ -152,6 +160,7 @@ namespace Datos
             }
         }
 
+        // EDITAR: Editar
         public void Editar(Empleado empleado)
         {
             const string sql = @"UPDATE dbo.Tbl_Empleados
@@ -190,6 +199,7 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: Eliminar
         public void Eliminar(int idEmpleado)
         {
             const string sql = "DELETE FROM dbo.Tbl_Empleados WHERE id_empleado = @idEmpleado;";

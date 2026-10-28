@@ -6,11 +6,13 @@ using System.Linq;
 
 namespace Negocio
 {
+    // CLASE RolNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class RolNegocio
     {
         private readonly RolDatos _datos = new RolDatos();
 
         // Lista todos los roles o solo los que están activos.
+        // CONSULTAR: Listar
         public List<Rol> Listar(bool soloActivos = true)
         {
             try { return _datos.Listar(soloActivos); }
@@ -25,6 +27,7 @@ namespace Negocio
         }
 
         // Busca un rol y carga sus módulos asignados.
+        // CONSULTAR: Obtener
         public Rol Obtener(string nombreRol)
         {
             try { return _datos.Obtener(nombreRol); }
@@ -32,6 +35,7 @@ namespace Negocio
         }
 
         // Valida el nombre y los módulos antes de guardar un rol.
+        // GUARDAR: Guardar
         public void Guardar(Rol rol)
         {
             if (rol == null) throw new InvalidOperationException("No se recibieron los datos del rol.");
@@ -47,6 +51,7 @@ namespace Negocio
         }
 
         // Solicita borrar el rol seleccionado si no está asignado a usuarios.
+        // ELIMINAR: Eliminar
         public void Eliminar(int codigoRol)
         {
             if (codigoRol <= 0) throw new InvalidOperationException("Selecciona un rol para eliminar.");

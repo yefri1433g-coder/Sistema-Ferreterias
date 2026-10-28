@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Entidad
 {
+    // CLASE Venta: Representa datos del sistema y permite compartirlos entre las capas.
     public class Venta
     {
         public int IdVenta { get; set; }
@@ -15,6 +16,7 @@ namespace Entidad
         public List<DetalleVenta> Detalles { get; set; } = new List<DetalleVenta>();
     }
 
+    // CLASE DetalleVenta: Representa datos del sistema y permite compartirlos entre las capas.
     public class DetalleVenta
     {
         public int IdProducto { get; set; }
@@ -26,6 +28,7 @@ namespace Entidad
     }
 
     // Producto con su existencia en la sucursal elegida (para el combo)
+    // CLASE ProductoVenta: Representa datos del sistema y permite compartirlos entre las capas.
     public class ProductoVenta
     {
         public int IdProducto { get; set; }
@@ -40,6 +43,7 @@ namespace Entidad
     }
 
     // Elemento sencillo para combos (id + texto), por ejemplo las sucursales
+    // CLASE ItemCombo: Representa datos del sistema y permite compartirlos entre las capas.
     public class ItemCombo
     {
         public int Id { get; set; }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Datos
 {
+    // CLASE KardexDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class KardexDatos
     {
         private readonly ConexionDatos _conexionDatos = new ConexionDatos();
@@ -16,6 +17,7 @@ namespace Datos
         // CRUD: CONSULTAR (codigoProducto = 0 trae todos)
         // =====================================================
 
+        // CONSULTAR: MtdConsultar
         public List<KardexEntidad> MtdConsultar(int codigoProducto)
         {
             List<KardexEntidad> lista = new List<KardexEntidad>();
@@ -75,6 +77,7 @@ namespace Datos
         // El saldo es la existencia total del producto (suma de Tbl_Stock) en ese momento
         // =====================================================
 
+        // GUARDAR: MtdRegistrar
         internal static void MtdRegistrar(SqlConnection conn, SqlTransaction tx, int codigoProducto, string tipo, int cantidad, string descripcion)
         {
             string QueryRegistrar = @"

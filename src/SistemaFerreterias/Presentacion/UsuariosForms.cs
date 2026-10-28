@@ -9,6 +9,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE UsuariosForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class UsuariosForms : Form
     {
         private const int RegistrosPorPagina = 10;
@@ -52,6 +53,7 @@ namespace Presentacion
             label6.Location = new System.Drawing.Point(174, 61);
         }
 
+        // CONFIGURACIÓN: PrepararDisenoUsuarios
         private void PrepararDisenoUsuarios()
         {
             Control[] controlesEditor = Controls.Cast<Control>().ToArray();
@@ -120,16 +122,19 @@ namespace Presentacion
             return "Conectado: " + _usuarioSesion.NombreUsuario + " | Rol: " + _usuarioSesion.Rol;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonUsuarioVista
         private static Button CrearBotonUsuarioVista(string texto, bool primario)
         {
             return new Button { Text = texto, Width = primario ? 132 : 100, Height = 30, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = primario ? Color.FromArgb(22, 139, 112) : Color.White, ForeColor = primario ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonPaginacionUsuario
         private static Button CrearBotonPaginacionUsuario(string texto)
         {
             return new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 3, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(68, 91, 101), Font = new Font("Segoe UI", 8F) };
         }
 
+        // PRESENTAR DATOS: MostrarUsuariosVista
         private void MostrarUsuariosVista()
         {
             if (_gridUsuariosVista == null) return;
@@ -148,12 +153,14 @@ namespace Presentacion
             _resumenUsuarios[0].Text = _usuariosTotales.Count.ToString("N0"); _resumenUsuarios[1].Text = _usuariosTotales.Count(u => u.Estado).ToString("N0"); _resumenUsuarios[2].Text = _usuariosTotales.Select(u => u.Rol).Where(r => !String.IsNullOrWhiteSpace(r)).Distinct(StringComparer.CurrentCultureIgnoreCase).Count().ToString("N0");
         }
 
+        // BUSCAR: BuscarUsuariosVista
         private void BuscarUsuariosVista()
         {
             try { _usuarios = String.IsNullOrWhiteSpace(_buscarUsuariosVista.Text) ? _usuariosTotales : _negocio.Buscar(_buscarUsuariosVista.Text).OrderByDescending(u => u.IdUsuario).ToList(); _paginaVista = 1; MostrarUsuariosVista(); }
             catch (Exception ex) { MessageBox.Show("No se pudo buscar usuarios. " + ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaVista
         private void CambiarPaginaVista(int cambio) { _paginaVista += cambio; MostrarUsuariosVista(); }
 
         private void AbrirAdministracion(Usuario usuario)
@@ -186,6 +193,7 @@ namespace Presentacion
             dialogo.ShowDialog(this);
         }
 
+        // ELIMINAR: EliminarUsuarioVista
         private void EliminarUsuarioVista()
         {
             if (_gridUsuariosVista.CurrentRow == null || !(_gridUsuariosVista.CurrentRow.Tag is Usuario)) return;
@@ -203,6 +211,7 @@ namespace Presentacion
             Limpiar();
         }
 
+        // CARGA DE DATOS: CargarUsuarios
         private void CargarUsuarios()
         {
             _usuariosTotales = _negocio.Listar().OrderByDescending(u => u.IdUsuario).ToList();
@@ -217,6 +226,7 @@ namespace Presentacion
             if (_gridUsuariosVista != null) MostrarUsuariosVista();
         }
 
+        // PRESENTAR DATOS: MostrarPaginaActual
         private void MostrarPaginaActual()
         {
             dgvUsuarios.DataSource = null;
@@ -262,6 +272,7 @@ namespace Presentacion
             dgvUsuarios.ClearSelection();
         }
 
+        // BUSCAR: btnBuscarUsuario_Click
         private void btnBuscarUsuario_Click(object sender, EventArgs e)
         {
             try
@@ -281,6 +292,7 @@ namespace Presentacion
             }
         }
 
+        // BUSCAR: txtBuscarUsuario_KeyDown
         private void txtBuscarUsuario_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter) return;
@@ -289,6 +301,7 @@ namespace Presentacion
             btnBuscarUsuario_Click(sender, e);
         }
 
+        // LIMPIAR: Limpiar
         private void Limpiar()
         {
             _idSeleccionado = 0;
@@ -299,12 +312,14 @@ namespace Presentacion
             txtNombreUsuario.Focus();
         }
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             Limpiar();
             dgvUsuarios.ClearSelection();
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             Usuario u = new Usuario
@@ -378,6 +393,7 @@ namespace Presentacion
             if (contenedor != null && contenedor != this) contenedor.Close();
         }
 
+        // ELIMINAR: btnEliminar_Click
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             if (_idSeleccionado == 0)
@@ -406,6 +422,7 @@ namespace Presentacion
             }
         }
 
+        // LIMPIAR: btnLimpiarPruebas_Click
         private void btnLimpiarPruebas_Click(object sender, EventArgs e)
         {
             // El botón limpia los campos; la tabla y sus totales permanecen visibles.
@@ -416,6 +433,7 @@ namespace Presentacion
         {
         }
 
+        // GUARDAR: btnGuardar_Click_1
         private void btnGuardar_Click_1(object sender, EventArgs e)
         {
             btnGuardar_Click(sender, e);

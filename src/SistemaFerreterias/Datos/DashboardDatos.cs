@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Datos
 {
+    // CLASE DashboardDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class DashboardDatos
     {
         private readonly ConexionDatos _conexionDatos = new ConexionDatos();

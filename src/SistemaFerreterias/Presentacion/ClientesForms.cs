@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE ClientesForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class ClientesForms : Form
     {
         private readonly ClienteNegocio _negocio = new ClienteNegocio();
@@ -38,6 +39,7 @@ namespace Presentacion
             PrepararDisenoClientes();
         }
 
+        // CONFIGURACIÓN: PrepararDisenoClientes
         private void PrepararDisenoClientes()
         {
             Control[] controlesAnteriores = new Control[Controls.Count];
@@ -124,6 +126,7 @@ namespace Presentacion
         }
 
         // Consulta por medio de Negocio y presenta los errores de conexión o lectura.
+        // CONSULTAR: ConsultarClientes
         private void ConsultarClientes()
         {
             try
@@ -138,6 +141,7 @@ namespace Presentacion
             }
         }
 
+        // CARGA DE DATOS: CargarClientes
         private void CargarClientes()
         {
             _vistaLimpiada = false;
@@ -168,6 +172,7 @@ namespace Presentacion
             if (_gridClientesVista != null) MostrarClientesVista(_clientes);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonCliente
         private static Button CrearBotonCliente(string texto, bool principal)
         {
             Button boton = new Button { Text = texto, Width = principal ? 128 : 82, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
@@ -175,6 +180,7 @@ namespace Presentacion
             return boton;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonPaginacionCliente
         private static Button CrearBotonPaginacionCliente(string texto)
         {
             Button boton = new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105), Font = new Font("Segoe UI", 8F) };
@@ -198,6 +204,7 @@ namespace Presentacion
             control.Resize += (s, e) => actualizarRegion(); control.HandleCreated += (s, e) => actualizarRegion();
         }
 
+        // PRESENTAR DATOS: MostrarClientesVista
         private void MostrarClientesVista(List<Cliente> lista)
         {
             int paginas = Math.Max(1, (int)Math.Ceiling(lista.Count / (double)ClientesPorPaginaVista));
@@ -222,6 +229,7 @@ namespace Presentacion
             _resumenClientes[2].Text = _clientesTotales.Count(x => !String.IsNullOrWhiteSpace(x.Nit)).ToString("N0");
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaCliente
         private void CambiarPaginaCliente(int cambio)
         {
             _paginaVistaClientes += cambio; MostrarClientesVista(_clientes);
@@ -260,6 +268,7 @@ namespace Presentacion
             dialogo.ShowDialog(this);
         }
 
+        // ELIMINAR: EliminarClienteVista
         private void EliminarClienteVista()
         {
             if (_gridClientesVista.CurrentRow == null || !(_gridClientesVista.CurrentRow.Tag is Cliente)) { MessageBox.Show("Selecciona un cliente.", "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
@@ -270,6 +279,7 @@ namespace Presentacion
             catch (Exception ex) { MessageBox.Show(ex.Message, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }
 
+        // LIMPIAR: Limpiar
         private void Limpiar()
         {
             _idSeleccionado = 0;
@@ -280,6 +290,7 @@ namespace Presentacion
             txtNombre.Focus();
         }
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             _filtroNombre = "";
@@ -300,11 +311,13 @@ namespace Presentacion
             BuscarClientes();
         }
 
+        // BUSCAR: btnBuscar_Click
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             BuscarClientes();
         }
 
+        // BUSCAR: BuscarClientes
         private void BuscarClientes()
         {
             _filtroNombre = txtNombre.Text.Trim();
@@ -333,6 +346,7 @@ namespace Presentacion
             }
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             Cliente c = new Cliente
@@ -385,11 +399,13 @@ namespace Presentacion
         }
 
         // Limpia solo los campos del formulario y conserva los registros visibles.
+        // LIMPIAR: btnLimpiarTabla_Click
         private void btnLimpiarTabla_Click(object sender, EventArgs e)
         {
             Limpiar();
         }
 
+        // ELIMINAR: btnEliminar_Click
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             if (_idSeleccionado == 0)

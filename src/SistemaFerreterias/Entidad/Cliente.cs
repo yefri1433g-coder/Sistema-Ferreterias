@@ -1,5 +1,6 @@
 ﻿namespace Entidad
 {
+    // CLASE Cliente: Representa datos del sistema y permite compartirlos entre las capas.
     public class Cliente
     {
         public int IdCliente { get; set; }

@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE DashboardForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class DashboardForms : Form
     {
         private readonly DashboardNegocio _dashboardNegocio = new DashboardNegocio();
@@ -26,6 +27,7 @@ namespace Presentacion
             Load += DashboardForms_Load;
         }
 
+        // CONFIGURACIÓN: ConstruirDashboard
         private void ConstruirDashboard()
         {
             Text = "Dashboard";
@@ -84,6 +86,7 @@ namespace Presentacion
             centrar(this, EventArgs.Empty);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearEncabezado
         private Control CrearEncabezado()
         {
             TableLayoutPanel encabezado = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, BackColor = fondo };
@@ -111,6 +114,7 @@ namespace Presentacion
             return "Buenas noches";
         }
 
+        // CREAR ELEMENTO VISUAL: CrearIndicadores
         private Control CrearIndicadores()
         {
             TableLayoutPanel fila = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, BackColor = fondo };
@@ -122,6 +126,7 @@ namespace Presentacion
             return fila;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearTarjetaIndicador
         private static Panel CrearTarjetaIndicador(string titulo, Label valor, string icono, Color color, string nota)
         {
             Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(5, 5, 7, 4) };
@@ -140,6 +145,7 @@ namespace Presentacion
             return tarjeta;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearFilaGraficas
         private Control CrearFilaGraficas()
         {
             TableLayoutPanel fila = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, BackColor = fondo };
@@ -152,6 +158,7 @@ namespace Presentacion
             return fila;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearFilaInferior
         private Control CrearFilaInferior()
         {
             TableLayoutPanel fila = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, BackColor = fondo };
@@ -181,6 +188,7 @@ namespace Presentacion
             return fila;
         }
 
+        // CONFIGURACIÓN: ConfigurarBoton
         private static void ConfigurarBoton(FontAwesome.Sharp.IconButton boton, bool principal)
         {
             boton.IconChar = FontAwesome.Sharp.IconChar.None;
@@ -194,6 +202,7 @@ namespace Presentacion
             boton.TextAlign = ContentAlignment.MiddleCenter;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearTarjetaSeccion
         private static Panel CrearTarjetaSeccion(string titulo, string descripcion, Control contenido, Padding margen)
         {
             Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = margen };
@@ -211,6 +220,7 @@ namespace Presentacion
             return tarjeta;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearFilaActividad
         private static Panel CrearFilaActividad(ActividadDashboard actividad, bool venta)
         {
             Panel fila = new Panel { Width = 620, Height = 44, BackColor = Color.White, Margin = new Padding(0, 0, 0, 2) };
@@ -243,6 +253,7 @@ namespace Presentacion
 
         private void DashboardForms_Load(object sender, EventArgs e) { MtdActualizar(); }
 
+        // EDITAR: MtdActualizar
         private void MtdActualizar()
         {
             try
@@ -282,6 +293,7 @@ namespace Presentacion
             if (navegar != null) navegar(modulo);
         }
 
+        // CONFIGURACIÓN: ConfigurarAccesosRapidos
         public void ConfigurarAccesosRapidos(ICollection<string> modulosPermitidos)
         {
             bool puedeVender = modulosPermitidos != null && modulosPermitidos.Contains("Ventas");
@@ -315,6 +327,7 @@ namespace Presentacion
             btnCerrar.Width = ancho;
         }
 
+        // EDITAR: btnActualizar_Click
         private void btnActualizar_Click(object sender, EventArgs e) { MtdActualizar(); }
         private void btnCerrar_Click(object sender, EventArgs e) { Close(); }
         private void lblValorProveedores_Click(object sender, EventArgs e) { }

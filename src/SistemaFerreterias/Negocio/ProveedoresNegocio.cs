@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Negocio
 {
+    // CLASE ProveedoresNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class ProveedoresNegocio
     {
         // Instancia: para que negocio acceda a capa datos
@@ -17,11 +18,13 @@ namespace Negocio
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdConsultar
         public List<ProveedoresEntidad> MtdConsultar()
         {
             return _proveedoresDatos.MtdConsultar();
         }
 
+        // BUSCAR: MtdBuscar
         public List<ProveedoresEntidad> MtdBuscar(string nombre)
         {
             return _proveedoresDatos.MtdBuscar(nombre == null ? string.Empty : nombre.Trim());
@@ -31,6 +34,7 @@ namespace Negocio
         // VALIDACIONES
         // =====================================================
 
+        // VALIDAR: MtdValidar
         private void MtdValidar(ProveedoresEntidad proveedor)
         {
             if (string.IsNullOrWhiteSpace(proveedor.NombreProveedor))
@@ -48,12 +52,14 @@ namespace Negocio
         // CRUD: AGREGAR / EDITAR / ELIMINAR
         // =====================================================
 
+        // AGREGAR: MtdAgregar
         public bool MtdAgregar(ProveedoresEntidad proveedor)
         {
             MtdValidar(proveedor);
             return _proveedoresDatos.MtdAgregar(proveedor);
         }
 
+        // EDITAR: MtdEditar
         public bool MtdEditar(ProveedoresEntidad proveedor)
         {
             if (proveedor.CodigoProveedor <= 0)
@@ -65,6 +71,7 @@ namespace Negocio
             return _proveedoresDatos.MtdEditar(proveedor);
         }
 
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int codigoProveedor)
         {
             if (codigoProveedor <= 0)

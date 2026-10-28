@@ -1,6 +1,7 @@
 namespace Entidad
 {
     // Representa un empleado y los nombres relacionados que se muestran en Presentación.
+    // CLASE Empleado: Representa datos del sistema y permite compartirlos entre las capas.
     public class Empleado
     {
         public int IdEmpleado { get; set; }

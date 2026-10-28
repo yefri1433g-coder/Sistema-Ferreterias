@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Entidad
 {
+    // CLASE DashboardEntidad: Representa datos del sistema y permite compartirlos entre las capas.
     public class DashboardEntidad
     {
         private int _totalProductos;
@@ -88,6 +89,7 @@ namespace Entidad
 
     }
 
+    // CLASE ActividadDashboard: Representa datos del sistema y permite compartirlos entre las capas.
     public class ActividadDashboard
     {
         public string Tipo { get; set; }

@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 
 namespace Datos
 {
+    // CLASE UsuarioDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class UsuarioDatos
     {
         private readonly ConexionDatos _conexion = new ConexionDatos();
@@ -27,6 +28,7 @@ namespace Datos
             };
         }
 
+        // VALIDAR: Validar
         public Usuario Validar(string nombreUsuario, string contrasena)
         {
             try
@@ -55,6 +57,7 @@ namespace Datos
             return null;
         }
 
+        // CONSULTAR: Listar
         public List<Usuario> Listar()
         {
             List<Usuario> lista = new List<Usuario>();
@@ -74,6 +77,7 @@ namespace Datos
             return lista;
         }
 
+        // BUSCAR: Buscar
         public List<Usuario> Buscar(string texto)
         {
             List<Usuario> lista = new List<Usuario>();
@@ -116,6 +120,7 @@ namespace Datos
             catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "validar el nombre de usuario"); }
         }
 
+        // AGREGAR: Insertar
         public void Insertar(Usuario u)
         {
             try
@@ -136,6 +141,7 @@ namespace Datos
             catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "guardar el usuario"); }
         }
 
+        // EDITAR: Actualizar
         public void Actualizar(Usuario u)
         {
             try
@@ -158,6 +164,7 @@ namespace Datos
             catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "editar el usuario"); }
         }
 
+        // ELIMINAR: Eliminar
         public void Eliminar(int idUsuario)
         {
             try
@@ -178,6 +185,7 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarUsuariosDePrueba
         public int EliminarUsuariosDePrueba(int ultimoIdOriginal)
         {
             try

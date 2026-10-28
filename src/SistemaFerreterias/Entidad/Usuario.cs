@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Entidad
 {
     // Guarda los datos de una cuenta y su rol para moverlos entre capas.
+    // CLASE Usuario: Representa datos del sistema y permite compartirlos entre las capas.
     public class Usuario
     {
         // Corresponde a id_usuario en Tbl_Usuarios.

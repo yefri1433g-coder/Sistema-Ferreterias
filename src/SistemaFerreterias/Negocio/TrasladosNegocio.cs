@@ -8,25 +8,30 @@ using System.Threading.Tasks;
 
 namespace Negocio
 {
+    // CLASE TrasladosNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class TrasladosNegocio
     {
         private readonly TrasladosDatos _trasladosDatos = new TrasladosDatos();
 
+        // CONSULTAR: MtdConsultar
         public List<TrasladosEntidad> MtdConsultar()
         {
             return _trasladosDatos.MtdConsultar();
         }
 
+        // BUSCAR: MtdBuscar
         public List<TrasladosEntidad> MtdBuscar(string filtro)
         {
             return _trasladosDatos.MtdBuscar(filtro == null ? string.Empty : filtro.Trim());
         }
 
+        // CONSULTAR: MtdConsultarDetalle
         public List<DetalleTrasladoEntidad> MtdConsultarDetalle(int codigoTraslado)
         {
             return _trasladosDatos.MtdConsultarDetalle(codigoTraslado);
         }
 
+        // VALIDAR: MtdValidar
         private void MtdValidar(TrasladosEntidad traslado)
         {
             if (traslado.CodigoEmpleado <= 0)
@@ -59,12 +64,14 @@ namespace Negocio
         }
 
         // Devuelve el codigo del nuevo traslado
+        // AGREGAR: MtdAgregar
         public int MtdAgregar(TrasladosEntidad traslado)
         {
             MtdValidar(traslado);
             return _trasladosDatos.MtdAgregar(traslado);
         }
 
+        // EDITAR: MtdEditar
         public bool MtdEditar(TrasladosEntidad traslado)
         {
             if (traslado.CodigoTraslado <= 0)
@@ -91,6 +98,7 @@ namespace Negocio
             return _trasladosDatos.MtdCambiarEstado(codigoTraslado, nuevoEstado);
         }
 
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int codigoTraslado)
         {
             if (codigoTraslado <= 0)

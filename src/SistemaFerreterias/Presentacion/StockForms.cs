@@ -13,6 +13,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE StockForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class StockForms : Form
     {
         // Instanciar: Que el forms actual (capa presentacion) pueda acceder a otra capa (Negocio)
@@ -52,6 +53,7 @@ namespace Presentacion
             PrepararDialogoStock();
         }
 
+        // CONFIGURACIÓN: PrepararDisenoStock
         private void PrepararDisenoStock()
         {
             Color fondo = Color.FromArgb(241, 246, 245);
@@ -176,6 +178,7 @@ namespace Presentacion
             tabControl1.SelectedTab = tabPage1;
         }
 
+        // CONFIGURACIÓN: PrepararDialogoStock
         private void PrepararDialogoStock()
         {
             _dialogoStock = new Form
@@ -275,6 +278,7 @@ namespace Presentacion
             _dialogoStock.Controls.Add(encabezado);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearCantidadEditorStock
         private static NumericUpDown CrearCantidadEditorStock()
         {
             return new NumericUpDown
@@ -286,6 +290,7 @@ namespace Presentacion
             };
         }
 
+        // CREAR ELEMENTO VISUAL: CrearCampoEditorStock
         private static Panel CrearCampoEditorStock(string titulo, Control campo)
         {
             Panel panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 0, 14, 6) };
@@ -312,6 +317,7 @@ namespace Presentacion
             return panel;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonEditorStock
         private static Button CrearBotonEditorStock(string texto, Color fondo, Color tinta)
         {
             return new Button
@@ -358,6 +364,7 @@ namespace Presentacion
             MtdVolverAModoConsulta();
         }
 
+        // EDITAR: ActualizarStockResumen
         private void ActualizarStockResumen(List<StockEntidad> lista)
         {
             _listaStockResumen = lista ?? new List<StockEntidad>();
@@ -426,12 +433,14 @@ namespace Presentacion
             _siguienteStock.Enabled = _paginaActualStock < paginas;
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaStock
         private void CambiarPaginaStock(int cambio)
         {
             _paginaActualStock += cambio;
             FiltrarStockResumen();
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonPaginacionStock
         private static Button CrearBotonPaginacionStock(string texto)
         {
             Button boton = new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105), Font = new Font("Segoe UI", 8F), Cursor = Cursors.Hand };
@@ -441,6 +450,7 @@ namespace Presentacion
             return boton;
         }
 
+        // ELIMINAR: EliminarStockResumen
         private void EliminarStockResumen()
         {
             if (_gridStockResumen == null || _gridStockResumen.CurrentRow == null || !_gridStockResumen.CurrentRow.Selected) { AyudaForms.MtdAviso("Selecciona un registro de stock primero."); return; }
@@ -450,6 +460,7 @@ namespace Presentacion
             btnEliminar_Click(this, EventArgs.Empty);
         }
 
+        // EDITAR: ActualizarEstadoBotonEditarStock
         private void ActualizarEstadoBotonEditarStock()
         {
             // El botón queda disponible incluso cuando el usuario aún no eligió una fila;
@@ -457,6 +468,7 @@ namespace Presentacion
             if (_editarStockResumen != null) _editarStockResumen.Enabled = true;
         }
 
+        // EDITAR: EditarStockResumen
         private void EditarStockResumen()
         {
             if (_gridStockResumen == null)
@@ -486,6 +498,7 @@ namespace Presentacion
             AbrirEditorStock(item);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonStock
         private static Button CrearBotonStock(string texto, bool principal)
         {
             Button boton = new Button
@@ -546,6 +559,7 @@ namespace Presentacion
         }
 
         // Llena los ComboBox desde la capa Negocio
+        // CARGA DE DATOS: MtdCargarCombos
         private void MtdCargarCombos()
         {
             AyudaForms.MtdLlenarCombo(_cboSucursalEditorStock, _catalogosNegocio.MtdSucursales());
@@ -556,16 +570,19 @@ namespace Presentacion
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdConsultar
         private void MtdConsultar()
         {
             MtdMostrarLista(_stockNegocio.MtdConsultar());
         }
 
+        // PRESENTAR DATOS: MtdMostrarLista
         private void MtdMostrarLista(List<StockEntidad> lista)
         {
             ActualizarStockResumen(lista);
         }
 
+        // BUSCAR: btnBuscar_Click
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             try
@@ -578,6 +595,7 @@ namespace Presentacion
             }
         }
 
+        // LIMPIAR: btnLimpiarFiltro_Click
         private void btnLimpiarFiltro_Click(object sender, EventArgs e)
         {
             try
@@ -628,6 +646,7 @@ namespace Presentacion
         // GESTIONAR: METODOS DE APOYO
         // =====================================================
 
+        // LEER CAMPOS DEL FORMULARIO: Convierte los valores ingresados en una entidad de stock.
         private StockEntidad MtdObtenerDeCampos()
         {
             if (_modo == "Editar")
@@ -652,6 +671,7 @@ namespace Presentacion
             );
         }
 
+        // LIMPIAR: MtdLimpiarCampos
         private void MtdLimpiarCampos()
         {
             if (_cboSucursalEditorStock.Items.Count > 0)
@@ -690,6 +710,7 @@ namespace Presentacion
         // GESTIONAR: BOTONES
         // =====================================================
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();
@@ -699,6 +720,7 @@ namespace Presentacion
             _cboSucursalEditorStock.Focus();
         }
 
+        // EDITAR: btnEditar_Click
         private void btnEditar_Click(object sender, EventArgs e)
         {
             if (_codigoSeleccionado == 0)
@@ -711,6 +733,7 @@ namespace Presentacion
             MtdHabilitarCampos(true, false);
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             try
@@ -735,6 +758,7 @@ namespace Presentacion
             }
         }
 
+        // ELIMINAR: btnEliminar_Click
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             try
@@ -768,6 +792,7 @@ namespace Presentacion
             if (_dialogoStock != null && _dialogoStock.Visible) _dialogoStock.DialogResult = DialogResult.Cancel;
         }
 
+        // LIMPIAR: btnLimpiar_Click
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();

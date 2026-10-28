@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE RolesForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public class RolesForms : Form
     {
         private readonly RolNegocio _negocio = new RolNegocio();
@@ -91,11 +92,13 @@ namespace Presentacion
             return "Conectado: " + _usuarioSesion.NombreUsuario + " | Rol: " + _usuarioSesion.Rol;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBoton
         private static Button CrearBoton(string texto, int x, int y)
         {
             return new Button { Text = texto, Left = x, Top = y, Width = texto == "Guardar cambios" ? 146 : 108, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(22, 139, 112), ForeColor = Color.White, Cursor = Cursors.Hand };
         }
 
+        // CARGA DE DATOS: CargarRoles
         private void CargarRoles()
         {
             try
@@ -113,8 +116,10 @@ namespace Presentacion
             catch (Exception ex) { _estado.Text = "No se pudieron cargar los roles: " + ex.Message; }
         }
 
+        // CONSULTAR: ListaRoles_Changed
         private void ListaRoles_Changed(object sender, EventArgs e) { CargarSeleccion(); }
 
+        // CARGA DE DATOS: CargarSeleccion
         private void CargarSeleccion()
         {
             Rol rol = _listaRoles.SelectedItem as Rol;
@@ -131,6 +136,7 @@ namespace Presentacion
             catch (Exception ex) { _estado.Text = "No se pudo cargar el rol: " + ex.Message; }
         }
 
+        // AGREGAR: NuevoRol
         private void NuevoRol()
         {
             _listaRoles.ClearSelected();
@@ -140,6 +146,7 @@ namespace Presentacion
             _estado.Text = "Define el nombre y los módulos y guarda el rol.";
         }
 
+        // GUARDAR: GuardarRol
         private void GuardarRol()
         {
             try
@@ -159,6 +166,7 @@ namespace Presentacion
             catch (Exception ex) { MessageBox.Show(ex.Message, "Roles y accesos", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }
 
+        // ELIMINAR: EliminarRol
         private void EliminarRol()
         {
             if (_seleccionado == null) return;

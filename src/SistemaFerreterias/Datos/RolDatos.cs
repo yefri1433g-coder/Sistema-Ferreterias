@@ -6,11 +6,13 @@ using System.Data.SqlClient;
 
 namespace Datos
 {
+    // CLASE RolDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class RolDatos
     {
         private readonly ConexionDatos _conexion = new ConexionDatos();
 
         // Consulta los roles; puede devolver solo los activos para asignarlos a usuarios.
+        // CONSULTAR: Listar
         public List<Rol> Listar(bool soloActivos)
         {
             List<Rol> roles = new List<Rol>();
@@ -32,6 +34,7 @@ namespace Datos
         }
 
         // Busca el rol por su nombre y carga también los módulos permitidos.
+        // CONSULTAR: Obtener
         public Rol Obtener(string nombreRol)
         {
             Rol rol = null;
@@ -53,6 +56,7 @@ namespace Datos
         }
 
         // Consulta en Tbl_RolesAccesos los módulos activos de un rol.
+        // CONSULTAR: ListarModulos
         public List<string> ListarModulos(string nombreRol)
         {
             List<string> modulos = new List<string>();
@@ -75,6 +79,7 @@ namespace Datos
         }
 
         // Guarda el rol y reemplaza su lista de accesos dentro de una transacción.
+        // GUARDAR: Guardar
         public void Guardar(Rol rol)
         {
             try
@@ -82,6 +87,7 @@ namespace Datos
                 using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
                 {
                     cn.Open();
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = cn.BeginTransaction())
                     {
                         try
@@ -144,6 +150,7 @@ namespace Datos
         }
 
         // Elimina un rol solo cuando ningún usuario está asignado a él.
+        // ELIMINAR: Eliminar
         public void Eliminar(int codigoRol)
         {
             try

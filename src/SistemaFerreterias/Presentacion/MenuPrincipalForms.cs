@@ -9,6 +9,7 @@ using Negocio;
 
 namespace Presentacion
 {
+    // CLASE MenuPrincipalForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class MenuPrincipalForms : Form
     {
         private readonly Panel contenido = new Panel();
@@ -34,6 +35,7 @@ namespace Presentacion
             ConstruirInterfaz();
         }
 
+        // CONFIGURACIÓN: ConstruirInterfaz
         private void ConstruirInterfaz()
         {
             Controls.Clear();
@@ -128,6 +130,7 @@ namespace Presentacion
             boton.Click += (s, e) => accion(); parent.Controls.Add(boton); botonesNavegacion[nombre] = boton;
         }
 
+        // AGREGAR: AgregarNavPermitido
         private void AgregarNavPermitido(Control parent, string nombre, Action accion)
         {
             if (_modulosPermitidos != null && _modulosPermitidos.Contains(nombre))
@@ -217,9 +220,13 @@ namespace Presentacion
             }
         }
 
+        // CONFIGURACIÓN: ConstruirMenuPrincipal
         private void ConstruirMenuPrincipal() { }
+        // AGREGAR ELEMENTO VISUAL: Agrega una tarjeta al diseño del Dashboard.
         private void AgregarTarjeta(Control tarjeta, int columna, int fila) { }
+        // CREAR ELEMENTO VISUAL: CrearTarjeta
         private FontAwesome.Sharp.IconButton CrearTarjeta(string texto, FontAwesome.Sharp.IconChar icono, string modulo) { return null; }
+        // CREAR ELEMENTO VISUAL: CrearTarjeta
         private FontAwesome.Sharp.IconButton CrearTarjeta(string texto, FontAwesome.Sharp.IconChar icono, Action accion) { return null; }
         private void VolverAlMenu() { AbrirModulo(new DashboardForms(), "Dashboard"); }
         private void btnMenuInventarios_Click(object sender, EventArgs e) { Navegar("Inventarios"); }

@@ -9,6 +9,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE PantallaGestionBase: Presenta información y conecta acciones de usuario con la capa Negocio.
     public abstract class PantallaGestionBase : Form
     {
         private readonly CatalogosGestionNegocio negocio = new CatalogosGestionNegocio();
@@ -91,6 +92,7 @@ namespace Presentacion
             Shown += (s, e) => { try { RefrescarTodo(); } catch (Exception ex) { MostrarError(ex); } };
         }
 
+        // AGREGAR: AgregarEncabezado
         private void AgregarEncabezado(string modulo)
         {
             Panel encabezado = new Panel { Dock = DockStyle.Top, Height = 108, BackColor = Color.FromArgb(241, 246, 253) };
@@ -122,10 +124,12 @@ namespace Presentacion
             }
         }
 
+        // AGREGAR: AgregarPagina
         private void AgregarPagina(TabPage page)
         {
             moduloHost.TabPages.Add(page);
         }
+        // CREAR ELEMENTO VISUAL: CrearGrid
         private static DataGridView CrearGrid()
         {
             return new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
@@ -229,6 +233,7 @@ namespace Presentacion
             return editor;
         }
 
+        // ELIMINAR: EliminarRegistroDePantalla
         private void EliminarRegistroDePantalla(string modulo, DataGridView grid)
         {
             if (grid == null || grid.CurrentRow == null)
@@ -249,6 +254,7 @@ namespace Presentacion
             else if (modulo == "Productos") EliminarProducto();
         }
 
+        // AGREGAR: AbrirNuevoRegistro
         private void AbrirNuevoRegistro(string modulo)
         {
             switch (modulo)
@@ -278,6 +284,7 @@ namespace Presentacion
             else editorDialog.ShowDialog(propietario);
         }
 
+        // CONFIGURACIÓN: AplicarFiltroPantalla
         private void AplicarFiltroPantalla(string modulo, DataGridView grid)
         {
             if (modulo == "Categor\u00EDas") FiltrarCategoriasDePantalla();
@@ -309,6 +316,7 @@ namespace Presentacion
             _vistaSucursalesLimpiada = false;
             MostrarPaginaSucursal();
         }
+        // CREAR ELEMENTO VISUAL: CrearTarjetasEstadisticas
         private Panel CrearTarjetasEstadisticas(bool estiloSucursales = false)
         {
             TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = Color.FromArgb(246, 249, 250), Padding = new Padding(0, 0, 0, 10) };
@@ -339,6 +347,7 @@ namespace Presentacion
             return tarjetas;
         }
 
+        // EDITAR: ActualizarEstadisticas
         private void ActualizarEstadisticas(string[] titulos, string[] valores)
         {
             for (int i = 0; i < 3; i++)
@@ -369,12 +378,14 @@ namespace Presentacion
             control.Resize += ajustar;
             ajustar(control, EventArgs.Empty);
         }
+        // CONFIGURACIÓN: AplicarEstiloGestion
         private void AplicarEstiloGestion()
         {
             bool esSucursales = Text == "Sucursales";
             BackColor = esSucursales ? Color.FromArgb(241, 246, 245) : Color.FromArgb(246, 249, 250);
             AplicarEstiloGestion(Controls, esSucursales);
         }
+        // CONFIGURACIÓN: AplicarEstiloGestion
         private static void AplicarEstiloGestion(Control.ControlCollection controles, bool esSucursales = false)
         {
             foreach (Control control in controles)
@@ -450,6 +461,7 @@ namespace Presentacion
             b.Click += click; panel.Controls.Add(b); return b;
         }
 
+        // CONFIGURACIÓN: ConstruirCategorias
         private void ConstruirCategorias()
         {
             TabPage page = new TabPage("Categor\u00EDas"); AgregarPagina(page); Panel p = Lateral(page, out gridCategorias, 240);
@@ -479,6 +491,7 @@ namespace Presentacion
             };
         }
 
+        // CREAR ELEMENTO VISUAL: CrearVistaCategorias
         private static DataTable CrearVistaCategorias(DataTable categorias, DataTable productos)
         {
             DataTable vista = categorias.Copy();
@@ -506,6 +519,7 @@ namespace Presentacion
             MostrarPaginaCategorias();
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaCategoria
         private void CambiarPaginaCategoria(int cambio)
         {
             int paginas = Math.Max(1, (int)Math.Ceiling(categoriasFiltradas.Rows.Count / (double)RegistrosPorPaginaCategorias));
@@ -515,6 +529,7 @@ namespace Presentacion
             MostrarPaginaCategorias();
         }
 
+        // PRESENTAR DATOS: MostrarPaginaCategorias
         private void MostrarPaginaCategorias()
         {
             if (gridCategorias == null || categoriasFiltradas == null) return;
@@ -533,6 +548,7 @@ namespace Presentacion
             btnCategoriaSiguiente.Enabled = paginaCategoria < paginas;
         }
 
+        // CONFIGURACIÓN: ConfigurarGridCategorias
         private void ConfigurarGridCategorias()
         {
             gridCategorias.BackgroundColor = Color.White;
@@ -560,6 +576,7 @@ namespace Presentacion
             if (gridCategorias.Columns.Contains("Productos")) { gridCategorias.Columns["Productos"].HeaderText = "PRODUCTOS"; gridCategorias.Columns["Productos"].FillWeight = 18; gridCategorias.Columns["Productos"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; }
             gridCategorias.ClearSelection();
         }
+        // CONFIGURACIÓN: ConstruirProductos
         private void ConstruirProductos()
         {
             TabPage page = new TabPage("Productos"); AgregarPagina(page); Panel p = Lateral(page, out gridProductos, 270);
@@ -593,6 +610,7 @@ namespace Presentacion
             };
         }
 
+        // EDITAR: EditarProductoSeleccionado
         private void EditarProductoSeleccionado()
         {
             DataGridViewRow fila = gridProductos != null && gridProductos.SelectedRows.Count > 0
@@ -606,6 +624,7 @@ namespace Presentacion
             CargarProductoParaEditar(fila);
         }
 
+        // EDITAR: CargarProductoParaEditar
         private void CargarProductoParaEditar(DataGridViewRow fila)
         {
             DataRowView registro = fila == null ? null : fila.DataBoundItem as DataRowView;
@@ -638,6 +657,7 @@ namespace Presentacion
             MostrarPaginaProductos();
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaProducto
         private void CambiarPaginaProducto(int cambio)
         {
             int paginas = Math.Max(1, (int)Math.Ceiling(productosFiltrados.Rows.Count / (double)RegistrosPorPaginaProductos));
@@ -647,6 +667,7 @@ namespace Presentacion
             MostrarPaginaProductos();
         }
 
+        // PRESENTAR DATOS: MostrarPaginaProductos
         private void MostrarPaginaProductos()
         {
             if (gridProductos == null || productosFiltrados == null) return;
@@ -665,6 +686,7 @@ namespace Presentacion
             btnProductoSiguiente.Enabled = paginaProducto < paginas;
         }
 
+        // CONFIGURACIÓN: ConfigurarGridProductos
         private void ConfigurarGridProductos()
         {
             gridProductos.BackgroundColor = Color.White;
@@ -695,6 +717,7 @@ namespace Presentacion
             gridProductos.ClearSelection();
         }
 
+        // CONFIGURACIÓN: ConstruirSucursales
         private void ConstruirSucursales()
         {
             TabPage page = new TabPage("Sucursales"); AgregarPagina(page); Panel p=Lateral(page,out gridSucursales,300);
@@ -731,6 +754,7 @@ namespace Presentacion
             };
             gridSucursales.CellDoubleClick += (s,e)=>{if(e.RowIndex<0)return;DataRowView r=gridSucursales.Rows[e.RowIndex].DataBoundItem as DataRowView;if(r==null)return;sucId=Convert.ToInt32(r["Codigo"]);sucNombre.Text=Convert.ToString(r["Nombre"]);sucDireccion.Text=Convert.ToString(r["Direccion"]);sucTelefono.Text=Convert.ToString(r["Telefono"]);sucActivo.Checked=Convert.ToBoolean(r["Activo"]);AbrirEditor("Sucursales · Editar registro");};
         }
+        // CONFIGURACIÓN: ConstruirCompras
         private void ConstruirCompras()
         {
             TabPage page=new TabPage("Compras");AgregarPagina(page);
@@ -775,6 +799,7 @@ namespace Presentacion
             page.Controls.Add(contenedor);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearPanelHistorialCompras
         private Panel CrearPanelHistorialCompras()
         {
             Panel panel = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(8) };
@@ -846,6 +871,7 @@ namespace Presentacion
             MostrarPaginaCompras();
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaCompra
         private void CambiarPaginaCompra(int cambio)
         {
             int paginas = Math.Max(1, (int)Math.Ceiling(comprasFiltradas.Rows.Count / (double)RegistrosPorPaginaCompras));
@@ -855,6 +881,7 @@ namespace Presentacion
             MostrarPaginaCompras();
         }
 
+        // PRESENTAR DATOS: MostrarPaginaCompras
         private void MostrarPaginaCompras()
         {
             if (gridHistorialCompras == null || comprasFiltradas == null) return;
@@ -873,6 +900,7 @@ namespace Presentacion
             btnCompraSiguiente.Enabled = paginaCompra < paginas;
         }
 
+        // CONFIGURACIÓN: ConfigurarGridCompras
         private void ConfigurarGridCompras()
         {
             gridHistorialCompras.BackgroundColor = Color.White;
@@ -904,6 +932,7 @@ namespace Presentacion
             ActualizarBotonEditarCompra();
         }
 
+        // CARGA DE DATOS: CargarDetalleCompraSeleccionada
         private void CargarDetalleCompraSeleccionada()
         {
             if (gridDetalleCompra == null || gridHistorialCompras == null || gridHistorialCompras.SelectedRows.Count == 0)
@@ -939,6 +968,7 @@ namespace Presentacion
             }
         }
 
+        // EDITAR: ActualizarBotonEditarCompra
         private void ActualizarBotonEditarCompra()
         {
             if (btnEditarCompra == null) return;
@@ -947,6 +977,7 @@ namespace Presentacion
             if (btnEliminarCompra != null) btnEliminarCompra.Enabled = puedeGestionar;
         }
 
+        // ELIMINAR: EliminarCompraSeleccionada
         private void EliminarCompraSeleccionada()
         {
             if (gridHistorialCompras == null || gridHistorialCompras.SelectedRows.Count == 0) return;
@@ -1067,6 +1098,7 @@ namespace Presentacion
                 return Convert.ToInt32(sucursal.SelectedValue);
             }
         }
+        // CREAR ELEMENTO VISUAL: CrearSeccionCompra
         private static Panel CrearSeccionCompra(string titulo, out DataGridView grid)
         {
             Panel panel = new Panel { Dock=DockStyle.Fill, Padding=new Padding(0, 2, 0, 2) };
@@ -1137,16 +1169,26 @@ namespace Presentacion
             }
         }
         private static DataTable TablaCompra(){DataTable t=new DataTable();t.Columns.Add("IdProducto",typeof(int));t.Columns.Add("Producto");t.Columns.Add("Cantidad",typeof(decimal));t.Columns.Add("Costo unitario",typeof(decimal));t.Columns.Add("Subtotal",typeof(decimal));return t;}
+        // GUARDAR: GuardarCategoria
         private bool GuardarCategoria(){return Ejecutar(()=>{negocio.GuardarCategoria(catId,catNombre.Text,catDescripcion.Text);LimpiarCategoria();RefrescarTodo();});}
+        // LIMPIAR: LimpiarCategoria
         private void LimpiarCategoria(){catId=null;catNombre.Clear();catDescripcion.Clear();}
         private int IdSeleccionado(DataGridView g,string col){if(g.CurrentRow==null)throw new InvalidOperationException("Selecciona un registro de la lista.");return Convert.ToInt32(g.CurrentRow.Cells[col].Value);}
+        // ELIMINAR: EliminarCategoria
         private bool EliminarCategoria(){return Ejecutar(()=>{negocio.EliminarCategoria(IdSeleccionado(gridCategorias,"Codigo"));RefrescarTodo();});}
+        // GUARDAR: GuardarProducto
         private bool GuardarProducto(){return Ejecutar(()=>{if(prodCategoria.SelectedValue==null)throw new InvalidOperationException("Primero registra una categoría.");negocio.GuardarProducto(prodId,prodCodigo.Text,prodNombre.Text,prodDescripcion.Text,prodCosto.Value,prodPrecio.Value,Convert.ToInt32(prodCategoria.SelectedValue),prodActivo.Checked);LimpiarProducto();RefrescarTodo();});}
+        // LIMPIAR: LimpiarProducto
         private void LimpiarProducto(){prodId=null;prodCodigo.Clear();prodNombre.Clear();prodDescripcion.Clear();prodCosto.Value=0;prodPrecio.Value=0;prodActivo.Checked=true;if(prodCategoria.Items.Count>0)prodCategoria.SelectedIndex=0;}
+        // ELIMINAR: EliminarProducto
         private bool EliminarProducto(){return Ejecutar(()=>{negocio.EliminarProducto(IdSeleccionado(gridProductos,"Codigo"));RefrescarTodo();});}
+        // GUARDAR: GuardarSucursal
         private bool GuardarSucursal(){return Ejecutar(()=>{Sucursal sucursal=new Sucursal{IdSucursal=sucId.GetValueOrDefault(),Nombre=sucNombre.Text,Direccion=sucDireccion.Text,Telefono=sucTelefono.Text,Estado=sucActivo.Checked};if(sucId.HasValue){negocio.EditarSucursal(sucursal);}else{negocio.AgregarSucursal(sucursal);}LimpiarSucursal();RefrescarTodo();});}
+        // CONSULTAR: ConsultarSucursales
         private void ConsultarSucursales(){Ejecutar(()=>MostrarSucursales(negocio.Sucursales()));}
+        // BUSCAR: BuscarSucursales
         private void BuscarSucursales(){Ejecutar(()=>MostrarSucursales(negocio.BuscarSucursales(sucNombre.Text)));}
+        // PRESENTAR DATOS: MostrarSucursales
         private void MostrarSucursales(DataTable sucursales)
         {
             sucursalesOriginales = sucursales == null ? new DataTable() : sucursales.Copy();
@@ -1156,6 +1198,7 @@ namespace Presentacion
             if (filtroPantalla != null && !String.IsNullOrWhiteSpace(filtroPantalla.Text) && filtroPantalla.Text != "Buscar sucursales") FiltrarSucursalesDePantalla();
             else MostrarPaginaSucursal();
         }
+        // CAMBIAR PÁGINA: CambiarPaginaSucursal
         private void CambiarPaginaSucursal(int cambio)
         {
             int paginas = Math.Max(1, (int)Math.Ceiling(_sucursales.Rows.Count / (double)RegistrosPorPaginaSucursales));
@@ -1164,6 +1207,7 @@ namespace Presentacion
             _paginaSucursal = paginaNueva;
             MostrarPaginaSucursal();
         }
+        // PRESENTAR DATOS: MostrarPaginaSucursal
         private void MostrarPaginaSucursal()
         {
             int totalPaginas = Math.Max(1, (int)Math.Ceiling(_sucursales.Rows.Count / (double)RegistrosPorPaginaSucursales));
@@ -1185,6 +1229,7 @@ namespace Presentacion
             btnSucursalSiguiente.Enabled = _paginaSucursal < totalPaginas;
         }
 
+        // CONFIGURACIÓN: ConfigurarGridSucursales
         private void ConfigurarGridSucursales()
         {
             // Activo llega como Boolean desde SQL. La columna CheckBox no admite
@@ -1230,12 +1275,15 @@ namespace Presentacion
             if (gridSucursales.Columns.Contains("Activo")) { gridSucursales.Columns["Activo"].HeaderText = "ESTADO"; gridSucursales.Columns["Activo"].FillWeight = 18; gridSucursales.Columns["Activo"].DisplayIndex = 4; }
         }
 
+        // LIMPIAR: LimpiarTablaSucursales
         private void LimpiarTablaSucursales()
         {
             // No consultar ni vaciar la tabla: solo restablecer los campos de sucursal.
             LimpiarSucursal();
         }
+        // LIMPIAR: LimpiarSucursal
         private void LimpiarSucursal(){sucId=null;sucNombre.Clear();sucDireccion.Clear();sucTelefono.Clear();sucActivo.Checked=true;}
+        // ELIMINAR: EliminarSucursal
         private bool EliminarSucursal()
         {
             return Ejecutar(() =>
@@ -1251,9 +1299,13 @@ namespace Presentacion
                 RefrescarTodo();
             });
         }
+        // AGREGAR: AgregarLinea
         private void AgregarLinea(){Ejecutar(()=>{if(compraProducto.SelectedItem==null)throw new InvalidOperationException("No hay productos activos.");DataRowView r=compraProducto.SelectedItem as DataRowView;int id=Convert.ToInt32(r["Codigo"]);string nombre=Convert.ToString(r["Nombre"]);CompraLineaCatalogo l=new CompraLineaCatalogo{IdProducto=id,Producto=nombre,Cantidad=compraCantidad.Value,CostoUnitario=compraCosto.Value};lineas.Add(l);MostrarLineas();});}
+        // PRESENTAR DATOS: MostrarLineas
         private void MostrarLineas(){DataTable t=TablaCompra();foreach(CompraLineaCatalogo l in lineas)t.Rows.Add(l.IdProducto,l.Producto,l.Cantidad,l.CostoUnitario,l.Subtotal);gridCompra.DataSource=t;Estilizar(gridCompra,"IdProducto");decimal total=0;foreach(CompraLineaCatalogo l in lineas)total+=l.Subtotal;compraTotal.Text="Total: Q "+total.ToString("N2");}
+        // ELIMINAR: QuitarLinea
         private void QuitarLinea(){if(gridCompra.CurrentRow==null)return;int ix=gridCompra.CurrentRow.Index;if(ix>=0&&ix<lineas.Count){lineas.RemoveAt(ix);MostrarLineas();}}
+        // GUARDAR: GuardarCompra
         private void GuardarCompra()
         {
             Ejecutar(() =>
@@ -1280,6 +1332,7 @@ namespace Presentacion
             });
         }
         private bool Ejecutar(Action accion){try{accion();return true;}catch(Exception ex){MostrarError(ex);return false;}}
+        // PRESENTAR DATOS: MostrarError
         private void MostrarError(Exception ex){MessageBox.Show(ex.Message,"No se pudo completar la operación",MessageBoxButtons.OK,MessageBoxIcon.Warning);}
     }
 

@@ -11,6 +11,7 @@ using Negocio;
 
 namespace Presentacion
 {
+    // CLASE EmpleadosForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public class EmpleadosForms : Form
     {
         private const int RegistrosPorPagina = 10;
@@ -55,6 +56,7 @@ namespace Presentacion
             PrepararDisenoEmpleados();
         }
 
+        // CONFIGURACIÓN: PrepararDisenoEmpleados
         private void PrepararDisenoEmpleados()
         {
             Control[] controlesAnteriores = new Control[Controls.Count]; Controls.CopyTo(controlesAnteriores, 0); Controls.Clear();
@@ -258,6 +260,7 @@ namespace Presentacion
             Controls.Add(layout);
         }
 
+        // AGREGAR: AgregarEtiquetaYControl
         private static void AgregarEtiquetaYControl(Panel panel, string texto, Control control,
             int x, int y, int ancho, int alto)
         {
@@ -286,6 +289,7 @@ namespace Presentacion
             panel.Controls.Add(control);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonEmpleado
         private static Button CrearBotonEmpleado(string texto, bool principal)
         {
             Button boton = new Button { Text = texto, Width = principal ? 128 : 82, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
@@ -293,6 +297,7 @@ namespace Presentacion
             return boton;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonPaginacionEmpleado
         private static Button CrearBotonPaginacionEmpleado(string texto)
         {
             Button boton = new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105), Font = new Font("Segoe UI", 8F) };
@@ -315,6 +320,7 @@ namespace Presentacion
             control.Resize += (s, e) => actualizarRegion(); control.HandleCreated += (s, e) => actualizarRegion();
         }
 
+        // PRESENTAR DATOS: MostrarEmpleadosVista
         private void MostrarEmpleadosVista(List<Empleado> lista)
         {
             int paginas = Math.Max(1, (int)Math.Ceiling(lista.Count / (double)EmpleadosPorPaginaVista));
@@ -340,6 +346,7 @@ namespace Presentacion
             _resumenEmpleados[2].Text = _empleadosTotales.Select(x => x.IdSucursal).Distinct().Count().ToString("N0");
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaEmpleado
         private void CambiarPaginaEmpleado(int cambio)
         {
             _paginaVistaEmpleados += cambio; MostrarEmpleadosVista(_empleados);
@@ -379,21 +386,25 @@ namespace Presentacion
             dialogo.ShowDialog(this);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearComboEditorEmpleado
         private static ComboBox CrearComboEditorEmpleado(List<OpcionEmpleado> opciones, int left, int top, int width)
         {
             return new ComboBox { Left = left, Top = top, Width = width, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Texto", ValueMember = "Id", DataSource = opciones };
         }
 
+        // CREAR ELEMENTO VISUAL: CrearTextoEditorEmpleado
         private static TextBox CrearTextoEditorEmpleado(int left, int top, int width, int maxLength)
         {
             return new TextBox { Left = left, Top = top, Width = width, MaxLength = maxLength, BorderStyle = BorderStyle.FixedSingle };
         }
 
+        // AGREGAR: AgregarEtiquetaEditorEmpleado
         private static void AgregarEtiquetaEditorEmpleado(Form form, string texto, int top, int left)
         {
             form.Controls.Add(new Label { Text = texto, Left = left, Top = top, AutoSize = true, ForeColor = Color.FromArgb(102, 123, 131) });
         }
 
+        // ELIMINAR: EliminarEmpleadoVista
         private void EliminarEmpleadoVista()
         {
             if (_gridEmpleadosVista.CurrentRow == null || !(_gridEmpleadosVista.CurrentRow.Tag is Empleado)) { MessageBox.Show("Selecciona un empleado.", "Empleados", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
@@ -417,6 +428,7 @@ namespace Presentacion
             }
         }
 
+        // CARGA DE DATOS: CargarOpciones
         private void CargarOpciones()
         {
             cboUsuario.DataSource = _negocio.ListarUsuariosActivos()
@@ -425,6 +437,7 @@ namespace Presentacion
                 .Select(x => new OpcionEmpleado { Id = x.Codigo, Texto = x.Texto }).ToList();
         }
 
+        // CARGA DE DATOS: CargarEmpleados
         private void CargarEmpleados()
         {
             _empleadosTotales = _negocio.Listar();
@@ -434,12 +447,14 @@ namespace Presentacion
             MostrarPaginaActual();
         }
 
+        // BUSCAR: BuscarEmpleados
         private void BuscarEmpleados()
         {
             _paginaActual = 1;
             CargarEmpleados();
         }
 
+        // PRESENTAR DATOS: MostrarPaginaActual
         private void MostrarPaginaActual()
         {
             int paginas = Math.Max(1, (int)Math.Ceiling(_empleados.Count / (double)RegistrosPorPagina));
@@ -459,6 +474,7 @@ namespace Presentacion
             if (_gridEmpleadosVista != null) MostrarEmpleadosVista(_empleados);
         }
 
+        // CONFIGURACIÓN: ConfigurarColumnas
         private void ConfigurarColumnas()
         {
             if (dgvEmpleados.Columns["IdEmpleado"] != null) dgvEmpleados.Columns["IdEmpleado"].HeaderText = "Código";
@@ -473,6 +489,7 @@ namespace Presentacion
             if (dgvEmpleados.Columns["Estado"] != null) dgvEmpleados.Columns["Estado"].HeaderText = "Activo";
         }
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             LimpiarCampos();
@@ -496,6 +513,7 @@ namespace Presentacion
             chkEstado.Checked = empleado.Estado;
         }
 
+        // EDITAR: btnEditar_Click
         private void btnEditar_Click(object sender, EventArgs e)
         {
             if (_empleadoSeleccionado == null)
@@ -509,6 +527,7 @@ namespace Presentacion
             btnGuardar.Text = "Actualizar";
         }
 
+        // ELIMINAR: btnEliminar_Click
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             if (_empleadoSeleccionado == null)
@@ -537,6 +556,7 @@ namespace Presentacion
             }
         }
 
+        // BUSCAR: btnBuscar_Click
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             try
@@ -549,6 +569,7 @@ namespace Presentacion
             }
         }
 
+        // BUSCAR: txtBuscar_KeyDown
         private void txtBuscar_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter) return;
@@ -556,6 +577,7 @@ namespace Presentacion
             btnBuscar_Click(sender, e);
         }
 
+        // LIMPIAR: LimpiarCampos
         private void LimpiarCampos()
         {
             _empleadoSeleccionado = null;
@@ -571,6 +593,7 @@ namespace Presentacion
             txtNombre.Focus();
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             try
@@ -625,11 +648,13 @@ namespace Presentacion
             CargarEmpleados();
         }
 
+        // PRESENTAR DATOS: MostrarError
         private void MostrarError(Exception ex)
         {
             MessageBox.Show(ex.Message, "Empleados", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        // CLASE OpcionEmpleado: Representa una opción de empleado usada por los controles del formulario.
         private class OpcionEmpleado
         {
             public int Id { get; set; }

@@ -9,6 +9,7 @@ using Entidad;
 
 namespace Negocio
 {
+    // CLASE UsuarioNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class UsuarioNegocio
     {
         private readonly UsuarioDatos _datos = new UsuarioDatos();
@@ -17,6 +18,7 @@ namespace Negocio
         private const int UltimoIdUsuarioOriginal = 6;
 
         // Valida los campos y coordina la consulta de acceso con la capa Datos.
+        // INICIO DE SESIÓN: Login
         public Usuario Login(string nombreUsuario, string contrasena, out string mensaje)
         {
             mensaje = "";
@@ -51,17 +53,20 @@ namespace Negocio
             return usuario;
         }
 
+        // CONSULTAR: Listar
         public List<Usuario> Listar()
         {
             return _datos.Listar();
         }
 
+        // CONSULTAR: ListarRoles
         public List<string> ListarRoles()
         {
             // Devuelve los roles activos que se pueden asignar a usuarios.
             return _roles.Listar().Select(r => r.NombreRol).ToList();
         }
 
+        // BUSCAR: Buscar
         public List<Usuario> Buscar(string texto)
         {
             if (string.IsNullOrWhiteSpace(texto))
@@ -70,6 +75,7 @@ namespace Negocio
             return _datos.Buscar(texto.Trim());
         }
 
+        // AGREGAR: Agregar
         public string Agregar(Usuario u)
         {
             if (u == null)
@@ -93,6 +99,7 @@ namespace Negocio
             return "";
         }
 
+        // EDITAR: Editar
         public string Editar(Usuario u)
         {
             if (u == null)
@@ -119,6 +126,7 @@ namespace Negocio
             return "";
         }
 
+        // GUARDAR: Guardar
         public string Guardar(Usuario u)
         {
             if (string.IsNullOrWhiteSpace(u.NombreUsuario))
@@ -143,6 +151,7 @@ namespace Negocio
             return "";
         }
 
+        // ELIMINAR: Eliminar
         public void Eliminar(int idUsuario)
         {
             if (idUsuario <= 0)
@@ -151,6 +160,7 @@ namespace Negocio
             _datos.Eliminar(idUsuario);
         }
 
+        // LIMPIAR: LimpiarUsuariosDePrueba
         public int LimpiarUsuariosDePrueba()
         {
             return _datos.EliminarUsuariosDePrueba(UltimoIdUsuarioOriginal);

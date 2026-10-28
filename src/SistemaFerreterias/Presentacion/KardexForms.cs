@@ -14,6 +14,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE KardexForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class KardexForms : Form
     {
         // Instanciar: Que el forms actual (capa presentacion) pueda acceder a otra capa (Negocio)
@@ -38,6 +39,7 @@ namespace Presentacion
             PrepararDisenoKardex();
         }
 
+        // CONFIGURACIÓN: PrepararDisenoKardex
         private void PrepararDisenoKardex()
         {
             BackColor = Color.FromArgb(241, 246, 245);
@@ -129,6 +131,7 @@ namespace Presentacion
         // CONSULTAR (por producto)
         // =====================================================
 
+        // CONSULTAR: MtdConsultar
         private void MtdConsultar()
         {
             List<KardexEntidad> lista = _kardexNegocio.MtdConsultar(AyudaForms.MtdValorCombo(cboFiltro));
@@ -150,6 +153,7 @@ namespace Presentacion
             if (_gridKardexVista != null) MostrarKardexVista(_listaKardexCompleta);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonKardex
         private static Button CrearBotonKardex(string texto, bool principal)
         {
             Button boton = new Button { Text = texto, Width = principal ? 128 : 78, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
@@ -191,6 +195,7 @@ namespace Presentacion
                 x.FechaMovimiento.ToString("dd MMM yyyy HH:mm", CultureInfo.GetCultureInfo("es-MX")).IndexOf(filtro, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList());
         }
 
+        // PRESENTAR DATOS: MostrarKardexVista
         private void MostrarKardexVista(List<KardexEntidad> lista)
         {
             _listaKardexVista = lista ?? new List<KardexEntidad>();
@@ -230,6 +235,7 @@ namespace Presentacion
             _siguienteKardexVista.Enabled = _numeroPaginaKardex < paginas;
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaKardex
         private void CambiarPaginaKardex(int cambio)
         {
             _numeroPaginaKardex += cambio;
@@ -239,6 +245,7 @@ namespace Presentacion
                 FiltrarKardexVista();
         }
 
+        // BUSCAR: btnBuscar_Click
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             try
@@ -251,6 +258,7 @@ namespace Presentacion
             }
         }
 
+        // LIMPIAR: btnLimpiarFiltro_Click
         private void btnLimpiarFiltro_Click(object sender, EventArgs e)
         {
             try

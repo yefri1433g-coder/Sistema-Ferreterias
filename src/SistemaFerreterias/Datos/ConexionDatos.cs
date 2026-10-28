@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Datos
 {
+    // CLASE ConexionDatos: Obtiene la conexión configurada para comunicarse con SQL Server.
     public class ConexionDatos
     {
         private readonly string _cadenaConexion;
@@ -54,6 +55,7 @@ namespace Datos
             }
         }
 
+        // OBTENER CONEXIÓN: MtdObtenerConexionBDD
         public SqlConnection MtdObtenerConexionBDD()
         {
             if (string.IsNullOrWhiteSpace(_cadenaConexion))

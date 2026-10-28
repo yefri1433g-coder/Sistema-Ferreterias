@@ -7,31 +7,37 @@ using Entidad;
 
 namespace Negocio
 {
+    // CLASE VentaNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class VentaNegocio
     {
         private readonly VentaDatos _datos = new VentaDatos();
 
+        // CONSULTAR: ListarVentas
         public DataTable ListarVentas()
         {
             return _datos.ListarVentas();
         }
 
+        // CONSULTAR: ListarSucursales
         public List<ItemCombo> ListarSucursales()
         {
             return _datos.ListarSucursales();
         }
 
+        // CONSULTAR: ListarProductos
         public List<ProductoVenta> ListarProductos(int idSucursal)
         {
             return _datos.ListarProductos(idSucursal);
         }
 
+        // CONSULTAR: Obtener
         public Venta Obtener(int idVenta)
         {
             if (idVenta <= 0) return null;
             return _datos.Obtener(idVenta);
         }
 
+        // CONSULTAR: Consultar
         public Venta Consultar(int idVenta)
         {
             if (idVenta <= 0)
@@ -46,6 +52,7 @@ namespace Negocio
             }
         }
 
+        // EDITAR: ActualizarPendiente
         public string ActualizarPendiente(Venta venta)
         {
             string error = ValidarVenta(venta);
@@ -63,6 +70,7 @@ namespace Negocio
             catch { return "No se pudo actualizar la venta. Verifica los datos e inténtalo de nuevo."; }
         }
 
+        // ELIMINAR: EliminarPendiente
         public string EliminarPendiente(int idVenta, int idSucursal)
         {
             if (idVenta <= 0) return "Selecciona una venta válida para eliminar.";
@@ -77,6 +85,7 @@ namespace Negocio
             catch { return "No se pudo eliminar la venta. Verifica los datos e inténtalo de nuevo."; }
         }
 
+        // VALIDAR: ValidarVenta
         private static string ValidarVenta(Venta venta)
         {
             if (venta == null) return "No se recibió la información de la venta.";
@@ -91,6 +100,7 @@ namespace Negocio
         }
 
         // Devuelve "" si todo salió bien, o el mensaje de error.
+        // GUARDAR: Guardar
         public string Guardar(Venta v)
         {
             if (v.IdSucursal <= 0)

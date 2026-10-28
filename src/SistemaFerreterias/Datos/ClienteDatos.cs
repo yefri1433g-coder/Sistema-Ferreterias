@@ -6,6 +6,7 @@ using Entidad;
 
 namespace Datos
 {
+    // CLASE ClienteDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class ClienteDatos
     {
         private readonly ConexionDatos _conexion = new ConexionDatos();
@@ -36,6 +37,7 @@ namespace Datos
             };
         }
 
+        // CONSULTAR: Listar
         public List<Cliente> Listar()
         {
             List<Cliente> lista = new List<Cliente>();
@@ -56,6 +58,7 @@ namespace Datos
         }
 
         // Busca coincidencias parciales en el nombre mediante un parámetro SQL.
+        // BUSCAR: BuscarPorNombre
         public List<Cliente> BuscarPorNombre(string nombre)
         {
             List<Cliente> lista = new List<Cliente>();
@@ -94,6 +97,7 @@ namespace Datos
             }
         }
 
+        // AGREGAR: Insertar
         public void Insertar(Cliente c)
         {
             try
@@ -120,6 +124,7 @@ namespace Datos
             }
         }
 
+        // EDITAR: Actualizar
         public void Actualizar(Cliente c)
         {
             try
@@ -147,6 +152,7 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: Eliminar
         public void Eliminar(int idCliente)
         {
             try
@@ -168,6 +174,7 @@ namespace Datos
         }
 
         // Elimina los registros agregados después del conjunto original identificado por el usuario.
+        // ELIMINAR: EliminarPosterioresA
         public int EliminarPosterioresA(int ultimoIdOriginal)
         {
             try

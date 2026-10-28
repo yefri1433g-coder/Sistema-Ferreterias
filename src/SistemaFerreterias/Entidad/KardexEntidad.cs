@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Entidad
 {
+    // CLASE KardexEntidad: Representa datos del sistema y permite compartirlos entre las capas.
     public class KardexEntidad
     {
         /*  ==================================================

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 namespace Entidad
 {
     // Representa un rol y los módulos que tiene permitidos.
+    // CLASE Rol: Representa datos del sistema y permite compartirlos entre las capas.
     public class Rol
     {
         // Llave primaria CodigoRol de Tbl_Roles.

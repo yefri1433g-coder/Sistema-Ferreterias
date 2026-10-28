@@ -6,6 +6,7 @@ using System;
 namespace Presentacion
 {
     /// <summary>Estilo compartido para mantener una apariencia coherente y permitir seguir editando cada Form desde el diseñador.</summary>
+    // CLASE EstiloAplicacion: Aplica estilos visuales compartidos a formularios y controles.
     internal static class EstiloAplicacion
     {
         internal static readonly Color Fondo = Color.FromArgb(241, 246, 253);
@@ -14,6 +15,7 @@ namespace Presentacion
         internal static readonly Color Secundario = Color.FromArgb(100, 116, 139);
         internal static readonly Color Acento = Color.FromArgb(37, 99, 235);
 
+        // CONFIGURACIÓN: Aplicar
         internal static void Aplicar(Form formulario)
         {
             formulario.BackColor = Fondo;
@@ -24,12 +26,14 @@ namespace Presentacion
             AplicarControles(formulario.Controls);
         }
 
+        // OBTENER RECURSO VISUAL: Carga la imagen compartida del módulo de clientes.
         internal static Image ObtenerImagenClientes()
         {
             ComponentResourceManager recursos = new ComponentResourceManager(typeof(ClientesForms));
             return recursos.GetObject("pictureBox1.Image") as Image;
         }
 
+        // CONFIGURACIÓN: AplicarDialogo
         internal static void AplicarDialogo(Form dialogo)
         {
             if (dialogo == null) return;
@@ -102,6 +106,7 @@ namespace Presentacion
             }
         }
 
+        // BUSCAR: BuscarBotonPorTexto
         private static Button BuscarBotonPorTexto(Control.ControlCollection controles, string texto)
         {
             foreach (Control control in controles)
@@ -132,6 +137,7 @@ namespace Presentacion
             }
         }
 
+        // CONFIGURACIÓN: AplicarEstiloDialogo
         private static void AplicarEstiloDialogo(Control.ControlCollection controles)
         {
             foreach (Control control in controles)
@@ -201,6 +207,7 @@ namespace Presentacion
             }
         }
 
+        // CONFIGURACIÓN: AplicarControles
         private static void AplicarControles(Control.ControlCollection controles)
         {
             foreach (Control control in controles)
