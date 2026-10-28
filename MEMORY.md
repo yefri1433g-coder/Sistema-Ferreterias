@@ -9,6 +9,7 @@ Actualizado: 28 de octubre de 2026.
 - El 28 de octubre de 2026, a petición del estudiante, se limpiaron de `db_Ferreteria` los datos transaccionales agregados desde la aplicación. Ventas, detalles de ventas, pagos, Kardex, traslados y detalles de traslado quedaron con cinco filas de semilla cada uno; `Tbl_Stock` volvió a las cantidades del script. La verificación confirmó cinco filas en las tablas sembradas, seis usuarios (cinco cuentas de ejemplo más `admin`), tres roles y 28 accesos configurables. Las identidades transaccionales se reiniciaron para que la próxima inserción use el ID 6.
 - Curso: Programación II 2026. Sistema de ferreterías multisucursal.
 - Existe la solución `src/SistemaFerreterias/SistemaFerreterias.slnx`, con los proyectos Entidad, Datos, Negocio y Presentación.
+- El 23 de octubre de 2026, el clon `C:\2026_Progra2_Integracion` estaba en `main`, sincronizado con `origin/main`. El historial local muestra integrados los Pull Requests #1 (Integrante 2), #2 (Integrante 1) y #4 (Integrante 3). Hay ramas remotas publicadas `origin/integrante1`, `origin/integrante2` y `origin/Integrante-3`.
 - La solución compiló correctamente el 16 de octubre de 2026 mediante MSBuild/dotnet con salida aislada en `bin/CodexBuild`, sin advertencias ni errores. La salida normal a `bin/Debug` tuvo DLL ocupadas por otro proceso.
 - La arquitectura respeta `Presentación -> Negocio -> Datos -> SQL Server`; Entidad transporta los datos entre capas.
 - `database/SCRIPT NUEVO2.sql` define `db_Ferreteria` y las tablas con prefijo `Tbl_`. El bloque de semillas solo se ejecuta cuando todas las tablas están vacías, para evitar duplicados.
@@ -37,5 +38,5 @@ Actualizado: 28 de octubre de 2026.
 - Se mantienen SQL Server, SSMS y la arquitectura Entidad, Datos, Negocio y Presentación.
 - Se respetan las tablas `Tbl_` y las claves `id_` del esquema actual.
 - El Integrante 1, Yefry Yahir García García, confirmó como completados y aprobados los Documentos 01 y 02; confirmó parcialmente el Documento 03 para Inventarios y Empleados; y confirmó como completados Traslados del Documento 04 y el Dashboard del Documento 08. No se registran como probados otros módulos.
-- El Integrante 1 confirmó avance parcial del Documento 05: repositorio privado, rama `main` publicada, clon en `C:\2026_Progra2_Integracion` y rama `integrante1` publicada. Faltan las ramas de los otros integrantes, Pull Requests y la confirmación de los tres; el documento no está finalizado.
+- Documento 05 — Git colaborativo: el historial local confirma el clon, `main` sincronizada con `origin/main`, ramas remotas publicadas para los tres integrantes y Pull Requests #1, #2 y #4 integrados. La visibilidad privada del repositorio, la conservación de las carpetas originales y las pruebas finales de CRUD de los tres integrantes requieren confirmación del grupo. No declarar el documento finalizado hasta verificar esos puntos.
 - No se almacenan credenciales reales en archivos del proyecto.
