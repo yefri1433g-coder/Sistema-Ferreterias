@@ -6,10 +6,12 @@ using Entidad;
 
 namespace Datos
 {
+    // CLASE VentaDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class VentaDatos
     {
         private readonly ConexionDatos _conexion = new ConexionDatos();
 
+        // CONSULTAR: ListarVentas
         public System.Data.DataTable ListarVentas()
         {
             System.Data.DataTable tabla = new System.Data.DataTable();
@@ -32,6 +34,7 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: ListarSucursales
         public List<ItemCombo> ListarSucursales()
         {
             List<ItemCombo> lista = new List<ItemCombo>();
@@ -58,6 +61,7 @@ namespace Datos
         }
 
         // Muestra el catálogo activo y el stock de la sucursal, incluso cuando sea cero.
+        // CONSULTAR: ListarProductos
         public List<ProductoVenta> ListarProductos(int idSucursal)
         {
             List<ProductoVenta> lista = new List<ProductoVenta>();
@@ -96,12 +100,14 @@ namespace Datos
         // Guarda la venta, sus detalles, el stock y el kardex en una transacción.
         // Si el método es Pendiente, omite el pago para que Pagos calcule el saldo.
         // Si algo falla, no se guarda nada.
+        // GUARDAR: Guardar
         public int Guardar(Venta v)
         {
             using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
             {
                 cn.Open();
 
+                // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                 using (SqlTransaction tx = cn.BeginTransaction())
                 {
                     try
@@ -199,11 +205,13 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: Obtener
         public Venta Obtener(int idVenta)
         {
             return Consultar(idVenta);
         }
 
+        // CONSULTAR: Consultar
         public Venta Consultar(int idVenta)
         {
             Venta venta = null;
@@ -267,11 +275,13 @@ namespace Datos
             }
         }
 
+        // EDITAR: ActualizarPendiente
         public bool ActualizarPendiente(Venta venta)
         {
             using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
             {
                 cn.Open();
+                // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                 using (SqlTransaction tx = cn.BeginTransaction(IsolationLevel.Serializable))
                 {
                     try
@@ -313,11 +323,13 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarPendiente
         public bool EliminarPendiente(int idVenta, int idSucursal)
         {
             using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
             {
                 cn.Open();
+                // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                 using (SqlTransaction tx = cn.BeginTransaction(IsolationLevel.Serializable))
                 {
                     try
@@ -355,6 +367,7 @@ namespace Datos
             }
         }
 
+        // VALIDAR: VerificarPendiente
         private static void VerificarPendiente(SqlConnection cn, SqlTransaction tx, int idVenta)
         {
             using (SqlCommand cmd = new SqlCommand(
@@ -367,6 +380,7 @@ namespace Datos
             }
         }
 
+        // VALIDAR: VerificarSucursalVenta
         private static void VerificarSucursalVenta(SqlConnection cn, SqlTransaction tx, int idVenta, int idSucursal)
         {
             int sucursalRegistrada = ObtenerSucursalVenta(cn, tx, idVenta);
@@ -374,6 +388,7 @@ namespace Datos
                 throw new InvalidOperationException("No se puede cambiar la sucursal original de una venta.");
         }
 
+        // CONSULTAR: ObtenerSucursalVenta
         private static int ObtenerSucursalVenta(SqlConnection cn, SqlTransaction tx, int idVenta)
         {
             using (SqlCommand cmd = new SqlCommand(
@@ -385,6 +400,7 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: ListarDetalles
         private static List<DetalleVenta> ListarDetalles(SqlConnection cn, SqlTransaction tx, int idVenta)
         {
             List<DetalleVenta> detalles = new List<DetalleVenta>();
@@ -403,6 +419,7 @@ namespace Datos
             return detalles;
         }
 
+        // AGREGAR: InsertarDetalle
         private static void InsertarDetalle(SqlConnection cn, SqlTransaction tx, int idVenta, DetalleVenta detalle)
         {
             using (SqlCommand cmd = new SqlCommand(
@@ -417,6 +434,7 @@ namespace Datos
             }
         }
 
+        // CONFIGURACIÓN: AplicarDiferenciasStock
         private static void AplicarDiferenciasStock(SqlConnection cn, SqlTransaction tx, Venta venta, List<DetalleVenta> anteriores)
         {
             Dictionary<int, DetalleVenta> nuevosPorProducto = new Dictionary<int, DetalleVenta>();

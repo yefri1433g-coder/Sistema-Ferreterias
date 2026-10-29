@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE VentasForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class VentasForms : Form
     {
         private readonly VentaNegocio _negocio = new VentaNegocio();
@@ -59,6 +60,7 @@ namespace Presentacion
             CargarVentas();
         }
 
+        // CONFIGURACIÓN: PrepararDisenoVentas
         private void PrepararDisenoVentas()
         {
             Control[] controlesEditor = Controls.Cast<Control>().ToArray();
@@ -118,6 +120,7 @@ namespace Presentacion
             contenido.Bounds = new Rectangle(2, 62, _dialogoVenta.ClientSize.Width - 4, _dialogoVenta.ClientSize.Height - 64);
         }
 
+        // CONFIGURACIÓN: ConfigurarEditorVentaCompacto
         private void ConfigurarEditorVentaCompacto()
         {
             foreach (Control control in _dialogoVenta.Controls) control.Anchor = AnchorStyles.Top | AnchorStyles.Left;
@@ -137,22 +140,26 @@ namespace Presentacion
             btnNuevo.SetBounds(24, 548, 130, 40); btnGuardar.SetBounds(166, 548, 175, 40); btnCerrar.SetBounds(354, 548, 120, 40);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonVenta
         private static Button CrearBotonVenta(string texto, bool primario)
         {
             return new Button { Text = texto, Width = primario ? 132 : 100, Height = 30, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = primario ? Color.FromArgb(22, 139, 112) : Color.White, ForeColor = primario ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonPaginacion
         private static Button CrearBotonPaginacion(string texto)
         {
             return new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 3, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(68, 91, 101), Font = new Font("Segoe UI", 8F) };
         }
 
+        // CARGA DE DATOS: CargarVentas
         private void CargarVentas()
         {
             try { _ventas = _negocio.ListarVentas(); MostrarVentas(); }
             catch (Exception ex) { MessageBox.Show("No se pudo cargar el historial de ventas. " + ex.Message, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
+        // PRESENTAR DATOS: MostrarVentas
         private void MostrarVentas()
         {
             if (_gridVentas == null) return;
@@ -188,8 +195,10 @@ namespace Presentacion
             _resumenVentas[0].Text = hoy.Count.ToString("N0"); _resumenVentas[1].Text = "Q " + totalHoy.ToString("N2"); _resumenVentas[2].Text = (hoy.Count == 0 ? 0 : totalHoy / hoy.Count).ToString("Q #,##0.00", CultureInfo.GetCultureInfo("es-GT"));
         }
 
+        // CAMBIAR PÁGINA: CambiarPagina
         private void CambiarPagina(int cambio) { _pagina += cambio; MostrarVentas(); }
 
+        // CONSULTAR: ConsultarVentaSeleccionada
         private void ConsultarVentaSeleccionada()
         {
             bool pendiente;
@@ -218,6 +227,7 @@ namespace Presentacion
             }
         }
 
+        // CONFIGURACIÓN: ConfigurarModoConsulta
         private void ConfigurarModoConsulta(Venta venta)
         {
             _dialogoVenta.Text = "Consulta de venta No. " + venta.IdVenta;
@@ -258,6 +268,7 @@ namespace Presentacion
             btnCerrar.Visible = true; btnCerrar.Text = "Cerrar"; btnCerrar.SetBounds(24, 548, 120, 40);
         }
 
+        // CONFIGURACIÓN: ConfigurarModoCaptura
         private void ConfigurarModoCaptura()
         {
             ConfigurarEditorVentaCompacto();
@@ -287,6 +298,7 @@ namespace Presentacion
             ActualizarTotal();
         }
 
+        // EDITAR: ActualizarAccionesVentaSeleccionada
         private void ActualizarAccionesVentaSeleccionada()
         {
             DataRowView fila = _gridVentas == null || _gridVentas.SelectedRows.Count == 0
@@ -306,6 +318,7 @@ namespace Presentacion
             return Convert.ToInt32(fila["id_venta"]);
         }
 
+        // EDITAR: EditarVentaSeleccionada
         private void EditarVentaSeleccionada()
         {
             bool pendiente;
@@ -345,6 +358,7 @@ namespace Presentacion
             }
         }
 
+        // ELIMINAR: EliminarVentaSeleccionada
         private void EliminarVentaSeleccionada()
         {
             bool pendiente;
@@ -404,6 +418,7 @@ namespace Presentacion
             }
         }
 
+        // CONFIGURACIÓN: ConfigurarGrid
         private void ConfigurarGrid()
         {
             if (dgvDetalle.Columns["IdProducto"] != null)
@@ -426,6 +441,7 @@ namespace Presentacion
             }
         }
 
+        // CARGA DE DATOS: CargarProductos
         private void CargarProductos()
         {
             ItemCombo sucursal = cboSucursal.SelectedItem as ItemCombo;
@@ -446,6 +462,7 @@ namespace Presentacion
             ActualizarTotal();
         }
 
+        // EDITAR: ActualizarTotal
         private void ActualizarTotal()
         {
             decimal total = _detalle.Sum(d => d.Subtotal);
@@ -455,6 +472,7 @@ namespace Presentacion
             cboSucursal.Enabled = _detalle.Count == 0 || (_ventaEnEdicion != null && cboSucursal.SelectedIndex < 0);
         }
 
+        // AGREGAR: Nuevo
         private void Nuevo()
         {
             _ventaEnEdicion = null;
@@ -476,6 +494,7 @@ namespace Presentacion
             CargarProductos();
         }
 
+        // AGREGAR: btnAgregar_Click
         private void btnAgregar_Click(object sender, EventArgs e)
         {
             ProductoVenta p = cboProducto.SelectedItem as ProductoVenta;
@@ -521,6 +540,7 @@ namespace Presentacion
             ActualizarTotal();
         }
 
+        // ELIMINAR: btnQuitar_Click
         private void btnQuitar_Click(object sender, EventArgs e)
         {
             if (dgvDetalle.CurrentRow == null) return;
@@ -532,11 +552,13 @@ namespace Presentacion
             ActualizarTotal();
         }
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             Nuevo();
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             Cliente cliente = cboCliente.SelectedItem as Cliente;

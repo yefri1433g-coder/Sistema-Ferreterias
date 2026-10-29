@@ -149,6 +149,9 @@
     <Compile Include="ProveedoresForms.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="RolesForms.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ProveedoresForms.Designer.cs">
       <DependentUpon>ProveedoresForms.cs</DependentUpon>
     </Compile>

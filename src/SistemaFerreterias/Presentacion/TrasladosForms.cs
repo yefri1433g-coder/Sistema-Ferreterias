@@ -14,6 +14,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE TrasladosForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class TrasladosForms : Form
     {
         // Instanciar: Que el forms actual (capa presentacion) pueda acceder a otra capa (Negocio)
@@ -46,6 +47,7 @@ namespace Presentacion
             PrepararDialogoTraslado();
         }
 
+        // CONFIGURACIÓN: PrepararDialogoTraslado
         private void PrepararDialogoTraslado()
         {
             _dialogoTraslado = new Form { Text = "Nuevo traslado", ClientSize = new Size(1120, 740), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
@@ -56,6 +58,7 @@ namespace Presentacion
             _dialogoTraslado.Controls.Add(PanelPrincipalGestionar);
         }
 
+        // PRESENTAR DATOS: MostrarDialogoTraslado
         private void MostrarDialogoTraslado(bool nuevo)
         {
             _dialogoTraslado.Text = nuevo ? "Nuevo traslado" : "Consultar traslado";
@@ -63,6 +66,7 @@ namespace Presentacion
             _dialogoTraslado.ShowDialog(this);
         }
 
+        // CONFIGURACIÓN: PrepararDisenoTraslados
         private void PrepararDisenoTraslados()
         {
             BackColor = Color.FromArgb(241, 246, 245);
@@ -166,6 +170,7 @@ namespace Presentacion
             }
         }
 
+        // ELIMINAR: EliminarTrasladoVista
         private void EliminarTrasladoVista()
         {
             if (_gridTrasladosVista == null || _gridTrasladosVista.CurrentRow == null) { AyudaForms.MtdAviso("Selecciona primero un traslado."); return; }
@@ -180,12 +185,14 @@ namespace Presentacion
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONFIGURACIÓN: MtdConfigurarDetalle
         private void MtdConfigurarDetalle(DataGridView dgv)
         {
             AyudaForms.MtdTitulo(dgv, "NombreProducto", "Producto");
             AyudaForms.MtdOcultar(dgv, "CodigoProducto");
         }
 
+        // CONSULTAR: MtdConsultar
         private void MtdConsultar()
         {
             _trasladosCompletos = _trasladosNegocio.MtdConsultar();
@@ -193,6 +200,7 @@ namespace Presentacion
             if (_gridTrasladosVista != null) MostrarTrasladosVista(_trasladosCompletos);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonTraslado
         private static Button CrearBotonTraslado(string texto, bool principal)
         {
             Button boton = new Button { Text = texto, Width = principal ? 128 : 78, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
@@ -235,6 +243,7 @@ namespace Presentacion
                 (x.Estado ?? String.Empty).IndexOf(filtro, StringComparison.CurrentCultureIgnoreCase) >= 0).ToList());
         }
 
+        // PRESENTAR DATOS: MostrarTrasladosVista
         private void MostrarTrasladosVista(List<TrasladosEntidad> lista)
         {
             _trasladosVisibles = lista ?? new List<TrasladosEntidad>();
@@ -267,6 +276,7 @@ namespace Presentacion
                 _gridTrasladosVista.Rows[i].Tag = pagina[i];
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaTraslados
         private void CambiarPaginaTraslados(int cambio)
         {
             _paginaTraslados += cambio;
@@ -289,6 +299,7 @@ namespace Presentacion
             catch (Exception ex) { AyudaForms.MtdError(ex); }
         }
 
+        // PRESENTAR DATOS: MtdMostrarLista
         private void MtdMostrarLista(List<TrasladosEntidad> lista)
         {
             dgvTraslados.DataSource = null;
@@ -317,6 +328,7 @@ namespace Presentacion
         }
 
         // Muestra abajo el detalle del traslado que esta seleccionado en la lista
+        // PRESENTAR DATOS: MtdMostrarDetalleSeleccionado
         private void MtdMostrarDetalleSeleccionado()
         {
             try
@@ -343,6 +355,7 @@ namespace Presentacion
             MtdMostrarDetalleSeleccionado();
         }
 
+        // BUSCAR: btnBuscar_Click
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             try
@@ -355,6 +368,7 @@ namespace Presentacion
             }
         }
 
+        // LIMPIAR: btnLimpiarFiltro_Click
         private void btnLimpiarFiltro_Click(object sender, EventArgs e)
         {
             try
@@ -425,6 +439,7 @@ namespace Presentacion
         // GESTIONAR: METODOS DE APOYO
         // =====================================================
 
+        // CARGA DE DATOS: MtdCargarEnCampos
         private void MtdCargarEnCampos(TrasladosEntidad item)
         {
             _codigoSeleccionado = item.CodigoTraslado;
@@ -446,6 +461,7 @@ namespace Presentacion
             MtdHabilitarCampos(false);
         }
 
+        // LEER CAMPOS DEL FORMULARIO: Convierte los valores ingresados en una entidad de traslado.
         private TrasladosEntidad MtdObtenerDeCampos()
         {
             TrasladosEntidad traslado = new TrasladosEntidad();
@@ -459,6 +475,7 @@ namespace Presentacion
             return traslado;
         }
 
+        // LIMPIAR: MtdLimpiarCampos
         private void MtdLimpiarCampos()
         {
             txtCodigo.Clear();
@@ -513,6 +530,7 @@ namespace Presentacion
         // GESTIONAR: DETALLE (PRODUCTOS DEL TRASLADO)
         // =====================================================
 
+        // AGREGAR: btnAgregarDetalle_Click
         private void btnAgregarDetalle_Click(object sender, EventArgs e)
         {
             ComboItemEntidad producto = cboProducto.SelectedItem as ComboItemEntidad;
@@ -541,6 +559,7 @@ namespace Presentacion
             nudCantidad.Value = 1;
         }
 
+        // ELIMINAR: btnQuitarDetalle_Click
         private void btnQuitarDetalle_Click(object sender, EventArgs e)
         {
             DetalleTrasladoEntidad det = null;
@@ -563,6 +582,7 @@ namespace Presentacion
         // GESTIONAR: BOTONES
         // =====================================================
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();
@@ -576,6 +596,7 @@ namespace Presentacion
             cboEmpleado.Focus();
         }
 
+        // EDITAR: btnEditar_Click
         private void btnEditar_Click(object sender, EventArgs e)
         {
             if (_codigoSeleccionado == 0)
@@ -594,6 +615,7 @@ namespace Presentacion
             MtdHabilitarCampos(true);
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             try
@@ -626,6 +648,7 @@ namespace Presentacion
             }
         }
 
+        // ELIMINAR: btnEliminar_Click
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             try
@@ -658,6 +681,7 @@ namespace Presentacion
             MtdVolverAModoConsulta();
         }
 
+        // LIMPIAR: btnLimpiar_Click
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();

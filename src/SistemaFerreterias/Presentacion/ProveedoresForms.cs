@@ -12,6 +12,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE ProveedoresForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class ProveedoresForms : Form
     {
         // Instanciar: Que el forms actual (capa presentacion) pueda acceder a otra capa (Negocio)
@@ -36,6 +37,7 @@ namespace Presentacion
             PrepararDialogoProveedor();
         }
 
+        // CONFIGURACIÓN: PrepararDialogoProveedor
         private void PrepararDialogoProveedor()
         {
             _dialogoProveedor = new Form { Text = "Nuevo proveedor", ClientSize = new Size(900, 470), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
@@ -46,6 +48,7 @@ namespace Presentacion
             _dialogoProveedor.Controls.Add(PanelPrincipalGestionar);
         }
 
+        // CONFIGURACIÓN: AplicarDisenoProveedores
         private void AplicarDisenoProveedores()
         {
             tabControl1.Appearance = TabAppearance.FlatButtons;
@@ -168,11 +171,13 @@ namespace Presentacion
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdConsultar
         private void MtdConsultar()
         {
             MtdMostrarLista(_proveedoresNegocio.MtdConsultar());
         }
 
+        // PRESENTAR DATOS: MtdMostrarLista
         private void MtdMostrarLista(List<ProveedoresEntidad> lista)
         {
             _listaProveedores = lista ?? new List<ProveedoresEntidad>();
@@ -181,6 +186,7 @@ namespace Presentacion
             MtdActualizarPaginacion();
         }
 
+        // EDITAR: MtdActualizarResumen
         private void MtdActualizarResumen()
         {
             _valoresResumen[0].Text = _listaProveedores.Count.ToString();
@@ -188,6 +194,7 @@ namespace Presentacion
             _valoresResumen[2].Text = _listaProveedores.Count(p => !string.IsNullOrWhiteSpace(p.Correo)).ToString();
         }
 
+        // EDITAR: MtdActualizarPaginacion
         private void MtdActualizarPaginacion()
         {
             int totalPaginas = (int)Math.Ceiling(_listaProveedores.Count / (double)RegistrosPorPagina);
@@ -244,6 +251,7 @@ namespace Presentacion
             }
         }
 
+        // BUSCAR: btnBuscar_Click
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             try
@@ -256,6 +264,7 @@ namespace Presentacion
             }
         }
 
+        // LIMPIAR: btnLimpiarFiltro_Click
         private void btnLimpiarFiltro_Click(object sender, EventArgs e)
         {
             try
@@ -322,6 +331,7 @@ namespace Presentacion
         // GESTIONAR: METODOS DE APOYO
         // =====================================================
 
+        // CARGA DE DATOS: MtdCargarEnCampos
         private void MtdCargarEnCampos(ProveedoresEntidad item)
         {
             _codigoSeleccionado = item.CodigoProveedor;
@@ -337,6 +347,7 @@ namespace Presentacion
             MtdHabilitarCampos(false, false);
         }
 
+        // LEER CAMPOS DEL FORMULARIO: Convierte los valores ingresados en una entidad de proveedor.
         private ProveedoresEntidad MtdObtenerDeCampos()
         {
             if (_modo == "Agregar")
@@ -362,6 +373,7 @@ namespace Presentacion
                 );
         }
 
+        // LIMPIAR: MtdLimpiarCampos
         private void MtdLimpiarCampos()
         {
             txtCodigo.Clear();
@@ -397,6 +409,7 @@ namespace Presentacion
         // GESTIONAR: BOTONES
         // =====================================================
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();
@@ -410,6 +423,7 @@ namespace Presentacion
             txtNombre.Focus();
         }
 
+        // EDITAR: btnEditar_Click
         private void btnEditar_Click(object sender, EventArgs e)
         {
             if (_codigoSeleccionado == 0)
@@ -426,6 +440,7 @@ namespace Presentacion
             _dialogoProveedor.ShowDialog(this);
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             try
@@ -462,6 +477,7 @@ namespace Presentacion
             }
         }
 
+        // ELIMINAR: btnEliminar_Click
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             try
@@ -496,6 +512,7 @@ namespace Presentacion
             }
         }
 
+        // ELIMINAR: EliminarProveedorDesdeLista
         private void EliminarProveedorDesdeLista()
         {
             if (dgvProveedores.CurrentRow == null) { AyudaForms.MtdAviso("Selecciona un proveedor primero."); return; }
@@ -510,6 +527,7 @@ namespace Presentacion
             MtdVolverAModoConsulta();
         }
 
+        // LIMPIAR: btnLimpiar_Click
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();

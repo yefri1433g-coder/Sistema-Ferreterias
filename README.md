@@ -24,6 +24,13 @@ Para una base existente, ejecuta también
 La migración agrega la sucursal opcional a las compras antiguas sin asignarles una.
 Esas compras quedan bloqueadas para edición hasta que se registre su sucursal correcta.
 
+Para habilitar el Login con roles y accesos configurables, ejecuta también
+[`database/scripts/20261028_login_roles.sql`](database/scripts/20261028_login_roles.sql).
+La migración conserva las cuentas antiguas, reasigna `Administrador` a `Supervisor`
+y `Vendedor` a `Cajero`, y crea los tres roles iniciales y sus módulos permitidos.
+La reversión controlada está en `database/scripts/20261028_login_roles_rollback.sql`;
+solo procede mientras no se haya personalizado la configuración de roles.
+
 El código actual usa el esquema de ese script. La migración en
 `database/scripts/legacy/` pertenece a una versión anterior y no se debe ejecutar para
 la versión actual.

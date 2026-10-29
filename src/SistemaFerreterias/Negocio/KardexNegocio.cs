@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace Negocio
 {
+    // CLASE KardexNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class KardexNegocio
     {
         private readonly KardexDatos _kardexDatos = new KardexDatos();
 
         // codigoProducto = 0 trae los movimientos de todos los productos
+        // CONSULTAR: MtdConsultar
         public List<KardexEntidad> MtdConsultar(int codigoProducto)
         {
             return _kardexDatos.MtdConsultar(codigoProducto);

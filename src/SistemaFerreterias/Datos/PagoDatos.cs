@@ -5,8 +5,10 @@ using Entidad;
 
 namespace Datos
 {
+    // CLASE PagoDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class PagoDatos
     {
+        // CONSULTAR: MtdListarPagosRecientes
         public DataTable MtdListarPagosRecientes()
         {
             DataTable dt = new DataTable();
@@ -24,6 +26,7 @@ namespace Datos
         }
 
         // Ventas con cliente, total y lo que ya se ha pagado de cada una
+        // CONSULTAR: MtdListarVentas
         public DataTable MtdListarVentas()
         {
             DataTable dt = new DataTable();
@@ -49,6 +52,7 @@ namespace Datos
         }
 
         // Pagos ya registrados de una venta
+        // CONSULTAR: MtdListarPagosPorVenta
         public DataTable MtdListarPagosPorVenta(int idVenta)
         {
             DataTable dt = new DataTable();
@@ -73,6 +77,7 @@ namespace Datos
         }
 
         // Saldo pendiente de una venta (total - pagos)
+        // CONSULTAR: MtdObtenerSaldo
         public decimal MtdObtenerSaldo(int idVenta)
         {
             using(SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
@@ -95,6 +100,7 @@ namespace Datos
         }
 
         // Calcula el máximo disponible al editar un pago, excluyendo ese mismo registro.
+        // CONSULTAR: MtdObtenerSaldoParaEditar
         public decimal MtdObtenerSaldoParaEditar(int idVenta, int idPago)
         {
             using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
@@ -119,6 +125,7 @@ namespace Datos
             }
         }
 
+        // AGREGAR: MtdInsertar
         public bool MtdInsertar(Pago pago)
         {
             using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
@@ -140,6 +147,7 @@ namespace Datos
         }
 
         // Actualiza un pago por su PK, manteniendo parametrizados todos los valores.
+        // EDITAR: MtdActualizar
         public bool MtdActualizar(Pago pago)
         {
             using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())
@@ -169,6 +177,7 @@ namespace Datos
         }
 
         // Elimina únicamente el pago identificado por su clave primaria.
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int idPago)
         {
             using (SqlConnection cn = new ConexionDatos().MtdObtenerConexionBDD())

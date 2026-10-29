@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Datos
 {
+    // CLASE ProveedoresDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class ProveedoresDatos
     {
         // Instanciar: Que la clase actual (Datos) pueda acceder a otra clase (ConexionDatos)
@@ -18,6 +19,7 @@ namespace Datos
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdLeer
         private List<ProveedoresEntidad> MtdLeer(string filtro)
         {
             List<ProveedoresEntidad> lista = new List<ProveedoresEntidad>();
@@ -66,11 +68,13 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: MtdConsultar
         public List<ProveedoresEntidad> MtdConsultar()
         {
             return MtdLeer(string.Empty);
         }
 
+        // BUSCAR: MtdBuscar
         public List<ProveedoresEntidad> MtdBuscar(string filtro)
         {
             if (string.IsNullOrWhiteSpace(filtro))
@@ -134,6 +138,7 @@ namespace Datos
         // CRUD: AGREGAR
         // =====================================================
 
+        // AGREGAR: MtdAgregar
         public bool MtdAgregar(ProveedoresEntidad entidad)
         {
             try
@@ -188,6 +193,7 @@ namespace Datos
         // CRUD: EDITAR
         // =====================================================
 
+        // EDITAR: MtdEditar
         public bool MtdEditar(ProveedoresEntidad entidad)
         {
             try
@@ -235,6 +241,7 @@ namespace Datos
         // CRUD: ELIMINAR
         // =====================================================
 
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int codigo)
         {
             try

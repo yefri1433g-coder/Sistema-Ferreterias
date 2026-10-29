@@ -8,11 +8,13 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE DashboardForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class DashboardForms : Form
     {
         private readonly DashboardNegocio _dashboardNegocio = new DashboardNegocio();
         private PanelGrafico graficoVentas, graficoInventario;
         private FlowLayoutPanel listaActividad;
+        private Panel panelAccesosRapidos;
         public event Action<string> NavegacionSolicitada;
 
         private readonly Color fondo = Color.FromArgb(239, 245, 244);
@@ -25,6 +27,7 @@ namespace Presentacion
             Load += DashboardForms_Load;
         }
 
+        // CONFIGURACIÓN: ConstruirDashboard
         private void ConstruirDashboard()
         {
             Text = "Dashboard";
@@ -83,6 +86,7 @@ namespace Presentacion
             centrar(this, EventArgs.Empty);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearEncabezado
         private Control CrearEncabezado()
         {
             TableLayoutPanel encabezado = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, BackColor = fondo };
@@ -110,6 +114,7 @@ namespace Presentacion
             return "Buenas noches";
         }
 
+        // CREAR ELEMENTO VISUAL: CrearIndicadores
         private Control CrearIndicadores()
         {
             TableLayoutPanel fila = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, BackColor = fondo };
@@ -121,6 +126,7 @@ namespace Presentacion
             return fila;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearTarjetaIndicador
         private static Panel CrearTarjetaIndicador(string titulo, Label valor, string icono, Color color, string nota)
         {
             Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(5, 5, 7, 4) };
@@ -139,6 +145,7 @@ namespace Presentacion
             return tarjeta;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearFilaGraficas
         private Control CrearFilaGraficas()
         {
             TableLayoutPanel fila = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, BackColor = fondo };
@@ -151,6 +158,7 @@ namespace Presentacion
             return fila;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearFilaInferior
         private Control CrearFilaInferior()
         {
             TableLayoutPanel fila = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, BackColor = fondo };
@@ -158,6 +166,7 @@ namespace Presentacion
             fila.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35F));
             Panel actividad = CrearTarjetaSeccion("Actividad reciente", "Movimientos registrados", listaActividad, new Padding(5, 5, 7, 5));
             Panel accesos = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(12, 96, 86), Margin = new Padding(5), Padding = new Padding(17) };
+            panelAccesosRapidos = accesos;
             Label etiqueta = new Label { Text = "ACCESO RÁPIDO", Location = new Point(18, 17), Size = new Size(220, 18), Font = new Font("Segoe UI", 7F, FontStyle.Bold), ForeColor = Color.FromArgb(127, 237, 202), BackColor = Color.Transparent };
             Label pregunta = new Label { Text = "¿Qué necesitas hacer?", Location = new Point(18, 39), Size = new Size(250, 26), Font = new Font("Segoe UI", 11F, FontStyle.Bold), ForeColor = Color.White, BackColor = Color.Transparent };
             btnActualizar.Text = "+  Nueva venta";
@@ -172,19 +181,14 @@ namespace Presentacion
             accesos.Controls.Add(pregunta);
             accesos.Controls.Add(btnActualizar);
             accesos.Controls.Add(btnCerrar);
-            accesos.Resize += (s, e) =>
-            {
-                int ancho = Math.Max(88, (accesos.ClientSize.Width - 48) / 2);
-                btnActualizar.Width = ancho;
-                btnCerrar.Left = btnActualizar.Right + 10;
-                btnCerrar.Width = ancho;
-            };
+            accesos.Resize += (s, e) => AjustarAccesosRapidos();
             Redondear(accesos, 15);
             fila.Controls.Add(actividad, 0, 0);
             fila.Controls.Add(accesos, 1, 0);
             return fila;
         }
 
+        // CONFIGURACIÓN: ConfigurarBoton
         private static void ConfigurarBoton(FontAwesome.Sharp.IconButton boton, bool principal)
         {
             boton.IconChar = FontAwesome.Sharp.IconChar.None;
@@ -198,6 +202,7 @@ namespace Presentacion
             boton.TextAlign = ContentAlignment.MiddleCenter;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearTarjetaSeccion
         private static Panel CrearTarjetaSeccion(string titulo, string descripcion, Control contenido, Padding margen)
         {
             Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = margen };
@@ -215,6 +220,7 @@ namespace Presentacion
             return tarjeta;
         }
 
+        // CREAR ELEMENTO VISUAL: CrearFilaActividad
         private static Panel CrearFilaActividad(ActividadDashboard actividad, bool venta)
         {
             Panel fila = new Panel { Width = 620, Height = 44, BackColor = Color.White, Margin = new Padding(0, 0, 0, 2) };
@@ -247,6 +253,7 @@ namespace Presentacion
 
         private void DashboardForms_Load(object sender, EventArgs e) { MtdActualizar(); }
 
+        // EDITAR: MtdActualizar
         private void MtdActualizar()
         {
             try
@@ -286,6 +293,41 @@ namespace Presentacion
             if (navegar != null) navegar(modulo);
         }
 
+        // CONFIGURACIÓN: ConfigurarAccesosRapidos
+        public void ConfigurarAccesosRapidos(ICollection<string> modulosPermitidos)
+        {
+            bool puedeVender = modulosPermitidos != null && modulosPermitidos.Contains("Ventas");
+            bool puedeVerProductos = modulosPermitidos != null && modulosPermitidos.Contains("Productos");
+            btnActualizar.Visible = puedeVender;
+            btnCerrar.Visible = puedeVerProductos;
+            if (panelAccesosRapidos != null)
+                panelAccesosRapidos.Visible = puedeVender || puedeVerProductos;
+            AjustarAccesosRapidos();
+        }
+
+        private void AjustarAccesosRapidos()
+        {
+            if (panelAccesosRapidos == null) return;
+            int ancho = Math.Max(88, panelAccesosRapidos.ClientSize.Width - 48);
+            if (btnActualizar.Visible && btnCerrar.Visible)
+            {
+                ancho = Math.Max(88, (panelAccesosRapidos.ClientSize.Width - 48) / 2);
+                btnActualizar.Left = 18;
+                btnCerrar.Left = btnActualizar.Right + 10;
+            }
+            else if (btnActualizar.Visible)
+            {
+                btnActualizar.Left = 18;
+            }
+            else if (btnCerrar.Visible)
+            {
+                btnCerrar.Left = 18;
+            }
+            btnActualizar.Width = ancho;
+            btnCerrar.Width = ancho;
+        }
+
+        // EDITAR: btnActualizar_Click
         private void btnActualizar_Click(object sender, EventArgs e) { MtdActualizar(); }
         private void btnCerrar_Click(object sender, EventArgs e) { Close(); }
         private void lblValorProveedores_Click(object sender, EventArgs e) { }

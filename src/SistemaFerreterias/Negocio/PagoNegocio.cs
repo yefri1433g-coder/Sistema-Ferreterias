@@ -5,25 +5,30 @@ using Entidad;
 
 namespace Negocio
 {
+    // CLASE PagoNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class PagoNegocio
     {
         private readonly PagoDatos _datos = new PagoDatos();
 
+        // CONSULTAR: MtdListarVentas
         public DataTable MtdListarVentas()
         {
             return _datos.MtdListarVentas();
         }
 
+        // CONSULTAR: MtdListarPagosRecientes
         public DataTable MtdListarPagosRecientes()
         {
             return _datos.MtdListarPagosRecientes();
         }
 
+        // CONSULTAR: MtdListarPagos
         public DataTable MtdListarPagos(int idVenta)
         {
             return _datos.MtdListarPagosPorVenta(idVenta);
         }
 
+        // GUARDAR: MtdRegistrar
         public bool MtdRegistrar(Pago pago, out string mensaje)
         {
             if (pago == null || pago.IdVenta <= 0)
@@ -71,6 +76,7 @@ namespace Negocio
             }
         }
 
+        // EDITAR: MtdEditar
         public bool MtdEditar(Pago pago, out string mensaje)
         {
             if (pago == null || pago.IdPago <= 0)
@@ -126,6 +132,7 @@ namespace Negocio
             }
         }
 
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int idPago, out string mensaje)
         {
             if (idPago <= 0)

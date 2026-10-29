@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Datos
 {
+    // CLASE StockDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class StockDatos
     {
         private readonly ConexionDatos _conexionDatos = new ConexionDatos();
@@ -28,6 +29,7 @@ namespace Datos
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdLeer
         private List<StockEntidad> MtdLeer(string where, string filtro, string accion)
         {
             List<StockEntidad> lista = new List<StockEntidad>();
@@ -76,11 +78,13 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: MtdConsultar
         public List<StockEntidad> MtdConsultar()
         {
             return MtdLeer(string.Empty, string.Empty, "consultar el stock");
         }
 
+        // BUSCAR: MtdBuscar
         public List<StockEntidad> MtdBuscar(string filtro)
         {
             return MtdLeer(
@@ -93,6 +97,7 @@ namespace Datos
         }
 
         // Productos cuya cantidad es menor o igual al minimo (lo usa el Dashboard)
+        // CONSULTAR: MtdConsultarBajo
         public List<StockEntidad> MtdConsultarBajo()
         {
             return MtdLeer("WHERE st.cantidad <= st.stock_minimo", string.Empty, "consultar el stock bajo");
@@ -102,6 +107,7 @@ namespace Datos
         // CRUD: AGREGAR (registra la entrada en el Kardex)
         // =====================================================
 
+        // AGREGAR: MtdAgregar
         public bool MtdAgregar(StockEntidad stock)
         {
             try
@@ -110,6 +116,7 @@ namespace Datos
                 {
                     conn.Open();
 
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
                         string QueryAgregar = @"
@@ -147,6 +154,7 @@ namespace Datos
         // CRUD: EDITAR (solo cantidad y minimo; registra el ajuste en el Kardex)
         // =====================================================
 
+        // EDITAR: MtdEditar
         public bool MtdEditar(StockEntidad stock)
         {
             try
@@ -155,6 +163,7 @@ namespace Datos
                 {
                     conn.Open();
 
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
                         int codigoProducto;
@@ -208,6 +217,7 @@ namespace Datos
         // CRUD: ELIMINAR (registra la salida en el Kardex)
         // =====================================================
 
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int codigoStock)
         {
             try
@@ -216,6 +226,7 @@ namespace Datos
                 {
                     conn.Open();
 
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
                         int codigoProducto;

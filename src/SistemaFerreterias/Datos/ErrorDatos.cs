@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 namespace Datos
 {
     // Convierte los errores de SQL Server en mensajes entendibles para el usuario
+    // CLASE ErrorDatos: Convierte errores de SQL Server en mensajes comprensibles para la aplicación.
     public static class ErrorDatos
     {
         public static Exception Traducir(SqlException ex, string accion)

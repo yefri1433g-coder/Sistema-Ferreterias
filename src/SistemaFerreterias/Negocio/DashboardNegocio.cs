@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Negocio
 {
+    // CLASE DashboardNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class DashboardNegocio
     {
         private readonly DashboardDatos _dashboardDatos = new DashboardDatos();

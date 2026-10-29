@@ -7,10 +7,12 @@ using Entidad;
 namespace Datos
 {
 
+    // CLASE CatalogosGestionDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class CatalogosGestionDatos
     {
         private readonly ConexionDatos conexion = new ConexionDatos();
 
+        // CONSULTAR: Leer
         private DataTable Leer(string sql)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
@@ -47,6 +49,7 @@ namespace Datos
                            FROM Tbl_Sucursales s ORDER BY s.nombre;");
         }
 
+        // BUSCAR: BuscarSucursales
         public DataTable BuscarSucursales(string criterio)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
@@ -116,6 +119,7 @@ namespace Datos
             return Leer("SELECT id_sucursal AS Codigo, nombre AS Nombre FROM Tbl_Sucursales WHERE estado = 1 ORDER BY nombre;");
         }
 
+        // GUARDAR: AsignarSucursalCompra
         public void AsignarSucursalCompra(int idCompra, int idSucursal)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
@@ -129,6 +133,7 @@ namespace Datos
             }
         }
 
+        // GUARDAR: GuardarCategoria
         public void GuardarCategoria(int? id, string nombre, string descripcion)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
@@ -143,11 +148,13 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarCategoria
         public void EliminarCategoria(int id)
         {
             Ejecutar("DELETE FROM Tbl_Categorias WHERE id_categoria=@id", id);
         }
 
+        // GUARDAR: GuardarProducto
         public void GuardarProducto(int? id, string codigo, string nombre, string descripcion, decimal costo, decimal precio, int categoria, bool activo)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
@@ -169,8 +176,10 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarProducto
         public void EliminarProducto(int id) { Ejecutar("DELETE FROM Tbl_Productos WHERE id_producto=@id", id); }
 
+        // GUARDAR: GuardarSucursal
         public void GuardarSucursal(int? id, string nombre, string direccion, string telefono, bool activo)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
@@ -187,6 +196,7 @@ namespace Datos
             }
         }
 
+        // AGREGAR: AgregarSucursal
         public void AgregarSucursal(Sucursal sucursal)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
@@ -205,6 +215,7 @@ namespace Datos
             }
         }
 
+        // EDITAR: EditarSucursal
         public void EditarSucursal(Sucursal sucursal)
         {
             try
@@ -234,6 +245,7 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarSucursal
         public void EliminarSucursal(int id)
         {
             try
@@ -254,6 +266,7 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarSucursalesDePrueba
         public int EliminarSucursalesDePrueba(int ultimoIdOriginal)
         {
             try
@@ -283,12 +296,14 @@ namespace Datos
             }
         }
 
+        // GUARDAR: GuardarCompra
         public int GuardarCompra(int proveedor, int sucursal, DateTime fecha, IList<CompraLineaCatalogo> detalles)
         {
             if (detalles == null || detalles.Count == 0) throw new InvalidOperationException("Agrega al menos un producto a la compra.");
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
             {
                 cn.Open();
+                // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                 using (SqlTransaction tx = cn.BeginTransaction())
                 {
                     try
@@ -339,12 +354,14 @@ namespace Datos
             }
         }
 
+        // EDITAR: EditarCompra
         public void EditarCompra(int idCompra, int proveedor, int sucursal, DateTime fecha, IList<CompraLineaCatalogo> detalles)
         {
             if (detalles == null || detalles.Count == 0) throw new InvalidOperationException("Agrega al menos un producto a la compra.");
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
             {
                 cn.Open();
+                // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                 using (SqlTransaction tx = cn.BeginTransaction())
                 {
                     try
@@ -425,11 +442,13 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarCompra
         public void EliminarCompra(int idCompra)
         {
             using (SqlConnection cn = conexion.MtdObtenerConexionBDD())
             {
                 cn.Open();
+                // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                 using (SqlTransaction tx = cn.BeginTransaction())
                 {
                     try
@@ -481,6 +500,7 @@ namespace Datos
             }
         }
 
+        // GUARDAR: RegistrarKardexCompra
         private static void RegistrarKardexCompra(SqlConnection cn, SqlTransaction tx, int producto, DateTime fecha, string tipo, int cantidad, string descripcion)
         {
             using (SqlCommand cmd = new SqlCommand("INSERT INTO Tbl_Kardex(id_producto,fecha,tipo_movimiento,cantidad,saldo,descripcion) VALUES(@prod,@fecha,@tipo,@cant,(SELECT ISNULL(SUM(cantidad),0) FROM Tbl_Stock WHERE id_producto=@prod),@descripcion)", cn, tx))

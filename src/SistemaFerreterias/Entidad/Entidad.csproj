@@ -52,6 +52,7 @@
     <Compile Include="KardexEntidad.cs" />
     <Compile Include="Pago.cs" />
     <Compile Include="ProveedoresEntidad.cs" />
+    <Compile Include="Rol.cs" />
     <Compile Include="StockEntidad.cs" />
     <Compile Include="Sucursal.cs" />
     <Compile Include="TrasladosEntidad.cs" />

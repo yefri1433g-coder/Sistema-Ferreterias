@@ -10,6 +10,7 @@ using System.Windows.Forms;
 namespace Presentacion
 {
     // Metodos de ayuda compartidos por todos los formularios (mensajes, grillas, combos, imprimir y exportar)
+    // CLASE AyudaForms: Reúne mensajes y utilidades que comparten los formularios.
     public static class AyudaForms
     {
         // =====================================================

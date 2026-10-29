@@ -10,12 +10,14 @@ using System.Data.SqlClient;
 
 namespace Datos
 {
+    // CLASE UsuarioDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class UsuarioDatos
     {
         private readonly ConexionDatos _conexion = new ConexionDatos();
 
         private Usuario Mapear(SqlDataReader dr)
         {
+            // Convierte las columnas que devuelve SQL Server en una entidad Usuario.
             return new Usuario
             {
                 IdUsuario = dr.GetInt32(dr.GetOrdinal("id_usuario")),
@@ -26,119 +28,143 @@ namespace Datos
             };
         }
 
+        // VALIDAR: Validar
         public Usuario Validar(string nombreUsuario, string contrasena)
         {
-            using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+            try
             {
-                cn.Open();
-                var cmd = new SqlCommand(
-                    "SELECT id_usuario, nombre_usuario, contrasena, rol, estado " +
-                    "FROM Tbl_Usuarios " +
-                    "WHERE nombre_usuario = @u AND contrasena = @c AND estado = 1", cn);
-                cmd.Parameters.AddWithValue("@u", nombreUsuario);
-                cmd.Parameters.AddWithValue("@c", contrasena);
-
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
                 {
-                    if (dr.Read())
-                        return Mapear(dr);
+                    cn.Open();
+                    // Compara usuario y contraseña y solo acepta cuentas y roles activos.
+                    var cmd = new SqlCommand(
+                        "SELECT u.id_usuario, u.nombre_usuario, u.contrasena, u.rol, u.estado " +
+                        "FROM dbo.Tbl_Usuarios u INNER JOIN dbo.Tbl_Roles r ON r.NombreRol = u.rol " +
+                        "WHERE u.nombre_usuario = @u AND u.contrasena = @c AND u.estado = 1 AND r.Estado = 1", cn);
+                    cmd.Parameters.Add("@u", SqlDbType.VarChar, 50).Value = nombreUsuario;
+                    cmd.Parameters.Add("@c", SqlDbType.VarChar, 100).Value = contrasena;
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read()) return Mapear(dr);
+                    }
                 }
+            }
+            catch (SqlException ex)
+            {
+                throw ErrorDatos.Traducir(ex, "validar el acceso");
             }
             return null;
         }
 
+        // CONSULTAR: Listar
         public List<Usuario> Listar()
         {
             List<Usuario> lista = new List<Usuario>();
-
-            using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+            try
             {
-                cn.Open();
-                var cmd = new SqlCommand(
-                    "SELECT id_usuario, nombre_usuario, contrasena, rol, estado " +
-                    "FROM Tbl_Usuarios ORDER BY nombre_usuario", cn);
-
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
                 {
-                    while (dr.Read())
-                        lista.Add(Mapear(dr));
+                    cn.Open();
+                    var cmd = new SqlCommand(
+                        "SELECT id_usuario, nombre_usuario, contrasena, rol, estado " +
+                        "FROM dbo.Tbl_Usuarios ORDER BY nombre_usuario", cn);
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                        while (dr.Read()) lista.Add(Mapear(dr));
                 }
             }
+            catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "consultar los usuarios"); }
             return lista;
         }
 
+        // BUSCAR: Buscar
         public List<Usuario> Buscar(string texto)
         {
             List<Usuario> lista = new List<Usuario>();
 
-            using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+            try
             {
-                cn.Open();
-                var cmd = new SqlCommand(
-                    "SELECT id_usuario, nombre_usuario, contrasena, rol, estado " +
-                    "FROM Tbl_Usuarios " +
-                    "WHERE nombre_usuario LIKE @buscar OR rol LIKE @buscar " +
-                    "ORDER BY nombre_usuario, id_usuario", cn);
-                cmd.Parameters.Add("@buscar", SqlDbType.VarChar, 102).Value = "%" + texto.Trim() + "%";
-
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
                 {
-                    while (dr.Read())
-                        lista.Add(Mapear(dr));
+                    cn.Open();
+                    var cmd = new SqlCommand(
+                        "SELECT id_usuario, nombre_usuario, contrasena, rol, estado " +
+                        "FROM dbo.Tbl_Usuarios " +
+                        "WHERE nombre_usuario LIKE @buscar OR rol LIKE @buscar " +
+                        "ORDER BY nombre_usuario, id_usuario", cn);
+                    cmd.Parameters.Add("@buscar", SqlDbType.VarChar, 102).Value = "%" + texto.Trim() + "%";
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                        while (dr.Read()) lista.Add(Mapear(dr));
                 }
             }
+            catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "buscar usuarios"); }
 
             return lista;
         }
 
         public bool ExisteNombre(string nombreUsuario, int idExcluir)
         {
-            using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+            try
             {
-                cn.Open();
-                var cmd = new SqlCommand(
-                    "SELECT COUNT(1) FROM Tbl_Usuarios " +
-                    "WHERE nombre_usuario = @u AND id_usuario <> @id", cn);
-                cmd.Parameters.AddWithValue("@u", nombreUsuario);
-                cmd.Parameters.AddWithValue("@id", idExcluir);
-                return (int)cmd.ExecuteScalar() > 0;
+                using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+                {
+                    cn.Open();
+                    var cmd = new SqlCommand(
+                        "SELECT COUNT(1) FROM dbo.Tbl_Usuarios " +
+                        "WHERE nombre_usuario = @u AND id_usuario <> @id", cn);
+                    cmd.Parameters.Add("@u", SqlDbType.VarChar, 50).Value = nombreUsuario;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = idExcluir;
+                    return (int)cmd.ExecuteScalar() > 0;
+                }
             }
+            catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "validar el nombre de usuario"); }
         }
 
+        // AGREGAR: Insertar
         public void Insertar(Usuario u)
         {
-            using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+            try
             {
-                cn.Open();
-                var cmd = new SqlCommand(
-                    "INSERT INTO Tbl_Usuarios (nombre_usuario, contrasena, rol, estado) " +
-                    "VALUES (@u, @c, @r, @e)", cn);
-                cmd.Parameters.AddWithValue("@u", u.NombreUsuario);
-                cmd.Parameters.AddWithValue("@c", u.Contrasena);
-                cmd.Parameters.AddWithValue("@r", u.Rol);
-                cmd.Parameters.AddWithValue("@e", u.Estado);
-                cmd.ExecuteNonQuery();
+                using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+                {
+                    cn.Open();
+                    var cmd = new SqlCommand(
+                        "INSERT INTO dbo.Tbl_Usuarios (nombre_usuario, contrasena, rol, estado) " +
+                        "VALUES (@u, @c, @r, @e)", cn);
+                    cmd.Parameters.Add("@u", SqlDbType.VarChar, 50).Value = u.NombreUsuario;
+                    cmd.Parameters.Add("@c", SqlDbType.VarChar, 100).Value = u.Contrasena;
+                    cmd.Parameters.Add("@r", SqlDbType.VarChar, 30).Value = u.Rol;
+                    cmd.Parameters.Add("@e", SqlDbType.Bit).Value = u.Estado;
+                    cmd.ExecuteNonQuery();
+                }
             }
+            catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "guardar el usuario"); }
         }
 
+        // EDITAR: Actualizar
         public void Actualizar(Usuario u)
         {
-            using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+            try
             {
-                cn.Open();
-                var cmd = new SqlCommand(
-                    "UPDATE Tbl_Usuarios SET nombre_usuario = @u, contrasena = @c, " +
-                    "rol = @r, estado = @e WHERE id_usuario = @id", cn);
-                cmd.Parameters.AddWithValue("@u", u.NombreUsuario);
-                cmd.Parameters.AddWithValue("@c", u.Contrasena);
-                cmd.Parameters.AddWithValue("@r", u.Rol);
-                cmd.Parameters.AddWithValue("@e", u.Estado);
-                cmd.Parameters.AddWithValue("@id", u.IdUsuario);
-                if (cmd.ExecuteNonQuery() == 0)
-                    throw new InvalidOperationException("No se encontró el usuario que deseas editar.");
+                using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
+                {
+                    cn.Open();
+                    var cmd = new SqlCommand(
+                        "UPDATE dbo.Tbl_Usuarios SET nombre_usuario = @u, contrasena = @c, " +
+                        "rol = @r, estado = @e WHERE id_usuario = @id", cn);
+                    cmd.Parameters.Add("@u", SqlDbType.VarChar, 50).Value = u.NombreUsuario;
+                    cmd.Parameters.Add("@c", SqlDbType.VarChar, 100).Value = u.Contrasena;
+                    cmd.Parameters.Add("@r", SqlDbType.VarChar, 30).Value = u.Rol;
+                    cmd.Parameters.Add("@e", SqlDbType.Bit).Value = u.Estado;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = u.IdUsuario;
+                    if (cmd.ExecuteNonQuery() == 0)
+                        throw new InvalidOperationException("No se encontró el usuario que deseas editar.");
+                }
             }
+            catch (SqlException ex) { throw ErrorDatos.Traducir(ex, "editar el usuario"); }
         }
 
+        // ELIMINAR: Eliminar
         public void Eliminar(int idUsuario)
         {
             try
@@ -159,6 +185,7 @@ namespace Datos
             }
         }
 
+        // ELIMINAR: EliminarUsuariosDePrueba
         public int EliminarUsuariosDePrueba(int ultimoIdOriginal)
         {
             try

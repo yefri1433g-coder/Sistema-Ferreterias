@@ -5,36 +5,43 @@ using Entidad;
 
 namespace Negocio
 {
+    // CLASE EmpleadoNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class EmpleadoNegocio
     {
         private readonly EmpleadoDatos _datos = new EmpleadoDatos();
 
+        // CONSULTAR: Listar
         public List<Empleado> Listar()
         {
             return _datos.Listar();
         }
 
+        // BUSCAR: Buscar
         public List<Empleado> Buscar(string criterio)
         {
             return _datos.Buscar(criterio);
         }
 
+        // CONSULTAR: ListarUsuariosActivos
         public List<ComboItemEntidad> ListarUsuariosActivos()
         {
             return _datos.ListarUsuariosActivos();
         }
 
+        // CONSULTAR: ListarSucursalesActivas
         public List<ComboItemEntidad> ListarSucursalesActivas()
         {
             return _datos.ListarSucursalesActivas();
         }
 
+        // AGREGAR: Agregar
         public void Agregar(Empleado empleado)
         {
             ValidarEmpleado(empleado);
             _datos.Agregar(empleado);
         }
 
+        // EDITAR: Editar
         public void Editar(Empleado empleado)
         {
             ValidarEmpleado(empleado);
@@ -44,6 +51,7 @@ namespace Negocio
             _datos.Editar(empleado);
         }
 
+        // ELIMINAR: Eliminar
         public void Eliminar(int idEmpleado)
         {
             if (idEmpleado <= 0)
@@ -52,6 +60,7 @@ namespace Negocio
             _datos.Eliminar(idEmpleado);
         }
 
+        // VALIDAR: ValidarEmpleado
         private static void ValidarEmpleado(Empleado empleado)
         {
             if (empleado == null)

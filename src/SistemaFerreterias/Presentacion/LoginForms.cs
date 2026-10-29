@@ -13,6 +13,7 @@ using Negocio;
 
 namespace Presentacion
 {
+    // CLASE LoginForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class LoginForms : Form
     {
         private readonly UsuarioNegocio _negocio = new UsuarioNegocio();
@@ -23,6 +24,7 @@ namespace Presentacion
             ConstruirLogin();
         }
 
+        // INICIO DE SESIÓN: ConstruirLogin
         private void ConstruirLogin()
         {
             Controls.Clear();
@@ -315,6 +317,7 @@ namespace Presentacion
             
         }
 
+        // INICIO DE SESIÓN: btnIngresar_Click
         private void btnIngresar_Click(object sender, EventArgs e)
         {
             string mensaje;
@@ -326,7 +329,7 @@ namespace Presentacion
                 return;
             }
 
-            MenuPrincipalForms menu = new MenuPrincipalForms();
+            MenuPrincipalForms menu = new MenuPrincipalForms(usuario);
             menu.FormClosed += (s, args) => Application.Exit();
             menu.Show();
             this.Hide();
@@ -337,6 +340,7 @@ namespace Presentacion
             Application.Exit();
         }
 
+        // INICIO DE SESIÓN: LoginForms_Load
         private void LoginForms_Load(object sender, EventArgs e)
         {
 

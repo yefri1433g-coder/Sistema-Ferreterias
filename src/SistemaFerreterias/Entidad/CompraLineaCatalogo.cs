@@ -2,6 +2,7 @@ using System;
 
 namespace Entidad
 {
+    // CLASE CompraLineaCatalogo: Representa datos del sistema y permite compartirlos entre las capas.
     public sealed class CompraLineaCatalogo
     {
         public int IdProducto { get; set; }

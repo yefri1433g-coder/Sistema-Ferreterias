@@ -3,23 +3,39 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using Entidad;
+using Negocio;
 
 namespace Presentacion
 {
+    // CLASE MenuPrincipalForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class MenuPrincipalForms : Form
     {
         private readonly Panel contenido = new Panel();
         private readonly Label titulo = new Label();
         private readonly System.Collections.Generic.Dictionary<string, Button> botonesNavegacion = new System.Collections.Generic.Dictionary<string, Button>();
+        private readonly HashSet<string> _modulosPermitidos;
+        private readonly Usuario _usuario;
         private Form moduloActual;
 
         public MenuPrincipalForms()
+            : this(null)
+        {
+        }
+
+        public MenuPrincipalForms(Usuario usuario)
         {
             InitializeComponent();
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
+            _usuario = usuario;
+            _modulosPermitidos = usuario == null
+                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                : new HashSet<string>(new RolNegocio().ModulosPermitidos(usuario.Rol), StringComparer.OrdinalIgnoreCase);
             ConstruirInterfaz();
         }
 
+        // CONFIGURACIÓN: ConstruirInterfaz
         private void ConstruirInterfaz()
         {
             Controls.Clear();
@@ -62,27 +78,38 @@ namespace Presentacion
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleLeft
             };
+            Label usuarioSesion = new Label
+            {
+                Text = _usuario == null ? "" : _usuario.NombreUsuario + "  |  " + _usuario.Rol,
+                Location = new Point(56, 58),
+                Size = new Size(160, 18),
+                ForeColor = Color.FromArgb(180, 193, 201),
+                Font = new Font("Segoe UI", 7.5F),
+                AutoEllipsis = true
+            };
             marca.Controls.Add(logo);
             marca.Controls.Add(logoMarca);
             marca.Controls.Add(nombreSistema);
+            marca.Controls.Add(usuarioSesion);
             barraLateral.Controls.Add(marca);
             Label seccion = new Label { Text = "MENÚ PRINCIPAL", Width = 180, Height = 24, ForeColor = Color.FromArgb(113, 133, 145), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Padding = new Padding(8, 5, 0, 0), Margin = new Padding(0, 2, 0, 4) };
             navegacion.Controls.Add(seccion);
-            AddNav(navegacion, "Dashboard", () => AbrirModulo(new DashboardForms(), "Dashboard"));
-            AddNav(navegacion, "Sucursales", () => AbrirModulo(new SucursalesForms(), "Sucursales"));
-            AddNav(navegacion, "Proveedores", () => AbrirModulo(new ProveedoresForms(), "Proveedores"));
-            AddNav(navegacion, "Productos", () => AbrirModulo(new ProductosForms(), "Productos"));
-            AddNav(navegacion, "Categorías", () => AbrirModulo(new CategoriasForms(), "Categorías"));
-            AddNav(navegacion, "Compras", () => AbrirModulo(new ComprasForms(), "Compras"));
-            AddNav(navegacion, "Inventarios", () => AbrirModulo(new InventariosForms(), "Inventarios"));
-            AddNav(navegacion, "Stock", () => AbrirModulo(new StockForms(), "Stock"));
-            AddNav(navegacion, "Kardex", () => AbrirModulo(new KardexForms(), "Kardex"));
-            AddNav(navegacion, "Traslados", () => AbrirModulo(new TrasladosForms(), "Traslados"));
-            AddNav(navegacion, "Clientes", () => AbrirModulo(new ClientesForms(), "Clientes"));
-            AddNav(navegacion, "Empleados", () => AbrirModulo(new EmpleadosForms(), "Empleados"));
-            AddNav(navegacion, "Ventas", () => AbrirModulo(new VentasForms(), "Ventas"));
-            AddNav(navegacion, "Pagos", () => AbrirModulo(new PagosForms(), "Pagos"));
-            AddNav(navegacion, "Usuarios", () => AbrirModulo(new UsuariosForms(), "Usuarios"));
+            AgregarNavPermitido(navegacion, "Dashboard", () => Navegar("Dashboard"));
+            AgregarNavPermitido(navegacion, "Sucursales", () => Navegar("Sucursales"));
+            AgregarNavPermitido(navegacion, "Proveedores", () => Navegar("Proveedores"));
+            AgregarNavPermitido(navegacion, "Productos", () => Navegar("Productos"));
+            AgregarNavPermitido(navegacion, "Categorías", () => Navegar("Categorías"));
+            AgregarNavPermitido(navegacion, "Compras", () => Navegar("Compras"));
+            AgregarNavPermitido(navegacion, "Inventarios", () => Navegar("Inventarios"));
+            AgregarNavPermitido(navegacion, "Stock", () => Navegar("Stock"));
+            AgregarNavPermitido(navegacion, "Kardex", () => Navegar("Kardex"));
+            AgregarNavPermitido(navegacion, "Traslados", () => Navegar("Traslados"));
+            AgregarNavPermitido(navegacion, "Clientes", () => Navegar("Clientes"));
+            AgregarNavPermitido(navegacion, "Empleados", () => Navegar("Empleados"));
+            AgregarNavPermitido(navegacion, "Ventas", () => Navegar("Ventas"));
+            AgregarNavPermitido(navegacion, "Pagos", () => Navegar("Pagos"));
+            AgregarNavPermitido(navegacion, "Usuarios", () => Navegar("Usuarios"));
+            AgregarNavPermitido(navegacion, "Roles y accesos", () => Navegar("Roles y accesos"));
             Button salir = new Button { Text = "Cerrar sesión", Dock = DockStyle.Bottom, Height = 40, FlatStyle = FlatStyle.Flat, ForeColor = Color.FromArgb(180, 193, 201), BackColor = Color.FromArgb(16, 31, 43), Cursor = Cursors.Hand };
             salir.FlatAppearance.BorderSize = 0; salir.FlatAppearance.MouseOverBackColor = Color.FromArgb(245, 245, 247); salir.Click += (s, e) => Application.Exit(); barraLateral.Controls.Add(salir);
 
@@ -103,8 +130,20 @@ namespace Presentacion
             boton.Click += (s, e) => accion(); parent.Controls.Add(boton); botonesNavegacion[nombre] = boton;
         }
 
+        // AGREGAR: AgregarNavPermitido
+        private void AgregarNavPermitido(Control parent, string nombre, Action accion)
+        {
+            if (_modulosPermitidos != null && _modulosPermitidos.Contains(nombre))
+                AddNav(parent, nombre, accion);
+        }
+
         private void Navegar(string nombre)
         {
+            if (_modulosPermitidos == null || !_modulosPermitidos.Contains(nombre))
+            {
+                MessageBox.Show("Tu rol no tiene acceso a este módulo.", "Acceso restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             switch (nombre)
             {
                 case "Sucursales": AbrirModulo(new SucursalesForms(), nombre); break;
@@ -121,12 +160,19 @@ namespace Presentacion
                 case "Empleados": AbrirModulo(new EmpleadosForms(), nombre); break;
                 case "Ventas": AbrirModulo(new VentasForms(), nombre); break;
                 case "Pagos": AbrirModulo(new PagosForms(), nombre); break;
-                case "Usuarios": AbrirModulo(new UsuariosForms(), nombre); break;
+                case "Usuarios": AbrirModulo(new UsuariosForms(_usuario), nombre); break;
+                case "Roles y accesos": AbrirModulo(new RolesForms(_usuario), nombre); break;
             }
         }
 
         private void AbrirModulo(Form modulo, string nombre)
         {
+            if (_modulosPermitidos == null || !_modulosPermitidos.Contains(nombre))
+            {
+                modulo.Dispose();
+                MessageBox.Show("Tu rol no tiene acceso a este módulo.", "Acceso restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             CerrarModulo(); contenido.Controls.Clear();
             bool dashboard = modulo is DashboardForms;
             bool pantallaGestion = modulo is PantallaGestionBase;
@@ -147,7 +193,11 @@ namespace Presentacion
             titulo.ForeColor = pantallaGestion ? Color.FromArgb(129, 145, 154) : Color.FromArgb(28, 28, 30);
             MarcarSeleccionado(nombre);
             DashboardForms panelDashboard = modulo as DashboardForms;
-            if (panelDashboard != null) panelDashboard.NavegacionSolicitada += Navegar;
+            if (panelDashboard != null)
+            {
+                panelDashboard.NavegacionSolicitada += Navegar;
+                panelDashboard.ConfigurarAccesosRapidos(_modulosPermitidos);
+            }
             moduloActual = modulo; modulo.TopLevel = false; modulo.FormBorderStyle = FormBorderStyle.None; modulo.Dock = DockStyle.Fill;
             EstiloAplicacion.Aplicar(modulo);
             contenido.Controls.Add(modulo); modulo.Show(); modulo.BringToFront();
@@ -170,9 +220,13 @@ namespace Presentacion
             }
         }
 
+        // CONFIGURACIÓN: ConstruirMenuPrincipal
         private void ConstruirMenuPrincipal() { }
+        // AGREGAR ELEMENTO VISUAL: Agrega una tarjeta al diseño del Dashboard.
         private void AgregarTarjeta(Control tarjeta, int columna, int fila) { }
+        // CREAR ELEMENTO VISUAL: CrearTarjeta
         private FontAwesome.Sharp.IconButton CrearTarjeta(string texto, FontAwesome.Sharp.IconChar icono, string modulo) { return null; }
+        // CREAR ELEMENTO VISUAL: CrearTarjeta
         private FontAwesome.Sharp.IconButton CrearTarjeta(string texto, FontAwesome.Sharp.IconChar icono, Action accion) { return null; }
         private void VolverAlMenu() { AbrirModulo(new DashboardForms(), "Dashboard"); }
         private void btnMenuInventarios_Click(object sender, EventArgs e) { Navegar("Inventarios"); }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Datos
 {
+    // CLASE InventariosDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class InventariosDatos
     {
         // Instanciar: Que la clase actual (Datos) pueda acceder a otra clase (ConexionDatos)
@@ -17,6 +18,7 @@ namespace Datos
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdLeer
         private List<InventariosEntidad> MtdLeer(string filtro)
         {
             List<InventariosEntidad> lista = new List<InventariosEntidad>();
@@ -66,11 +68,13 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: MtdConsultar
         public List<InventariosEntidad> MtdConsultar()
         {
             return MtdLeer(string.Empty);
         }
 
+        // BUSCAR: MtdBuscar
         public List<InventariosEntidad> MtdBuscar(string filtro)
         {
             return MtdLeer(filtro);
@@ -80,6 +84,7 @@ namespace Datos
         // CRUD: AGREGAR
         // =====================================================
 
+        // AGREGAR: MtdAgregar
         public bool MtdAgregar(InventariosEntidad entidad)
         {
             try
@@ -123,6 +128,7 @@ namespace Datos
         // CRUD: EDITAR
         // =====================================================
 
+        // EDITAR: MtdEditar
         public bool MtdEditar(InventariosEntidad entidad)
         {
             try
@@ -161,6 +167,7 @@ namespace Datos
         // CRUD: ELIMINAR
         // =====================================================
 
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int codigo)
         {
             try

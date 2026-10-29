@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Datos
 {
+    // CLASE TrasladosDatos: Realiza consultas y operaciones de persistencia en SQL Server.
     public class TrasladosDatos
     {
         private readonly ConexionDatos _conexionDatos = new ConexionDatos();
@@ -16,6 +17,7 @@ namespace Datos
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdLeer
         private List<TrasladosEntidad> MtdLeer(string filtro)
         {
             List<TrasladosEntidad> lista = new List<TrasladosEntidad>();
@@ -80,11 +82,13 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: MtdConsultar
         public List<TrasladosEntidad> MtdConsultar()
         {
             return MtdLeer(string.Empty);
         }
 
+        // BUSCAR: MtdBuscar
         public List<TrasladosEntidad> MtdBuscar(string filtro)
         {
             return MtdLeer(filtro);
@@ -94,6 +98,7 @@ namespace Datos
         // DETALLE DEL TRASLADO
         // =====================================================
 
+        // CONSULTAR: MtdConsultarDetalle
         public List<DetalleTrasladoEntidad> MtdConsultarDetalle(int codigoTraslado)
         {
             try
@@ -110,6 +115,7 @@ namespace Datos
             }
         }
 
+        // CONSULTAR: MtdLeerDetalle
         private List<DetalleTrasladoEntidad> MtdLeerDetalle(SqlConnection conn, SqlTransaction tx, int codigoTraslado)
         {
             List<DetalleTrasladoEntidad> lista = new List<DetalleTrasladoEntidad>();
@@ -143,6 +149,7 @@ namespace Datos
             return lista;
         }
 
+        // AGREGAR: MtdInsertarDetalle
         private void MtdInsertarDetalle(SqlConnection conn, SqlTransaction tx, int codigoTraslado, List<DetalleTrasladoEntidad> detalles)
         {
             foreach (DetalleTrasladoEntidad det in detalles)
@@ -163,6 +170,7 @@ namespace Datos
         }
 
         // Lee el estado actual del traslado bloqueando la fila (dentro de la transaccion)
+        // CONSULTAR: MtdLeerEstado
         private string MtdLeerEstado(SqlConnection conn, SqlTransaction tx, int codigoTraslado)
         {
             using (SqlCommand cmd = new SqlCommand("SELECT CASE WHEN estado = 1 THEN 'Pendiente' ELSE 'Completado' END FROM Tbl_Traslados WITH (UPDLOCK, ROWLOCK) WHERE id_traslado = @CodigoTraslado;", conn, tx))
@@ -183,6 +191,7 @@ namespace Datos
         // CRUD: AGREGAR (queda en estado Pendiente, todavia no mueve stock)
         // =====================================================
 
+        // AGREGAR: MtdAgregar
         public int MtdAgregar(TrasladosEntidad traslado)
         {
             try
@@ -191,6 +200,7 @@ namespace Datos
                 {
                     conn.Open();
 
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
                         try
@@ -237,6 +247,7 @@ namespace Datos
         // CRUD: EDITAR (solo si no esta completado)
         // =====================================================
 
+        // EDITAR: MtdEditar
         public bool MtdEditar(TrasladosEntidad traslado)
         {
             try
@@ -245,6 +256,7 @@ namespace Datos
                 {
                     conn.Open();
 
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
                         try
@@ -312,6 +324,7 @@ namespace Datos
                 {
                     conn.Open();
 
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
                         int origen;
@@ -420,6 +433,7 @@ namespace Datos
         // CRUD: ELIMINAR (solo si no esta completado)
         // =====================================================
 
+        // ELIMINAR: MtdEliminar
         public bool MtdEliminar(int codigoTraslado)
         {
             try
@@ -428,6 +442,7 @@ namespace Datos
                 {
                     conn.Open();
 
+                    // Agrupa los cambios relacionados para confirmarlos juntos o revertirlos si ocurre un error.
                     using (SqlTransaction tx = conn.BeginTransaction())
                     {
                         try

@@ -1,6 +1,7 @@
 namespace Entidad
 {
     // Representa una sucursal para transportar sus datos entre capas.
+    // CLASE Sucursal: Representa datos del sistema y permite compartirlos entre las capas.
     public class Sucursal
     {
         public int IdSucursal { get; set; }

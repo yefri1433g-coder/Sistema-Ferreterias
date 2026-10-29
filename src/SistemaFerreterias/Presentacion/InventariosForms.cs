@@ -13,6 +13,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE InventariosForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class InventariosForms : Form
     {
         // Instanciar: Que el forms actual (capa presentacion) pueda acceder a otra capa (Negocio)
@@ -41,6 +42,7 @@ namespace Presentacion
             PrepararDisenoInventarios();
         }
 
+        // CONFIGURACIÓN: PrepararDisenoInventarios
         private void PrepararDisenoInventarios()
         {
             BackColor = Color.FromArgb(241, 246, 245);
@@ -152,6 +154,7 @@ namespace Presentacion
         }
 
         // Llena los ComboBox desde la capa Negocio
+        // CARGA DE DATOS: MtdCargarCombos
         private void MtdCargarCombos()
         {
             AyudaForms.MtdLlenarCombo(cboSucursal, _catalogosNegocio.MtdSucursales());
@@ -179,6 +182,7 @@ namespace Presentacion
             control.HandleCreated += (s, e) => actualizarRegion();
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonInventario
         private static Button CrearBotonInventario(string texto, bool principal)
         {
             Button boton = new Button { Text = texto, Width = principal ? 128 : 74, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
@@ -187,12 +191,14 @@ namespace Presentacion
             return boton;
         }
 
+        // CONSULTAR: MtdConsultarExistencias
         private void MtdConsultarExistencias()
         {
             _numeroPaginaExistencias = 1;
             MostrarExistencias(_stockNegocio.MtdConsultar());
         }
 
+        // BUSCAR: BuscarExistencias
         private void BuscarExistencias()
         {
             try
@@ -202,6 +208,7 @@ namespace Presentacion
             catch (Exception ex) { AyudaForms.MtdError(ex); }
         }
 
+        // PRESENTAR DATOS: MostrarExistencias
         private void MostrarExistencias(List<StockEntidad> lista)
         {
             _listaStock = lista ?? new List<StockEntidad>();
@@ -239,6 +246,7 @@ namespace Presentacion
             }
         }
 
+        // CAMBIAR PÁGINA: CambiarPaginaExistencias
         private void CambiarPaginaExistencias(int cambio)
         {
             _numeroPaginaExistencias += cambio;
@@ -281,6 +289,7 @@ namespace Presentacion
             dialogo.ShowDialog(this);
         }
 
+        // ELIMINAR: EliminarStockSeleccionado
         private void EliminarStockSeleccionado()
         {
             if (_gridExistencias.CurrentRow == null || !(_gridExistencias.CurrentRow.Tag is StockEntidad)) { AyudaForms.MtdAviso("Selecciona un registro de inventario."); return; }
@@ -298,11 +307,13 @@ namespace Presentacion
         // CRUD: CONSULTAR / BUSCAR
         // =====================================================
 
+        // CONSULTAR: MtdConsultar
         private void MtdConsultar()
         {
             MtdMostrarLista(_inventariosNegocio.MtdConsultar());
         }
 
+        // PRESENTAR DATOS: MtdMostrarLista
         private void MtdMostrarLista(List<InventariosEntidad> lista)
         {
             dgvInventarios.DataSource = null;
@@ -319,6 +330,7 @@ namespace Presentacion
             lblTotalRegistros.Text = "Total Registros: " + lista.Count;
         }
 
+        // BUSCAR: btnBuscar_Click
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             try
@@ -331,6 +343,7 @@ namespace Presentacion
             }
         }
 
+        // LIMPIAR: btnLimpiarFiltro_Click
         private void btnLimpiarFiltro_Click(object sender, EventArgs e)
         {
             try
@@ -392,6 +405,7 @@ namespace Presentacion
         // GESTIONAR: METODOS DE APOYO
         // =====================================================
 
+        // CARGA DE DATOS: MtdCargarEnCampos
         private void MtdCargarEnCampos(InventariosEntidad item)
         {
             _codigoSeleccionado = item.CodigoInventario;
@@ -405,6 +419,7 @@ namespace Presentacion
             MtdHabilitarCampos(false, false);
         }
 
+        // LEER CAMPOS DEL FORMULARIO: Convierte los valores ingresados en una entidad de inventario.
         private InventariosEntidad MtdObtenerDeCampos()
         {
             if (_modo == "Agregar")
@@ -427,6 +442,7 @@ namespace Presentacion
                 );
         }
 
+        // LIMPIAR: MtdLimpiarCampos
         private void MtdLimpiarCampos()
         {
             txtCodigo.Clear();
@@ -458,6 +474,7 @@ namespace Presentacion
         // GESTIONAR: BOTONES
         // =====================================================
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();
@@ -467,6 +484,7 @@ namespace Presentacion
             cboSucursal.Focus();
         }
 
+        // EDITAR: btnEditar_Click
         private void btnEditar_Click(object sender, EventArgs e)
         {
             if (_codigoSeleccionado == 0)
@@ -479,6 +497,7 @@ namespace Presentacion
             MtdHabilitarCampos(true, false);
         }
 
+        // GUARDAR: btnGuardar_Click
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             try
@@ -510,6 +529,7 @@ namespace Presentacion
             }
         }
 
+        // ELIMINAR: btnEliminar_Click
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             try
@@ -542,6 +562,7 @@ namespace Presentacion
             MtdVolverAModoConsulta();
         }
 
+        // LIMPIAR: btnLimpiar_Click
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             MtdLimpiarCampos();

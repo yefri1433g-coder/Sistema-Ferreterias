@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Negocio
 {
+    // CLASE CatalogosNegocio: Coordina operaciones y aplica reglas antes de llamar a Datos.
     public class CatalogosNegocio
     {
         private readonly CatalogosDatos _catalogosDatos = new CatalogosDatos();

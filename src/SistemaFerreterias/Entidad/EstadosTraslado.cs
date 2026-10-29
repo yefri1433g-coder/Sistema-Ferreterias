@@ -3,6 +3,7 @@
 namespace Entidad
 {
     // Estados posibles de un traslado entre sucursales
+    // CLASE EstadosTraslado: Representa datos del sistema y permite compartirlos entre las capas.
     public static class EstadosTraslado
     {
         public const string Pendiente = "Pendiente";

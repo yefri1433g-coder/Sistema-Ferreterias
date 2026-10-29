@@ -9,6 +9,7 @@ using Negocio;
 
 namespace Presentacion
 {
+    // CLASE PagosForms: Presenta información y conecta acciones de usuario con la capa Negocio.
     public partial class PagosForms : Form
     {
         private readonly PagoNegocio _negocio = new PagoNegocio();
@@ -56,6 +57,7 @@ namespace Presentacion
         /// Carga los métodos permitidos en el esquema actual, que guarda el método como texto.
         /// Se enlazan código y descripción para mantener un uso uniforme de los ComboBox.
         /// </summary>
+        // CARGA DE DATOS: CargarMetodosPago
         private void CargarMetodosPago()
         {
             DataTable metodos = new DataTable();
@@ -75,6 +77,7 @@ namespace Presentacion
             cmbMetodo.SelectedIndex = metodos.Rows.Count > 0 ? 0 : -1;
         }
 
+        // CONFIGURACIÓN: PrepararDisenoPagos
         private void PrepararDisenoPagos()
         {
             Control[] controlesEditor = Controls.Cast<Control>().ToArray();
@@ -128,6 +131,7 @@ namespace Presentacion
             Text = "Pagos"; BackColor = Color.FromArgb(241, 246, 246); MinimumSize = new Size(980, 620);
         }
 
+        // CONFIGURACIÓN: ConfigurarEditorPagoCompacto
         private void ConfigurarEditorPagoCompacto()
         {
             foreach (Control control in _dialogoPago.Controls) control.Anchor = AnchorStyles.Top | AnchorStyles.Left;
@@ -146,16 +150,19 @@ namespace Presentacion
             btnNuevo.Visible = false; btnCerrar.Text = "Cancelar"; btnCerrar.SetBounds(744, 535, 120, 38);
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonPago
         private static Button CrearBotonPago(string texto, bool primario)
         {
             return new Button { Text = texto, Width = primario ? 132 : 100, Height = 30, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = primario ? Color.FromArgb(22, 139, 112) : Color.White, ForeColor = primario ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
         }
 
+        // CREAR ELEMENTO VISUAL: CrearBotonPaginacionPago
         private static Button CrearBotonPaginacionPago(string texto)
         {
             return new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 3, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(68, 91, 101), Font = new Font("Segoe UI", 8F) };
         }
 
+        // CARGA DE DATOS: CargarHistorial
         private void CargarHistorial()
         {
             if (_gridHistorial == null) return;
@@ -163,6 +170,7 @@ namespace Presentacion
             catch (Exception ex) { MessageBox.Show("No se pudo cargar el historial de pagos. " + ex.Message, "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
 
+        // PRESENTAR DATOS: MostrarHistorialPagos
         private void MostrarHistorialPagos()
         {
             if (_gridHistorial == null) return;
@@ -192,6 +200,7 @@ namespace Presentacion
             _resumenPagos[2].Text = "Q " + pendiente.ToString("N2");
         }
 
+        // CAMBIAR PÁGINA: CambiarPagina
         private void CambiarPagina(int cambio) { _pagina += cambio; MostrarHistorialPagos(); }
 
         // Al seleccionar una fila, prepara sus datos en los controles existentes del editor.
@@ -223,6 +232,7 @@ namespace Presentacion
             EliminarPagoSeleccionado(_gridHistorial.CurrentRow);
         }
 
+        // CARGA DE DATOS: CargarPagoEnEditor
         private void CargarPagoEnEditor(DataGridViewRow fila)
         {
             try
@@ -250,6 +260,7 @@ namespace Presentacion
             }
         }
 
+        // AGREGAR: AgregarMetodoSiHaceFalta
         private void AgregarMetodoSiHaceFalta(string metodo)
         {
             if (_metodosPago == null || String.IsNullOrWhiteSpace(metodo)) return;
@@ -260,6 +271,7 @@ namespace Presentacion
                 _metodosPago.Rows.Add(metodo, metodo);
         }
 
+        // ELIMINAR: EliminarPagoSeleccionado
         private void EliminarPagoSeleccionado(DataGridViewRow fila)
         {
             if (fila == null || fila.Cells["id_pago"].Value == null) return;
@@ -282,6 +294,7 @@ namespace Presentacion
             }
         }
 
+        // CARGA DE DATOS: CargarVentas
         private void CargarVentas(int? idSeleccionar)
         {
             _cargando = true;
@@ -336,6 +349,7 @@ namespace Presentacion
             MostrarResumen();
         }
 
+        // PRESENTAR DATOS: MostrarResumen
         private void MostrarResumen()
         {
             DataRowView fila = cmbVenta.SelectedItem as DataRowView;
@@ -390,6 +404,7 @@ namespace Presentacion
             nudMonto.Value = Math.Min(montoInicial, nudMonto.Maximum);
         }
 
+        // LIMPIAR: LimpiarResumen
         private void LimpiarResumen()
         {
             _saldo = 0;
@@ -411,6 +426,7 @@ namespace Presentacion
             MostrarResumen();
         }
 
+        // GUARDAR: btnRegistrar_Click
         private void btnRegistrar_Click(object sender, EventArgs e)
         {
             if (cmbVenta.SelectedValue == null || cmbMetodo.SelectedValue == null)
@@ -448,6 +464,7 @@ namespace Presentacion
                 CargarVentas(idVenta);
         }
 
+        // AGREGAR: btnNuevo_Click
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             _idPagoEdicion = null;

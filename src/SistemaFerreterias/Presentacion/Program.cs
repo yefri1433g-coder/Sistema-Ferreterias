@@ -7,6 +7,7 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE Program: Inicia la aplicación Windows Forms y abre el formulario Login.
     internal static class Program
     {
         /// <summary>

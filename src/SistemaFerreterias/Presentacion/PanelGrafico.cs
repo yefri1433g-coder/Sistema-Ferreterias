@@ -7,8 +7,10 @@ using System.Windows.Forms;
 
 namespace Presentacion
 {
+    // CLASE PanelGrafico: Dibuja los gráficos que se muestran en el Dashboard.
     public class PanelGrafico : Panel
     {
+        // ENUM TipoVisualizacion: Presenta información y conecta acciones de usuario con la capa Negocio.
         public enum TipoVisualizacion { Barras, Linea, Anillo }
 
         private string _titulo = string.Empty;

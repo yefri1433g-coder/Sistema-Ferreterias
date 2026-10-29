@@ -51,6 +51,7 @@
     <Compile Include="KardexNegocio.cs" />
     <Compile Include="PagoNegocio.cs" />
     <Compile Include="ProveedoresNegocio.cs" />
+    <Compile Include="RolNegocio.cs" />
     <Compile Include="StockNegocio.cs" />
     <Compile Include="TrasladosNegocio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
