@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -17,14 +17,15 @@ namespace Presentacion
         private Panel panelAccesosRapidos;
         public event Action<string> NavegacionSolicitada;
 
-        private readonly Color fondo = Color.FromArgb(239, 245, 244);
-        private readonly Color tinta = Color.FromArgb(18, 42, 53);
-        private readonly Color verde = Color.FromArgb(30, 190, 140);
+        private readonly Color fondo = EstiloAplicacion.Fondo;
+        private readonly Color tinta = EstiloAplicacion.Tinta;
+        private readonly Color azul = EstiloAplicacion.Acento;
 
         public DashboardForms()
         {
             ConstruirDashboard();
             Load += DashboardForms_Load;
+            Shown += (s, e) => AjustarAccesosRapidos();
         }
 
         // CONFIGURACIÓN: ConstruirDashboard
@@ -67,8 +68,8 @@ namespace Presentacion
                 Padding = new Padding(16, 8, 16, 14), BackColor = fondo,
                 Width = Math.Min(1450, Math.Max(800, ClientSize.Width)), Height = ClientSize.Height
             };
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 76F));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 112F));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 62F));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 38F));
             layout.Controls.Add(CrearEncabezado(), 0, 0);
@@ -119,7 +120,7 @@ namespace Presentacion
         {
             TableLayoutPanel fila = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, BackColor = fondo };
             for (int i = 0; i < 4; i++) fila.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            fila.Controls.Add(CrearTarjetaIndicador("VENTAS DE HOY", lblValorSucursales, "↗", verde, ""), 0, 0);
+            fila.Controls.Add(CrearTarjetaIndicador("VENTAS DE HOY", lblValorSucursales, "↗", azul, ""), 0, 0);
             fila.Controls.Add(CrearTarjetaIndicador("PRODUCTOS", lblValorProductos, "▤", Color.FromArgb(242, 164, 74), ""), 1, 0);
             fila.Controls.Add(CrearTarjetaIndicador("PEDIDOS PENDIENTES", lblValorProveedores, "◷", Color.FromArgb(93, 130, 238), ""), 2, 0);
             fila.Controls.Add(CrearTarjetaIndicador("CLIENTES REGISTRADOS", lblValorStockBajo, "♙", Color.FromArgb(157, 119, 222), ""), 3, 0);
@@ -130,9 +131,9 @@ namespace Presentacion
         private static Panel CrearTarjetaIndicador(string titulo, Label valor, string icono, Color color, string nota)
         {
             Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(5, 5, 7, 4) };
-            Label simbolo = new Label { Text = icono, Location = new Point(13, 9), Size = new Size(27, 27), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = color, BackColor = Color.FromArgb(237, 249, 245) };
+            Label simbolo = new Label { Text = icono, Location = new Point(13, 9), Size = new Size(27, 27), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = color, BackColor = EstiloAplicacion.FondoSuave };
             Label encabezado = new Label { Text = titulo, Location = new Point(13, 39), Size = new Size(220, 18), Font = new Font("Segoe UI", 7.5F), ForeColor = Color.FromArgb(105, 127, 134) };
-            valor.Location = new Point(13, 58);
+            valor.Location = new Point(13, 64);
             valor.Size = new Size(190, 30);
             valor.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
             valor.ForeColor = Color.FromArgb(17, 40, 52);
@@ -165,9 +166,9 @@ namespace Presentacion
             fila.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 65F));
             fila.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35F));
             Panel actividad = CrearTarjetaSeccion("Actividad reciente", "Movimientos registrados", listaActividad, new Padding(5, 5, 7, 5));
-            Panel accesos = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(12, 96, 86), Margin = new Padding(5), Padding = new Padding(17) };
+            Panel accesos = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Acento, Margin = new Padding(5), Padding = new Padding(17) };
             panelAccesosRapidos = accesos;
-            Label etiqueta = new Label { Text = "ACCESO RÁPIDO", Location = new Point(18, 17), Size = new Size(220, 18), Font = new Font("Segoe UI", 7F, FontStyle.Bold), ForeColor = Color.FromArgb(127, 237, 202), BackColor = Color.Transparent };
+            Label etiqueta = new Label { Text = "ACCESO RÁPIDO", Location = new Point(18, 17), Size = new Size(220, 18), Font = new Font("Segoe UI", 7F, FontStyle.Bold), ForeColor = EstiloAplicacion.Seleccion, BackColor = Color.Transparent };
             Label pregunta = new Label { Text = "¿Qué necesitas hacer?", Location = new Point(18, 39), Size = new Size(250, 26), Font = new Font("Segoe UI", 11F, FontStyle.Bold), ForeColor = Color.White, BackColor = Color.Transparent };
             btnActualizar.Text = "+  Nueva venta";
             btnActualizar.SetBounds(18, 72, 118, 32);
@@ -194,8 +195,8 @@ namespace Presentacion
             boton.IconChar = FontAwesome.Sharp.IconChar.None;
             boton.FlatStyle = FlatStyle.Flat;
             boton.FlatAppearance.BorderSize = principal ? 0 : 1;
-            boton.FlatAppearance.BorderColor = Color.FromArgb(72, 151, 138);
-            boton.BackColor = principal ? Color.FromArgb(37, 202, 153) : Color.FromArgb(35, 111, 104);
+            boton.FlatAppearance.BorderColor = Color.FromArgb(93, 123, 164);
+            boton.BackColor = EstiloAplicacion.Acento;
             boton.ForeColor = Color.White;
             boton.Font = new Font("Segoe UI", 7.5F, FontStyle.Bold);
             boton.Cursor = Cursors.Hand;
@@ -223,10 +224,10 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearFilaActividad
         private static Panel CrearFilaActividad(ActividadDashboard actividad, bool venta)
         {
-            Panel fila = new Panel { Width = 620, Height = 44, BackColor = Color.White, Margin = new Padding(0, 0, 0, 2) };
-            Label icono = new Label { Text = venta ? "↗" : "▤", Location = new Point(2, 7), Size = new Size(25, 25), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = venta ? Color.FromArgb(32, 179, 132) : Color.FromArgb(222, 151, 64), BackColor = venta ? Color.FromArgb(235, 249, 243) : Color.FromArgb(255, 245, 231) };
+            Panel fila = new Panel { Width = 620, Height = 56, BackColor = Color.White, Margin = new Padding(0, 0, 0, 2) };
+            Label icono = new Label { Text = venta ? "↗" : "▤", Location = new Point(2, 7), Size = new Size(25, 25), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = venta ? EstiloAplicacion.Acento : Color.FromArgb(222, 151, 64), BackColor = venta ? EstiloAplicacion.FondoSuave : Color.FromArgb(255, 245, 231) };
             Label titulo = new Label { Text = actividad.Tipo, Location = new Point(36, 3), Size = new Size(300, 18), Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(33, 52, 58) };
-            Label detalle = new Label { Text = actividad.Descripcion + " · " + actividad.Referencia, Location = new Point(36, 22), Size = new Size(400, 17), Font = new Font("Segoe UI", 7F), ForeColor = Color.FromArgb(122, 141, 146) };
+            Label detalle = new Label { Text = actividad.Descripcion + " · " + actividad.Referencia, Location = new Point(36, 28), Size = new Size(400, 24), Font = new Font("Segoe UI", 9F), ForeColor = EstiloAplicacion.Secundario };
             Label hora = new Label { Text = actividad.Fecha.ToString("HH:mm"), Size = new Size(50, 18), TextAlign = ContentAlignment.MiddleRight, Font = new Font("Segoe UI", 7F), ForeColor = Color.FromArgb(122, 141, 146), Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(550, 12) };
             Panel linea = new Panel { Height = 1, Dock = DockStyle.Bottom, BackColor = Color.FromArgb(239, 243, 242) };
             fila.Controls.Add(icono); fila.Controls.Add(titulo); fila.Controls.Add(detalle); fila.Controls.Add(hora); fila.Controls.Add(linea);
@@ -308,12 +309,16 @@ namespace Presentacion
         private void AjustarAccesosRapidos()
         {
             if (panelAccesosRapidos == null) return;
-            int ancho = Math.Max(88, panelAccesosRapidos.ClientSize.Width - 48);
+            int ancho = Math.Max(112, panelAccesosRapidos.ClientSize.Width - 36);
             if (btnActualizar.Visible && btnCerrar.Visible)
             {
-                ancho = Math.Max(88, (panelAccesosRapidos.ClientSize.Width - 48) / 2);
+                ancho = Math.Max(112, (panelAccesosRapidos.ClientSize.Width - 46) / 2);
                 btnActualizar.Left = 18;
-                btnCerrar.Left = btnActualizar.Right + 10;
+                bool apilados = panelAccesosRapidos.ClientSize.Width < 280;
+                if (apilados) ancho = Math.Max(112, panelAccesosRapidos.ClientSize.Width - 36);
+                btnActualizar.Top = 80;
+                btnCerrar.Left = apilados ? 18 : btnActualizar.Left + ancho + 10;
+                btnCerrar.Top = apilados ? 122 : 80;
             }
             else if (btnActualizar.Visible)
             {

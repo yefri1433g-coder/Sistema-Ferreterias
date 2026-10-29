@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -35,6 +35,10 @@ namespace Presentacion
             EstiloAplicacion.Aplicar(this);
             AplicarDisenoProveedores();
             PrepararDialogoProveedor();
+            txtBuscar.TextChanged += btnBuscar_Click;
+            BarraListado.Configurar(dgvProveedores, txtBuscar, "Proveedores", () => dgv_CellDoubleClick(dgvProveedores, new DataGridViewCellEventArgs(0, dgvProveedores.CurrentRow.Index)));
+            btnExportar.Visible = false;
+            btnImprimir.Visible = false;
         }
 
         // CONFIGURACIÓN: PrepararDialogoProveedor
@@ -57,29 +61,29 @@ namespace Presentacion
             tabPage1.Padding = Padding.Empty;
             tabPage2.Padding = new Padding(20);
             tabPage1.Controls.Clear();
-            tabPage1.BackColor = Color.FromArgb(241, 246, 245);
+            tabPage1.BackColor = EstiloAplicacion.Fondo;
 
-            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(18, 12, 18, 18), BackColor = Color.FromArgb(241, 246, 245) };
+            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(18, 12, 18, 18), BackColor = EstiloAplicacion.Fondo };
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 104));
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
             pantalla.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             tabPage1.Controls.Add(pantalla);
 
-            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(241, 246, 245) };
+            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Fondo };
             Label ruta = new Label { Text = "Inicio  /  Proveedores", Left = 2, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(116, 137, 145) };
-            Label titulo = new Label { Text = "Proveedores", Left = 2, Top = 16, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
+            Label titulo = new Label { Text = "Proveedores", Left = 2, Top = 16, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
             Label descripcion = new Label { Text = "Administra contactos e informaci\u00F3n de tus proveedores.", Left = 4, Top = 64, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(116, 137, 145) };
             encabezado.Controls.Add(ruta); encabezado.Controls.Add(titulo); encabezado.Controls.Add(descripcion);
             pantalla.Controls.Add(encabezado, 0, 0);
 
-            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = Color.FromArgb(241, 246, 245), Padding = new Padding(0, 0, 0, 10) };
+            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = EstiloAplicacion.Fondo, Padding = new Padding(0, 0, 0, 10) };
             for (int i = 0; i < 3; i++)
             {
                 tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F));
                 Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 0 ? 0 : 8, 0, 8, 0) };
-                Label icono = new Label { Text = i == 0 ? "\u25B2" : i == 1 ? "\u25F7" : "@", Location = new Point(14, 13), Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = Color.FromArgb(35, 184, 139), BackColor = Color.FromArgb(237, 249, 246) };
-                Label tituloTarjeta = new Label { Text = i == 0 ? "REGISTRADOS" : i == 1 ? "CON TEL\u00C9FONO" : "CON CORREO", Left = 52, Top = 14, AutoSize = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(113, 134, 141) };
-                _valoresResumen[i] = new Label { Left = 52, Top = 39, AutoSize = true, Font = new Font("Segoe UI", 17F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
+                Label icono = new Label { Text = i == 0 ? "\u25B2" : i == 1 ? "\u25F7" : "@", Location = new Point(14, 13), Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = EstiloAplicacion.Acento, BackColor = EstiloAplicacion.FondoSuave };
+                Label tituloTarjeta = new Label { Text = i == 0 ? "REGISTRADOS" : i == 1 ? "CON TEL\u00C9FONO" : "CON CORREO", Left = 52, Top = 14, AutoSize = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario };
+                _valoresResumen[i] = new Label { Left = 52, Top = 39, AutoSize = true, Font = new Font("Segoe UI", 17F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
                 tarjeta.Controls.Add(icono); tarjeta.Controls.Add(tituloTarjeta); tarjeta.Controls.Add(_valoresResumen[i]);
                 tarjetas.Controls.Add(tarjeta, i, 0);
             }
@@ -90,14 +94,14 @@ namespace Presentacion
             lista.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             lista.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             Panel barra = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
-            Label tituloLista = new Label { Text = "Proveedores recientes", Left = 4, Top = 2, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
-            Label fechaLista = new Label { Text = "Informaci\u00F3n actualizada \u00B7 " + DateTime.Today.ToString("dd MMM yyyy"), Left = 5, Top = 27, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) };
+            Label tituloLista = new Label { Text = "Proveedores recientes", Left = 4, Top = 2, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
+            Label fechaLista = new Label { Text = "Informaci\u00F3n actualizada \u00B7 " + DateTime.Today.ToString("dd MMM yyyy"), Left = 5, Top = 27, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             FlowLayoutPanel herramientas = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 500, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, Padding = new Padding(0, 6, 0, 0), BackColor = Color.White };
             txtBuscar.Size = new Size(145, 28); txtBuscar.Margin = new Padding(4, 0, 4, 0); txtBuscar.Font = new Font("Segoe UI", 8.5F);
             btnBuscar.Size = new Size(34, 28); btnBuscar.Margin = new Padding(4, 0, 4, 0); btnBuscar.Text = ""; btnBuscar.IconSize = 16; btnBuscar.BackColor = Color.White; btnBuscar.ForeColor = Color.FromArgb(62, 85, 91);
             btnLimpiarFiltro.Size = new Size(34, 28); btnLimpiarFiltro.Margin = new Padding(4, 0, 4, 0); btnLimpiarFiltro.Text = ""; btnLimpiarFiltro.IconSize = 16; btnLimpiarFiltro.BackColor = Color.White; btnLimpiarFiltro.ForeColor = Color.FromArgb(62, 85, 91);
             btnNuevo.Size = new Size(118, 28); btnNuevo.Margin = new Padding(4, 0, 0, 0); btnNuevo.Text = "+ Nuevo registro"; btnNuevo.IconChar = FontAwesome.Sharp.IconChar.None;
-            btnNuevo.BackColor = Color.FromArgb(23, 143, 112); btnNuevo.ForeColor = Color.White; btnNuevo.FlatAppearance.BorderSize = 0; btnNuevo.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+            btnNuevo.BackColor = EstiloAplicacion.Acento; btnNuevo.ForeColor = Color.White; btnNuevo.FlatAppearance.BorderSize = 0; btnNuevo.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
             Button eliminarLista = new Button { Text = "Eliminar", Size = new Size(82, 28), Margin = new Padding(4, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(254, 242, 242), ForeColor = Color.FromArgb(185, 28, 28), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
             eliminarLista.Click += (s, e) => EliminarProveedorDesdeLista();
             herramientas.Controls.Add(txtBuscar); herramientas.Controls.Add(btnBuscar); herramientas.Controls.Add(btnLimpiarFiltro); herramientas.Controls.Add(eliminarLista); herramientas.Controls.Add(btnNuevo);
@@ -115,15 +119,15 @@ namespace Presentacion
             dgvProveedores.EnableHeadersVisualStyles = false;
             dgvProveedores.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             dgvProveedores.ColumnHeadersHeight = 34;
-            dgvProveedores.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
-            dgvProveedores.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131);
-            dgvProveedores.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
-            dgvProveedores.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White;
-            dgvProveedores.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(102, 123, 131);
+            dgvProveedores.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+            dgvProveedores.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvProveedores.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            dgvProveedores.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino;
+            dgvProveedores.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
             dgvProveedores.DefaultCellStyle.Font = new Font("Segoe UI", 8.5F);
-            dgvProveedores.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77);
-            dgvProveedores.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241);
-            dgvProveedores.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56);
+            dgvProveedores.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta;
+            dgvProveedores.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
+            dgvProveedores.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
             dgvProveedores.DefaultCellStyle.Padding = new Padding(5, 5, 5, 5);
             dgvProveedores.RowTemplate.Height = 42;
             dgvProveedores.DefaultCellStyle.WrapMode = DataGridViewTriState.True;

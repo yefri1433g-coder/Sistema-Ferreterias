@@ -1,5 +1,30 @@
 # Comandos rápidos
 
+## Compilar y revisar el Panel — Documento 07
+
+Repositorio actual verificado: `C:\2026_ProgramacionII`.
+Ejecutar en PowerShell:
+
+```powershell
+Set-Location C:\2026_ProgramacionII
+& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' `
+  '.\src\SistemaFerreterias\SistemaFerreterias.slnx' /t:Build /p:Configuration=Debug `
+  /p:OutDir=C:\2026_ProgramacionII\src\SistemaFerreterias\Presentacion\bin\CodexPanelRevision\ /v:minimal /nologo
+& '.\src\SistemaFerreterias\Presentacion\bin\CodexPanelRevision\Presentacion.exe'
+```
+
+La aplicación mantiene su inicio por Login. Tras entrar, probar los enlaces del
+Panel, repetir una opción, regresar a Dashboard y maximizar/restaurar. En ventanas
+pequeñas, usar las barras de desplazamiento del menú y del contenedor.
+`Salir` termina la aplicación. El mapa está en `skills/08_Panel_Navegacion.md`.
+
+Para revisar únicamente los cambios del Panel:
+
+```powershell
+git diff -- src/SistemaFerreterias/Presentacion/MenuPrincipalForms.cs src/SistemaFerreterias/Presentacion/MenuPrincipalForms.Designer.cs
+git diff --check
+```
+
 ## Estado del repositorio compartido
 
 Verificado el 23 de octubre de 2026:

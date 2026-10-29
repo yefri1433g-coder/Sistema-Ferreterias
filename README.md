@@ -24,6 +24,10 @@ Para una base existente, ejecuta también
 La migración agrega la sucursal opcional a las compras antiguas sin asignarles una.
 Esas compras quedan bloqueadas para edición hasta que se registre su sucursal correcta.
 
+Para bases antiguas sin sucursal en Ventas, ejecuta también
+[`database/scripts/20261029_ventas_sucursal.sql`](database/scripts/20261029_ventas_sucursal.sql).
+Las ventas antiguas conservan la sucursal sin asignar.
+
 Para habilitar el Login con roles y accesos configurables, ejecuta también
 [`database/scripts/20261028_login_roles.sql`](database/scripts/20261028_login_roles.sql).
 La migración conserva las cuentas antiguas, reasigna `Administrador` a `Supervisor`

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -22,6 +22,7 @@ namespace Presentacion
         {
             InitializeComponent();
             ConstruirLogin();
+            EstiloAplicacion.AplicarPaleta(this);
         }
 
         // INICIO DE SESIÓN: ConstruirLogin
@@ -42,7 +43,7 @@ namespace Presentacion
             ClientSize = new Size(1280, 800);
             MinimumSize = new Size(1000, 680);
             StartPosition = FormStartPosition.CenterScreen;
-            BackColor = Color.FromArgb(238, 245, 242);
+            BackColor = EstiloAplicacion.Marino;
             Font = new Font("Segoe UI", 9F);
 
             TableLayoutPanel layout = new TableLayoutPanel
@@ -52,12 +53,12 @@ namespace Presentacion
                 RowCount = 1,
                 Margin = Padding.Empty,
                 Padding = Padding.Empty,
-                BackColor = Color.FromArgb(238, 245, 242)
+                BackColor = EstiloAplicacion.Marino
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55F));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F));
 
-            Panel bienvenida = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(12, 82, 76), Padding = new Padding(72, 48, 64, 38) };
+            Panel bienvenida = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Marino, Padding = new Padding(72, 48, 64, 38) };
             TableLayoutPanel contenidoBienvenida = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, BackColor = Color.Transparent };
             contenidoBienvenida.RowStyles.Add(new RowStyle(SizeType.Absolute, 64F));
             contenidoBienvenida.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -95,7 +96,7 @@ namespace Presentacion
             {
                 Text = "Administra tu negocio desde un solo lugar.",
                 AutoSize = true,
-                ForeColor = Color.FromArgb(210, 232, 228),
+                ForeColor = EstiloAplicacion.Seleccion,
                 Font = new Font("Segoe UI", 12F),
                 BackColor = Color.Transparent,
                 Margin = new Padding(2, 4, 0, 0)
@@ -116,7 +117,7 @@ namespace Presentacion
                 Text = "✓",
                 Location = new Point(22, 15),
                 Size = new Size(48, 48),
-                BackColor = Color.FromArgb(31, 181, 132),
+                BackColor = EstiloAplicacion.Acento,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 22F, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleCenter
@@ -136,7 +137,7 @@ namespace Presentacion
                 Text = "Ventas, inventario y sucursales en un mismo sistema.",
                 Location = new Point(86, 45),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(210, 232, 228),
+                ForeColor = EstiloAplicacion.Seleccion,
                 Font = new Font("Segoe UI", 9F),
                 BackColor = Color.Transparent
             };
@@ -148,7 +149,7 @@ namespace Presentacion
             {
                 Text = "© 2026 Ferretería Multisucursal",
                 Dock = DockStyle.Fill,
-                ForeColor = Color.FromArgb(190, 220, 215),
+                ForeColor = EstiloAplicacion.Seleccion,
                 Font = new Font("Segoe UI", 8.5F),
                 TextAlign = ContentAlignment.BottomLeft,
                 BackColor = Color.Transparent
@@ -159,11 +160,9 @@ namespace Presentacion
             contenidoBienvenida.Controls.Add(pieMarca, 0, 3);
             bienvenida.Controls.Add(contenidoBienvenida);
 
-            Panel zonaAcceso = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(238, 245, 242), Padding = new Padding(34) };
-            Panel sombraTarjeta = new Panel { Size = new Size(490, 610), BackColor = Color.FromArgb(222, 235, 230) };
-            Panel tarjetaAcceso = new Panel { Size = new Size(490, 610), BackColor = Color.White, Padding = Padding.Empty };
+            Panel zonaAcceso = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Marino, Padding = new Padding(34) };
+            Panel tarjetaAcceso = new Panel { Size = new Size(490, 610), BackColor = EstiloAplicacion.Acento, Padding = Padding.Empty };
             RedondearPanel(tarjetaAcceso, 26);
-            zonaAcceso.Controls.Add(sombraTarjeta);
             zonaAcceso.Controls.Add(tarjetaAcceso);
             tarjetaAcceso.BringToFront();
             EventHandler centrarTarjeta = (s, e) =>
@@ -171,7 +170,6 @@ namespace Presentacion
                 int x = Math.Max(20, (zonaAcceso.ClientSize.Width - tarjetaAcceso.Width) / 2);
                 int y = Math.Max(20, (zonaAcceso.ClientSize.Height - tarjetaAcceso.Height) / 2);
                 tarjetaAcceso.Location = new Point(x, y);
-                sombraTarjeta.Location = new Point(x + 5, y + 7);
             };
             zonaAcceso.Resize += centrarTarjeta;
             centrarTarjeta(this, EventArgs.Empty);
@@ -179,7 +177,7 @@ namespace Presentacion
             label1.Text = "Correo o nombre de usuario";
             label1.SetBounds(48, 132, 394, 22);
             label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label1.ForeColor = Color.FromArgb(54, 76, 79);
+            label1.ForeColor = EstiloAplicacion.Tinta;
             label1.BackColor = Color.Transparent;
 
             txtUsuario.SetBounds(48, 160, 394, 50);
@@ -193,7 +191,7 @@ namespace Presentacion
             label2.Text = "Contraseña";
             label2.SetBounds(48, 235, 300, 22);
             label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label2.ForeColor = Color.FromArgb(54, 76, 79);
+            label2.ForeColor = EstiloAplicacion.Tinta;
             label2.BackColor = Color.Transparent;
 
             txtContrasena.SetBounds(48, 263, 394, 50);
@@ -230,8 +228,8 @@ namespace Presentacion
             btnIngresar.SetBounds(48, 348, 394, 54);
             btnIngresar.FlatStyle = FlatStyle.Flat;
             btnIngresar.FlatAppearance.BorderSize = 0;
-            btnIngresar.FlatAppearance.MouseOverBackColor = Color.FromArgb(18, 119, 94);
-            btnIngresar.BackColor = Color.FromArgb(22, 139, 111);
+            btnIngresar.FlatAppearance.MouseOverBackColor = Color.FromArgb(59, 103, 163);
+            btnIngresar.BackColor = Color.FromArgb(47, 83, 135);
             btnIngresar.ForeColor = Color.White;
             btnIngresar.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnIngresar.Cursor = Cursors.Hand;
@@ -254,9 +252,9 @@ namespace Presentacion
                 Location = new Point(150, 510),
                 Size = new Size(190, 32),
                 TextAlign = ContentAlignment.MiddleCenter,
-                ForeColor = Color.FromArgb(18, 126, 96),
+                ForeColor = EstiloAplicacion.Acento,
                 Font = new Font("Segoe UI", 8F, FontStyle.Bold),
-                BackColor = Color.FromArgb(231, 247, 240)
+                BackColor = EstiloAplicacion.FondoSuave
             };
             RedondearPanel(sistemaSeguro, 16);
 
@@ -266,7 +264,7 @@ namespace Presentacion
             btnSalir.SetBounds(48, 558, 394, 30);
             btnSalir.FlatStyle = FlatStyle.Flat;
             btnSalir.FlatAppearance.BorderSize = 0;
-            btnSalir.BackColor = Color.White;
+            btnSalir.BackColor = EstiloAplicacion.Acento;
             btnSalir.ForeColor = Color.FromArgb(103, 124, 124);
             btnSalir.Font = new Font("Segoe UI", 8.5F);
             btnSalir.Cursor = Cursors.Hand;
@@ -330,7 +328,18 @@ namespace Presentacion
             }
 
             MenuPrincipalForms menu = new MenuPrincipalForms(usuario);
-            menu.FormClosed += (s, args) => Application.Exit();
+            menu.FormClosed += (s, args) =>
+            {
+                if (menu.CierreSesionSolicitado)
+                {
+                    txtContrasena.Clear();
+                    txtUsuario.Clear();
+                    Show();
+                    Activate();
+                    txtUsuario.Focus();
+                }
+                else Close();
+            };
             menu.Show();
             this.Hide();
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -83,15 +83,15 @@ namespace Presentacion
             int izquierda = 28, derecha = Width - 8, arriba = 40, abajo = Height - 30;
             int ancho = Math.Max(1, derecha - izquierda), alto = Math.Max(1, abajo - arriba);
             decimal maximo = Math.Max(1m, _importes.Max(v => v.Value));
-            using (Font texto = new Font("Segoe UI", 7F))
+            using (Font texto = new Font("Segoe UI", 9F))
             using (Font resumen = new Font("Segoe UI", 14F, FontStyle.Bold))
             using (Pen rejilla = new Pen(Color.FromArgb(234, 241, 240)))
-            using (Pen linea = new Pen(Color.FromArgb(0, 174, 126), 2.2F))
-            using (SolidBrush relleno = new SolidBrush(Color.FromArgb(34, 35, 194, 145)))
+            using (Pen linea = new Pen(EstiloAplicacion.Acento, 2.2F))
+            using (SolidBrush relleno = new SolidBrush(Color.FromArgb(34, EstiloAplicacion.Acento)))
             using (StringFormat centro = new StringFormat { Alignment = StringAlignment.Center })
             {
                 if (!string.IsNullOrEmpty(TextoResumen))
-                    using (SolidBrush textoResumen = new SolidBrush(Color.FromArgb(18, 42, 53)))
+                    using (SolidBrush textoResumen = new SolidBrush(EstiloAplicacion.Tinta))
                         g.DrawString(TextoResumen, resumen, textoResumen, 3, 1);
                 for (int r = 0; r < 4; r++)
                 {
@@ -99,7 +99,7 @@ namespace Presentacion
                     g.DrawLine(rejilla, izquierda, y, derecha, y);
                     decimal valorEje = maximo * (3 - r) / 3m;
                     g.DrawString(valorEje >= 1000 ? (valorEje / 1000m).ToString("0.#") + "k" : valorEje.ToString("0"), texto,
-                        Brushes.SlateGray, new RectangleF(0, y - 6, izquierda - 4, 12), new StringFormat { Alignment = StringAlignment.Far });
+                        Brushes.SlateGray, new RectangleF(0, y - texto.Height / 2f, izquierda - 4, texto.Height + 4), new StringFormat { Alignment = StringAlignment.Far });
                 }
                 PointF[] puntos = new PointF[_importes.Count];
                 for (int i = 0; i < puntos.Length; i++)
@@ -122,7 +122,7 @@ namespace Presentacion
                     g.FillEllipse(Brushes.White, puntos[i].X - 3, puntos[i].Y - 3, 6, 6);
                     g.DrawEllipse(linea, puntos[i].X - 3, puntos[i].Y - 3, 6, 6);
                     g.DrawString(_importes[i].Key, texto, Brushes.SlateGray,
-                        new RectangleF(izquierda + ancho * i / puntos.Length, abajo + 5, ancho / (float)puntos.Length, 18), centro);
+                        new RectangleF(izquierda + ancho * i / puntos.Length, abajo + 5, ancho / (float)puntos.Length, texto.Height + 4), centro);
                 }
             }
         }
@@ -136,7 +136,7 @@ namespace Presentacion
             int ancho = Math.Max(1, Width - margenIzq - margenDer);
             int alto = Math.Max(1, abajo - arriba);
             int maximo = Math.Max(1, _valores.Max(v => v.Value));
-            using (Font etiqueta = new Font("Segoe UI", 7.5F))
+            using (Font etiqueta = new Font("Segoe UI", 9F))
             using (Pen rejilla = new Pen(Color.FromArgb(232, 240, 239)))
             using (Pen linea = new Pen(_colorBarra, 2.5F))
             using (SolidBrush relleno = new SolidBrush(Color.FromArgb(35, _colorBarra)))
@@ -185,7 +185,7 @@ namespace Presentacion
             int diametro = Math.Min(220, Math.Min(Width - 32, Height - 105));
             diametro = Math.Max(35, diametro);
             Rectangle anillo = new Rectangle((Width - diametro) / 2, 8, diametro, diametro);
-            Color[] colores = { Color.FromArgb(36, 190, 140), Color.FromArgb(248, 177, 70), Color.FromArgb(98, 132, 235), Color.FromArgb(163, 124, 222) };
+            Color[] colores = { EstiloAplicacion.Acento, Color.FromArgb(248, 177, 70), Color.FromArgb(98, 132, 235), Color.FromArgb(163, 124, 222) };
             float inicio = -90;
             for (int i = 0; i < _valores.Count; i++)
             {
@@ -199,7 +199,7 @@ namespace Presentacion
                 inicio += barrido;
             }
             using (Font numero = new Font("Segoe UI", 15F, FontStyle.Bold))
-            using (Font texto = new Font("Segoe UI", 7F))
+            using (Font texto = new Font("Segoe UI", 9F))
             using (StringFormat centro = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
             {
                 int disponibles = _valores.Where(v => v.Key.Equals("Disponible", StringComparison.OrdinalIgnoreCase)).Sum(v => Math.Max(0, v.Value));
@@ -209,7 +209,7 @@ namespace Presentacion
                 Rectangle subtitulo = new Rectangle(anillo.X, anillo.Y + anillo.Height / 2, anillo.Width, 22);
                 g.DrawString("disponible", texto, Brushes.SlateGray, subtitulo, centro);
             }
-            using (Font leyenda = new Font("Segoe UI", 7F))
+            using (Font leyenda = new Font("Segoe UI", 9F))
             using (StringFormat centro = new StringFormat { Alignment = StringAlignment.Center })
             {
                 int y = anillo.Bottom + 5;

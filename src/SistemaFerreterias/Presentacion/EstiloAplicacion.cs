@@ -1,7 +1,8 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System;
+using System.Linq;
 
 namespace Presentacion
 {
@@ -9,21 +10,179 @@ namespace Presentacion
     // CLASE EstiloAplicacion: Aplica estilos visuales compartidos a formularios y controles.
     internal static class EstiloAplicacion
     {
-        internal static readonly Color Fondo = Color.FromArgb(241, 246, 253);
+        internal static readonly Color Fondo = Color.White;
+        internal static readonly Color Marino = Color.FromArgb(15, 35, 65);
         internal static readonly Color Superficie = Color.White;
-        internal static readonly Color Tinta = Color.FromArgb(30, 41, 59);
-        internal static readonly Color Secundario = Color.FromArgb(100, 116, 139);
-        internal static readonly Color Acento = Color.FromArgb(37, 99, 235);
+        internal static readonly Color Tinta = Color.FromArgb(23, 42, 74);
+        internal static readonly Color Secundario = Color.FromArgb(80, 98, 124);
+        internal static readonly Color Acento = Color.FromArgb(25, 55, 98);
+        internal static readonly Color Seleccion = Color.FromArgb(225, 234, 247);
+        internal static readonly Color FondoSuave = Color.FromArgb(237, 242, 250);
 
         // CONFIGURACIÓN: Aplicar
         internal static void Aplicar(Form formulario)
         {
+            formulario.Shown -= AplicarTemaAlMostrar;
+            formulario.Shown += AplicarTemaAlMostrar;
             formulario.BackColor = Fondo;
             formulario.ForeColor = Tinta;
             formulario.Font = new Font("Segoe UI", 9F);
             formulario.MinimumSize = new Size(980, 620);
+            AplicarTablas(formulario.Controls);
+            AplicarPaleta(formulario);
             if (formulario is PantallaGestionBase || formulario is DashboardForms || formulario is ProveedoresForms || formulario is InventariosForms || formulario is KardexForms || formulario is StockForms || formulario is TrasladosForms || formulario is ClientesForms || formulario is EmpleadosForms || formulario is VentasForms || formulario is PagosForms || formulario is UsuariosForms) return;
             AplicarControles(formulario.Controls);
+            AplicarTablas(formulario.Controls);
+        }
+
+        // Estilo común de los listados y detalles, sin cambiar su edición ni selección.
+        internal static void AplicarTablas(Control.ControlCollection controles)
+        {
+            foreach (Control control in controles)
+            {
+                DataGridView tabla = control as DataGridView;
+                if (tabla != null)
+                {
+                    tabla.BackgroundColor = Color.White;
+                    tabla.BorderStyle = BorderStyle.None;
+                    tabla.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+                    tabla.GridColor = Color.FromArgb(234, 240, 240);
+                    tabla.EnableHeadersVisualStyles = false;
+                    tabla.RowHeadersVisible = false;
+                    tabla.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+                    tabla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+                    tabla.ColumnHeadersHeight = 44;
+                    tabla.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+                    tabla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+                    tabla.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino;
+                    tabla.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+                    tabla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                    tabla.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 5, 6, 5);
+                    tabla.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+                    tabla.DefaultCellStyle.BackColor = Color.White;
+                    tabla.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta;
+                    tabla.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
+                    tabla.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
+                    tabla.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5);
+                    tabla.AlternatingRowsDefaultCellStyle.BackColor = Color.White;
+                    tabla.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                    tabla.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+                    tabla.RowTemplate.MinimumHeight = 42;
+                    tabla.RowTemplate.Height = 42;
+                    foreach (DataGridViewRow fila in tabla.Rows)
+                        fila.MinimumHeight = 42;
+                }
+                if (control.HasChildren) AplicarTablas(control.Controls);
+            }
+        }
+
+        private static void AplicarTemaAlMostrar(object sender, EventArgs e)
+        {
+            Form formulario = (Form)sender;
+            AplicarPaleta(formulario);
+            AplicarTablas(formulario.Controls);
+            AjustarTipografia(formulario);
+        }
+
+        // Mantiene contraste en los encabezados marinos y en las tarjetas claras.
+        internal static void AplicarPaleta(Control control)
+        {
+            Control fondo = control;
+            while (fondo.Parent != null && fondo.BackColor.A < 255) fondo = fondo.Parent;
+            Color color = fondo.BackColor;
+            bool oscuro = color.A == 255 && color.R * 0.299 + color.G * 0.587 + color.B * 0.114 < 100;
+            if ((control is Label || control is Button || control is CheckBox) && oscuro)
+                control.ForeColor = Color.White;
+            else if (control is Label && !oscuro && control.ForeColor.GetBrightness() > 0.7F)
+                control.ForeColor = Tinta;
+            foreach (Control hijo in control.Controls) AplicarPaleta(hijo);
+        }
+
+        // Ajusta texto y espacio juntos para evitar recortes con la escala de Windows.
+        internal static void AjustarTipografia(Control control)
+        {
+            if ((control is Label || control is Button || control is CheckBox) && control.Font.SizeInPoints < 9F)
+                control.Font = new Font("Segoe UI", 9F, control.Font.Style);
+            Label etiqueta = control as Label;
+            if (etiqueta != null && !etiqueta.AutoSize && etiqueta.Dock == DockStyle.None)
+            {
+                etiqueta.Height = Math.Max(etiqueta.Height, etiqueta.Font.Height + 4);
+                if (etiqueta.AutoEllipsis && etiqueta.Parent != null)
+                    etiqueta.Width = Math.Max(etiqueta.Width, Math.Min(etiqueta.Parent.ClientSize.Width - etiqueta.Left - 8,
+                        TextRenderer.MeasureText(etiqueta.Text, etiqueta.Font).Width + 6));
+            }
+            Button boton = control as Button;
+            if (boton != null)
+            {
+                boton.Height = Math.Max(boton.Height, boton.Font.Height + 12);
+                FontAwesome.Sharp.IconButton icono = boton as FontAwesome.Sharp.IconButton;
+                if (icono != null && icono.IconChar == FontAwesome.Sharp.IconChar.None)
+                {
+                    boton.TextImageRelation = TextImageRelation.Overlay;
+                    boton.Padding = Padding.Empty;
+                }
+            }
+            foreach (Control hijo in control.Controls) AjustarTipografia(hijo);
+
+            Button anterior = control.Controls.OfType<Button>().FirstOrDefault(b => b.Text.Contains("Anterior"));
+            Button siguiente = control.Controls.OfType<Button>().FirstOrDefault(b => b.Text.Contains("Siguiente"));
+            Label pagina = control.Controls.OfType<Label>().FirstOrDefault();
+            if (anterior != null && siguiente != null && pagina != null)
+            {
+                anterior.Text = "< Anterior"; siguiente.Text = "Siguiente >";
+                anterior.Size = siguiente.Size = new Size(116, 34);
+                pagina.Size = new Size(116, 34);
+                pagina.AutoSize = false; pagina.TextAlign = ContentAlignment.MiddleCenter;
+                FlowLayoutPanel flujo = control as FlowLayoutPanel;
+                if (flujo != null)
+                {
+                    flujo.FlowDirection = FlowDirection.LeftToRight;
+                    flujo.Controls.SetChildIndex(anterior, 0);
+                    flujo.Controls.SetChildIndex(pagina, 1);
+                    flujo.Controls.SetChildIndex(siguiente, 2);
+                    anterior.Margin = pagina.Margin = siguiente.Margin = new Padding(2, 0, 2, 0);
+                }
+                else
+                {
+                    anterior.Location = new Point(0, 3);
+                    pagina.Location = new Point(120, 3);
+                    siguiente.Location = new Point(240, 3);
+                }
+                control.Width = Math.Max(control.Width, 364 + control.Padding.Horizontal);
+                control.Height = Math.Max(control.Height, 42);
+                if (control.Parent != null)
+                {
+                    control.Parent.Height = Math.Max(control.Parent.Height, 48);
+                    TableLayoutPanel distribucion = control.Parent.Parent as TableLayoutPanel;
+                    if (distribucion != null)
+                    {
+                        int filaPie = distribucion.GetRow(control.Parent);
+                        if (filaPie >= 0 && filaPie < distribucion.RowStyles.Count)
+                            distribucion.RowStyles[filaPie].Height = Math.Max(distribucion.RowStyles[filaPie].Height, 48);
+                    }
+                }
+            }
+
+            // Los encabezados con ruta, título y descripción se distribuyen por su alto real.
+            Label[] titulos = control.Controls.OfType<Label>().OrderBy(l => l.Top).ToArray();
+            if (control is Panel && !(control is FlowLayoutPanel) && !(control is TableLayoutPanel) &&
+                titulos.Length == 3 && titulos.Any(l => l.Font.SizeInPoints >= 18F) && titulos.All(l => l.AutoSize))
+            {
+                int y = Math.Max(8, control.Padding.Top);
+                foreach (Label titulo in titulos)
+                {
+                    titulo.Top = y;
+                    y += titulo.PreferredHeight + 6;
+                }
+                TableLayoutPanel tabla = control.Parent as TableLayoutPanel;
+                if (tabla != null)
+                {
+                    int fila = tabla.GetRow(control);
+                    if (fila >= 0 && fila < tabla.RowStyles.Count)
+                        tabla.RowStyles[fila].Height = Math.Max(tabla.RowStyles[fila].Height, y + 10);
+                }
+                else control.Height = Math.Max(control.Height, y + 10);
+            }
         }
 
         // OBTENER RECURSO VISUAL: Carga la imagen compartida del módulo de clientes.
@@ -58,11 +217,11 @@ namespace Presentacion
                 foreach (Control control in contenidoOriginal) contenido.Controls.Add(control);
                 dialogo.Controls.Add(contenido);
 
-                Panel cabecera = new Panel { Name = "cabeceraComunDialogo", Bounds = new Rectangle(0, 0, anchoOriginal, altoCabecera), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, BackColor = Color.FromArgb(16, 31, 43), Padding = new Padding(20, 6, 12, 4) };
+                Panel cabecera = new Panel { Name = "cabeceraComunDialogo", Bounds = new Rectangle(0, 0, anchoOriginal, altoCabecera), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, BackColor = EstiloAplicacion.Marino, Padding = new Padding(20, 6, 12, 4) };
                 Label titulo = new Label { Name = "tituloComunDialogo", Text = dialogo.Text, Dock = DockStyle.Top, Height = 27, Font = new Font("Segoe UI", 12F, FontStyle.Bold), ForeColor = Color.White, TextAlign = ContentAlignment.MiddleLeft };
                 Label subtitulo = new Label { Text = "Completa los campos para continuar.", Dock = DockStyle.Top, Height = 19, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(192, 207, 211), TextAlign = ContentAlignment.MiddleLeft };
-                Button cerrar = new Button { Name = "btnCerrarComunDialogo", Text = "×", Dock = DockStyle.Right, Width = 38, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(16, 31, 43), ForeColor = Color.White, Font = new Font("Segoe UI", 16F), Cursor = Cursors.Hand, TabStop = false };
-                Button cancelar = new Button { Name = "btnCancelarComunDialogo", Text = "Cancelar", Width = 86, Height = 32, Anchor = AnchorStyles.Top | AnchorStyles.Right, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(16, 31, 43), ForeColor = Color.White, Font = new Font("Segoe UI", 8.5F), Cursor = Cursors.Hand, TabStop = false };
+                Button cerrar = new Button { Name = "btnCerrarComunDialogo", Text = "×", Dock = DockStyle.Right, Width = 38, FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Marino, ForeColor = Color.White, Font = new Font("Segoe UI", 16F), Cursor = Cursors.Hand, TabStop = false };
+                Button cancelar = new Button { Name = "btnCancelarComunDialogo", Text = "Cancelar", Width = 86, Height = 32, Anchor = AnchorStyles.Top | AnchorStyles.Right, FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Marino, ForeColor = Color.White, Font = new Font("Segoe UI", 8.5F), Cursor = Cursors.Hand, TabStop = false };
                 cancelar.Location = new Point(anchoOriginal - 146, 15);
                 cerrar.FlatAppearance.BorderSize = 0;
                 cancelar.FlatAppearance.BorderColor = Color.FromArgb(90, 112, 123);
@@ -94,14 +253,17 @@ namespace Presentacion
             if (encabezadoDialogo != null && encabezadoDialogo.Controls["tituloComunDialogo"] != null)
                 encabezadoDialogo.Controls["tituloComunDialogo"].Text = dialogo.Text;
             AplicarEstiloDialogo(dialogo.Controls);
+            AplicarTablas(dialogo.Controls);
+            AplicarPaleta(dialogo);
+            AjustarTipografia(dialogo);
             if (encabezadoDialogo != null && encabezadoDialogo.Controls["btnCerrarComunDialogo"] is Button botonCerrar)
             {
-                botonCerrar.BackColor = Color.FromArgb(16, 31, 43);
+                botonCerrar.BackColor = EstiloAplicacion.Marino;
                 botonCerrar.ForeColor = Color.White;
             }
             if (encabezadoDialogo != null && encabezadoDialogo.Controls["btnCancelarComunDialogo"] is Button botonCancelar)
             {
-                botonCancelar.BackColor = Color.FromArgb(16, 31, 43);
+                botonCancelar.BackColor = EstiloAplicacion.Marino;
                 botonCancelar.ForeColor = Color.White;
             }
         }
@@ -166,14 +328,14 @@ namespace Presentacion
                     grid.BorderStyle = BorderStyle.None;
                     grid.EnableHeadersVisualStyles = false;
                     grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-                    grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(241, 246, 245);
-                    grid.ColumnHeadersDefaultCellStyle.ForeColor = Secundario;
+                    grid.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+                    grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
                     grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
                     grid.DefaultCellStyle.BackColor = Color.White;
                     grid.DefaultCellStyle.ForeColor = Tinta;
-                    grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(220, 240, 235);
+                    grid.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
                     grid.DefaultCellStyle.SelectionForeColor = Tinta;
-                    grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 250);
+                    grid.AlternatingRowsDefaultCellStyle.BackColor = EstiloAplicacion.FondoSuave;
                     grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
                     grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
                     grid.ColumnHeadersHeight = Math.Max(grid.ColumnHeadersHeight, 34);
@@ -195,7 +357,7 @@ namespace Presentacion
                     }
                     else if (textoBoton.Contains("guardar") || textoBoton.Contains("registrar") || textoBoton.Contains("agregar") || textoBoton.Contains("pagar"))
                     {
-                        boton.BackColor = Color.FromArgb(22, 139, 112); boton.ForeColor = Color.White; boton.FlatAppearance.BorderColor = Color.FromArgb(22, 139, 112);
+                        boton.BackColor = EstiloAplicacion.Acento; boton.ForeColor = Color.White; boton.FlatAppearance.BorderColor = EstiloAplicacion.Acento;
                     }
                     else
                     {
@@ -268,8 +430,8 @@ namespace Presentacion
                     grid.BackgroundColor = Color.White;
                     grid.BorderStyle = BorderStyle.None;
                     grid.EnableHeadersVisualStyles = false;
-                    grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(219, 234, 254);
-                    grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(30, 64, 175);
+                    grid.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+                    grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
                     grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
                     grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(191, 219, 254);
                     grid.DefaultCellStyle.SelectionForeColor = Tinta;

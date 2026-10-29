@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -95,7 +95,7 @@ namespace Presentacion
         // AGREGAR: AgregarEncabezado
         private void AgregarEncabezado(string modulo)
         {
-            Panel encabezado = new Panel { Dock = DockStyle.Top, Height = 108, BackColor = Color.FromArgb(241, 246, 253) };
+            Panel encabezado = new Panel { Dock = DockStyle.Top, Height = 108, BackColor = EstiloAplicacion.Fondo };
             Label titulo = new Label { AutoSize = true, Text = modulo, Font = new Font("Segoe UI", 22F, FontStyle.Bold), ForeColor = Color.FromArgb(20, 38, 49), Location = new Point(20, 20) };
             Label subtitulo = new Label { AutoSize = true, Text = DescripcionModulo(modulo), Font = new Font("Segoe UI", 9.5F), ForeColor = Color.FromArgb(117, 134, 143), Location = new Point(22, 68) };
             encabezado.Controls.Add(titulo);
@@ -160,7 +160,7 @@ namespace Presentacion
             bool listaProductos = page.Text == "Productos";
             bool listaCategorias = page.Text == "Categor\u00EDas";
             bool estiloModerno = listaSucursales || listaProductos || listaCategorias;
-            TableLayoutPanel distribucion = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Padding = estiloModerno ? new Padding(12, 2, 12, 12) : new Padding(18, 4, 18, 18), BackColor = Color.FromArgb(241, 246, 245) };
+            TableLayoutPanel distribucion = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Padding = estiloModerno ? new Padding(12, 2, 12, 12) : new Padding(18, 4, 18, 18), BackColor = EstiloAplicacion.Fondo };
             distribucion.RowStyles.Add(new RowStyle(SizeType.Absolute, estiloModerno ? 98F : 82F));
             distribucion.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             page.Controls.Add(distribucion);
@@ -172,27 +172,29 @@ namespace Presentacion
             lista.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             lista.RowStyles.Add(new RowStyle(SizeType.Absolute, estiloModerno ? 40F : 28F));
             Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
-            Label tituloLista = new Label { Text = page.Text + " recientes", Location = new Point(6, 2), AutoSize = true, Font = new Font("Segoe UI", estiloModerno ? 10F : 12F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
-            Label descripcionLista = new Label { Text = estiloModerno ? "Informaci\u00F3n actualizada \u00B7 " + DateTime.Today.ToString("dd MMM yyyy") : "Consulta y administra los registros guardados.", Location = new Point(7, 25), AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) };
+            Label tituloLista = new Label { Text = page.Text + " recientes", Location = new Point(6, 2), AutoSize = true, Font = new Font("Segoe UI", estiloModerno ? 10F : 12F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
+            Label descripcionLista = new Label { Text = estiloModerno ? "Informaci\u00F3n actualizada \u00B7 " + DateTime.Today.ToString("dd MMM yyyy") : "Consulta y administra los registros guardados.", Location = new Point(7, 25), AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             encabezado.Controls.Add(tituloLista);
             encabezado.Controls.Add(descripcionLista);
 
             FlowLayoutPanel barra = new FlowLayoutPanel { Dock = estiloModerno ? DockStyle.Right : DockStyle.Fill, Width = estiloModerno ? (listaProductos ? 475 : 390) : 335, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
-            Button nuevo = new Button { Text = "+ Nuevo registro", Width = estiloModerno ? 112 : 150, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(23, 143, 112), ForeColor = Color.White, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
+            Button nuevo = new Button { Text = "+ Nuevo registro", Width = estiloModerno ? 112 : 150, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Acento, ForeColor = Color.White, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
             nuevo.FlatAppearance.BorderSize = 0;
             if (estiloModerno) Redondear(nuevo, 7);
             nuevo.Click += (s, e) => AbrirNuevoRegistro(page.Text);
             Button eliminar = new Button { Text = "Eliminar", Width = 82, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(254, 242, 242), ForeColor = Color.FromArgb(185, 28, 28), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand, Visible = estiloModerno && (listaSucursales || listaProductos || listaCategorias) };
-            Button editar = new Button { Text = "Editar", Width = 72, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(51, 68, 78), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand, Visible = listaProductos, Enabled = false };
-            editar.Click += (s, e) => EditarProductoSeleccionado();
+            Button editar = new Button { Text = "Editar", Width = 72, Height = 30, Margin = new Padding(6, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Tinta, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand, Visible = listaProductos, Enabled = false };
+            editar.Visible = true;
+            editar.Click += (s, e) => EditarRegistroDePantalla(page.Text,
+                listaProductos ? gridProductos : listaSucursales ? gridSucursales : gridCategorias);
             filtroPantalla = new TextBox { Width = estiloModerno ? 160 : 250, Height = 30, Margin = new Padding(8, 0, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = estiloModerno ? BorderStyle.FixedSingle : BorderStyle.Fixed3D };
             if (estiloModerno)
             {
                 string textoAyuda = listaSucursales ? "Buscar sucursales" : listaProductos ? "Buscar productos" : "Buscar categor\u00EDas";
                 filtroPantalla.Text = textoAyuda;
-                filtroPantalla.ForeColor = Color.FromArgb(135, 151, 156);
-                filtroPantalla.Enter += (s, e) => { if (filtroPantalla.Text == textoAyuda) { filtroPantalla.Clear(); filtroPantalla.ForeColor = Color.FromArgb(45, 64, 70); } };
-                filtroPantalla.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(filtroPantalla.Text)) { filtroPantalla.Text = textoAyuda; filtroPantalla.ForeColor = Color.FromArgb(135, 151, 156); } };
+                filtroPantalla.ForeColor = EstiloAplicacion.Secundario;
+                filtroPantalla.Enter += (s, e) => { if (filtroPantalla.Text == textoAyuda) { filtroPantalla.Clear(); filtroPantalla.ForeColor = EstiloAplicacion.Tinta; } };
+                filtroPantalla.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(filtroPantalla.Text)) { filtroPantalla.Text = textoAyuda; filtroPantalla.ForeColor = EstiloAplicacion.Secundario; } };
                 nuevo.Height = 30;
             }
             DataGridView gridLista = CrearGrid();
@@ -200,14 +202,14 @@ namespace Presentacion
             eliminar.Enabled = false;
             eliminar.Click += (s, e) => EliminarRegistroDePantalla(page.Text, gridLista);
             gridLista.SelectionChanged += (s, e) => eliminar.Enabled = gridLista.CurrentRow != null;
-            gridLista.SelectionChanged += (s, e) => editar.Enabled = listaProductos && gridLista.SelectedRows.Count > 0;
+            gridLista.SelectionChanged += (s, e) => editar.Enabled = gridLista.SelectedRows.Count == 1;
             filtroPantalla.TextChanged += (s, e) => AplicarFiltroPantalla(page.Text, gridLista);
             barra.Controls.Add(nuevo);
             barra.Controls.Add(eliminar);
             barra.Controls.Add(editar);
             barra.Controls.Add(filtroPantalla);
             pieLista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
-            lblTotalRegistros = new Label { Dock = DockStyle.Left, Width = 220, TextAlign = ContentAlignment.MiddleLeft, ForeColor = Color.FromArgb(119, 136, 145), Font = new Font("Segoe UI", 8.5F) };
+            lblTotalRegistros = new Label { Dock = DockStyle.Left, Width = 220, TextAlign = ContentAlignment.MiddleLeft, ForeColor = EstiloAplicacion.Secundario, Font = new Font("Segoe UI", 8.5F) };
             pieLista.Controls.Add(lblTotalRegistros);
             gridLista.DataBindingComplete += (s, e) => lblTotalRegistros.Text = "Total de registros: " + gridLista.Rows.Count;
             if (estiloModerno)
@@ -227,10 +229,34 @@ namespace Presentacion
             editorDialog = new Form { Text = page.Text + " · Nuevo registro", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(ancho, alto), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
             Panel editor = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(18), BackColor = Color.White };
             editorDialog.Controls.Add(editor);
+            BarraListado.Configurar(gridLista, filtroPantalla, page.Text,
+                () => EditarRegistroDePantalla(page.Text, gridLista));
             Panel acciones = new Panel { Dock = DockStyle.Bottom, Height = 62, BackColor = Color.FromArgb(247, 250, 250), Padding = new Padding(18, 12, 18, 10) };
             Button cerrar = new Button { Text = "Cancelar", Width = 110, Height = 34, Dock = DockStyle.Right, DialogResult = DialogResult.Cancel };
             acciones.Controls.Add(cerrar); editorDialog.Controls.Add(acciones); editorDialog.CancelButton = cerrar;
             return editor;
+        }
+
+        private void EditarRegistroDePantalla(string modulo, DataGridView grid)
+        {
+            DataRowView fila = grid.CurrentRow.DataBoundItem as DataRowView;
+            if (fila == null) return;
+            if (modulo == "Productos") { EditarProductoSeleccionado(); return; }
+            if (modulo == "Sucursales")
+            {
+                sucId = Convert.ToInt32(fila["Codigo"]);
+                sucNombre.Text = Convert.ToString(fila["Nombre"]);
+                sucDireccion.Text = Convert.ToString(fila["Direccion"]);
+                sucTelefono.Text = Convert.ToString(fila["Telefono"]);
+                sucActivo.Checked = Convert.ToBoolean(fila["Activo"]);
+            }
+            else
+            {
+                catId = Convert.ToInt32(fila["Codigo"]);
+                catNombre.Text = Convert.ToString(fila["Nombre"]);
+                catDescripcion.Text = Convert.ToString(fila["Descripcion"]);
+            }
+            AbrirEditor(modulo + " · Editar registro");
         }
 
         // ELIMINAR: EliminarRegistroDePantalla
@@ -326,9 +352,9 @@ namespace Presentacion
                 Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 0 ? 0 : 8, 0, 8, 0), Padding = new Padding(16, 10, 8, 7) };
                 if (estiloSucursales)
                 {
-                    Label icono = new Label { Text = i == 0 ? "\u2302" : i == 1 ? "\u25F7" : "\u25A4", Location = new Point(13, 12), Size = new Size(29, 29), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 1 ? Color.FromArgb(91, 130, 238) : Color.FromArgb(35, 184, 139), BackColor = Color.FromArgb(237, 249, 246) };
-                    titulosEstadisticas[i] = new Label { Left = 52, Top = 13, AutoSize = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(113, 134, 141), Tag = "stat-title" };
-                    valoresEstadisticas[i] = new Label { Left = 52, Top = 34, AutoSize = true, Font = new Font("Segoe UI", 18F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53), Tag = "stat-value" };
+                    Label icono = new Label { Text = i == 0 ? "\u2302" : i == 1 ? "\u25F7" : "\u25A4", Location = new Point(13, 12), Size = new Size(29, 29), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 1 ? Color.FromArgb(91, 130, 238) : EstiloAplicacion.Acento, BackColor = EstiloAplicacion.FondoSuave };
+                    titulosEstadisticas[i] = new Label { Left = 52, Top = 13, AutoSize = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario, Tag = "stat-title" };
+                    valoresEstadisticas[i] = new Label { Left = 52, Top = 34, AutoSize = true, Font = new Font("Segoe UI", 18F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta, Tag = "stat-value" };
                     tarjeta.Controls.Add(icono);
                     tarjeta.Controls.Add(titulosEstadisticas[i]);
                     tarjeta.Controls.Add(valoresEstadisticas[i]);
@@ -337,8 +363,8 @@ namespace Presentacion
                 }
                 else
                 {
-                    titulosEstadisticas[i] = new Label { Dock = DockStyle.Top, Height = 20, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(119, 136, 145), Tag = "stat-title" };
-                    valoresEstadisticas[i] = new Label { Dock = DockStyle.Top, Height = 35, Font = new Font("Segoe UI", 18F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53), Tag = "stat-value" };
+                    titulosEstadisticas[i] = new Label { Dock = DockStyle.Top, Height = 20, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario, Tag = "stat-title" };
+                    valoresEstadisticas[i] = new Label { Dock = DockStyle.Top, Height = 35, Font = new Font("Segoe UI", 18F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta, Tag = "stat-value" };
                     tarjeta.Controls.Add(valoresEstadisticas[i]);
                     tarjeta.Controls.Add(titulosEstadisticas[i]);
                 }
@@ -382,7 +408,7 @@ namespace Presentacion
         private void AplicarEstiloGestion()
         {
             bool esSucursales = Text == "Sucursales";
-            BackColor = esSucursales ? Color.FromArgb(241, 246, 245) : Color.FromArgb(246, 249, 250);
+            BackColor = esSucursales ? EstiloAplicacion.Fondo : Color.FromArgb(246, 249, 250);
             AplicarEstiloGestion(Controls, esSucursales);
         }
         // CONFIGURACIÓN: AplicarEstiloGestion
@@ -393,17 +419,17 @@ namespace Presentacion
                 Panel panel = control as Panel;
                 if (panel != null) panel.BackColor = Color.White;
                 TabControl pestanas = control as TabControl;
-                if (pestanas != null) pestanas.BackColor = esSucursales ? Color.FromArgb(241, 246, 245) : Color.FromArgb(241, 246, 253);
+                if (pestanas != null) pestanas.BackColor = esSucursales ? EstiloAplicacion.Fondo : EstiloAplicacion.Fondo;
                 TabPage pagina = control as TabPage;
-                if (pagina != null) pagina.BackColor = esSucursales ? Color.FromArgb(241, 246, 245) : Color.FromArgb(241, 246, 253);
+                if (pagina != null) pagina.BackColor = esSucursales ? EstiloAplicacion.Fondo : EstiloAplicacion.Fondo;
                 TableLayoutPanel tabla = control as TableLayoutPanel;
-                if (tabla != null) tabla.BackColor = esSucursales ? Color.FromArgb(241, 246, 245) : Color.FromArgb(241, 246, 253);
+                if (tabla != null) tabla.BackColor = esSucursales ? EstiloAplicacion.Fondo : EstiloAplicacion.Fondo;
                 Label etiqueta = control as Label;
                 if (etiqueta != null && etiqueta.Font.Size < 14F && etiqueta.Tag as string != "stat-title" && etiqueta.Tag as string != "list-title") etiqueta.ForeColor = Color.FromArgb(89, 107, 117);
                 TextBox texto = control as TextBox;
-                if (texto != null) { texto.BorderStyle = BorderStyle.FixedSingle; texto.BackColor = Color.White; texto.ForeColor = Color.FromArgb(23, 43, 53); }
+                if (texto != null) { texto.BorderStyle = BorderStyle.FixedSingle; texto.BackColor = Color.White; texto.ForeColor = EstiloAplicacion.Tinta; }
                 ComboBox combo = control as ComboBox;
-                if (combo != null) { combo.FlatStyle = FlatStyle.Flat; combo.BackColor = Color.White; combo.ForeColor = Color.FromArgb(23, 43, 53); }
+                if (combo != null) { combo.FlatStyle = FlatStyle.Flat; combo.BackColor = Color.White; combo.ForeColor = EstiloAplicacion.Tinta; }
                 NumericUpDown numero = control as NumericUpDown;
                 if (numero != null) { numero.BorderStyle = BorderStyle.FixedSingle; numero.BackColor = Color.White; }
                 DataGridView grid = control as DataGridView;
@@ -413,14 +439,14 @@ namespace Presentacion
                     grid.BorderStyle = BorderStyle.None;
                     grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
                     grid.EnableHeadersVisualStyles = false;
-                    grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(245, 248, 248);
-                    grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(119, 136, 145);
-                    grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
+                    grid.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+                    grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+                    grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
                     grid.DefaultCellStyle.BackColor = Color.White;
                     grid.DefaultCellStyle.Padding = new Padding(8, 2, 4, 2);
                     grid.DefaultCellStyle.ForeColor = Color.FromArgb(67, 87, 94);
                     grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(232, 248, 241);
-                    grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(23, 43, 53);
+                    grid.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
                     grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 252, 252);
                     grid.GridColor = Color.FromArgb(237, 241, 242);
                     grid.ColumnHeadersHeight = 36;
@@ -442,14 +468,14 @@ namespace Presentacion
                     }
                     else if (nombreBoton.Contains("guardar") || nombreBoton.Contains("buscar") || nombreBoton.Contains("agregar") || nombreBoton.Contains("nuevo"))
                     {
-                        boton.BackColor = Color.FromArgb(22, 134, 106);
+                        boton.BackColor = EstiloAplicacion.Acento;
                         boton.ForeColor = Color.White;
-                        boton.FlatAppearance.BorderColor = Color.FromArgb(22, 134, 106);
+                        boton.FlatAppearance.BorderColor = EstiloAplicacion.Acento;
                     }
                     else
                     {
                         boton.BackColor = Color.White;
-                        boton.ForeColor = Color.FromArgb(51, 68, 78);
+                        boton.ForeColor = EstiloAplicacion.Tinta;
                     }
                 }
                 if (control.HasChildren) AplicarEstiloGestion(control.Controls, esSucursales);
@@ -467,7 +493,7 @@ namespace Presentacion
             TabPage page = new TabPage("Categor\u00EDas"); AgregarPagina(page); Panel p = Lateral(page, out gridCategorias, 240);
             Panel barraPaginas = new Panel { Dock = DockStyle.Right, Width = 325, BackColor = Color.White };
             btnCategoriaAnterior = new Button { Text = "\u2039 Anterior", Left = 0, Top = 4, Width = 90, Height = 32, Enabled = false };
-            lblPaginaCategorias = new Label { Text = "P\u00E1gina 1 de 1", Left = 94, Top = 8, Width = 115, Height = 20, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.FromArgb(92, 111, 119), Font = new Font("Segoe UI", 8F) };
+            lblPaginaCategorias = new Label { Text = "P\u00E1gina 1 de 1", Left = 94, Top = 8, Width = 115, Height = 20, TextAlign = ContentAlignment.MiddleCenter, ForeColor = EstiloAplicacion.Secundario, Font = new Font("Segoe UI", 8F) };
             btnCategoriaSiguiente = new Button { Text = "Siguiente \u203A", Left = 211, Top = 4, Width = 100, Height = 32, Enabled = false };
             btnCategoriaAnterior.Click += (s, e) => CambiarPaginaCategoria(-1);
             btnCategoriaSiguiente.Click += (s, e) => CambiarPaginaCategoria(1);
@@ -558,15 +584,15 @@ namespace Presentacion
             gridCategorias.EnableHeadersVisualStyles = false;
             gridCategorias.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             gridCategorias.ColumnHeadersHeight = 34;
-            gridCategorias.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
-            gridCategorias.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131);
-            gridCategorias.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
-            gridCategorias.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White;
-            gridCategorias.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(102, 123, 131);
+            gridCategorias.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+            gridCategorias.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            gridCategorias.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            gridCategorias.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino;
+            gridCategorias.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
             gridCategorias.DefaultCellStyle.Font = new Font("Segoe UI", 8.5F);
-            gridCategorias.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77);
-            gridCategorias.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241);
-            gridCategorias.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56);
+            gridCategorias.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta;
+            gridCategorias.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
+            gridCategorias.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
             gridCategorias.DefaultCellStyle.Padding = new Padding(5, 5, 5, 5);
             gridCategorias.RowTemplate.Height = 42;
             gridCategorias.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -582,7 +608,7 @@ namespace Presentacion
             TabPage page = new TabPage("Productos"); AgregarPagina(page); Panel p = Lateral(page, out gridProductos, 270);
             Panel barraPaginas = new Panel { Dock = DockStyle.Right, Width = 325, BackColor = Color.White };
             btnProductoAnterior = new Button { Text = "\u2039 Anterior", Left = 0, Top = 4, Width = 90, Height = 32, Enabled = false };
-            lblPaginaProductos = new Label { Text = "P\u00E1gina 1 de 1", Left = 94, Top = 8, Width = 115, Height = 20, TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.FromArgb(92, 111, 119), Font = new Font("Segoe UI", 8F) };
+            lblPaginaProductos = new Label { Text = "P\u00E1gina 1 de 1", Left = 94, Top = 8, Width = 115, Height = 20, TextAlign = ContentAlignment.MiddleCenter, ForeColor = EstiloAplicacion.Secundario, Font = new Font("Segoe UI", 8F) };
             btnProductoSiguiente = new Button { Text = "Siguiente \u203A", Left = 211, Top = 4, Width = 100, Height = 32, Enabled = false };
             btnProductoAnterior.Click += (s, e) => CambiarPaginaProducto(-1);
             btnProductoSiguiente.Click += (s, e) => CambiarPaginaProducto(1);
@@ -696,15 +722,15 @@ namespace Presentacion
             gridProductos.EnableHeadersVisualStyles = false;
             gridProductos.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             gridProductos.ColumnHeadersHeight = 34;
-            gridProductos.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
-            gridProductos.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131);
-            gridProductos.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
-            gridProductos.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White;
-            gridProductos.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(102, 123, 131);
+            gridProductos.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+            gridProductos.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            gridProductos.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            gridProductos.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino;
+            gridProductos.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
             gridProductos.DefaultCellStyle.Font = new Font("Segoe UI", 8.5F);
-            gridProductos.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77);
-            gridProductos.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241);
-            gridProductos.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56);
+            gridProductos.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta;
+            gridProductos.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
+            gridProductos.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
             gridProductos.DefaultCellStyle.Padding = new Padding(5, 5, 5, 5);
             gridProductos.RowTemplate.Height = 42;
             gridProductos.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -750,7 +776,7 @@ namespace Presentacion
                 bool activa = Convert.ToBoolean(e.Value);
                 e.Value = activa ? "Activa" : "Inactiva";
                 e.FormattingApplied = true;
-                e.CellStyle.ForeColor = activa ? Color.FromArgb(22, 151, 113) : Color.FromArgb(160, 107, 102);
+                e.CellStyle.ForeColor = activa ? EstiloAplicacion.Acento : Color.FromArgb(160, 107, 102);
             };
             gridSucursales.CellDoubleClick += (s,e)=>{if(e.RowIndex<0)return;DataRowView r=gridSucursales.Rows[e.RowIndex].DataBoundItem as DataRowView;if(r==null)return;sucId=Convert.ToInt32(r["Codigo"]);sucNombre.Text=Convert.ToString(r["Nombre"]);sucDireccion.Text=Convert.ToString(r["Direccion"]);sucTelefono.Text=Convert.ToString(r["Telefono"]);sucActivo.Checked=Convert.ToBoolean(r["Activo"]);AbrirEditor("Sucursales · Editar registro");};
         }
@@ -758,7 +784,7 @@ namespace Presentacion
         private void ConstruirCompras()
         {
             TabPage page=new TabPage("Compras");AgregarPagina(page);
-            TableLayoutPanel contenedor = new TableLayoutPanel { Dock=DockStyle.Fill, ColumnCount=1, RowCount=2, Padding=new Padding(12, 2, 12, 12), BackColor=Color.FromArgb(241, 246, 245) };
+            TableLayoutPanel contenedor = new TableLayoutPanel { Dock=DockStyle.Fill, ColumnCount=1, RowCount=2, Padding=new Padding(12, 2, 12, 12), BackColor=EstiloAplicacion.Fondo };
             contenedor.RowStyles.Add(new RowStyle(SizeType.Absolute, 98F));
             contenedor.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             contenedor.Controls.Add(CrearTarjetasEstadisticas(true), 0, 0);
@@ -786,8 +812,8 @@ namespace Presentacion
 
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             layout.Controls.Add(panelHistorial, 0, 0);
-            dialogoCompra = new Form { Text = "Nueva compra", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(980, 560), BackColor = Color.FromArgb(241, 246, 245), Font = new Font("Segoe UI", 9F) };
-            TableLayoutPanel formularioCompra = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(14), BackColor = Color.FromArgb(241, 246, 245) };
+            dialogoCompra = new Form { Text = "Nueva compra", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(980, 560), BackColor = EstiloAplicacion.Fondo, Font = new Font("Segoe UI", 9F) };
+            TableLayoutPanel formularioCompra = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(14), BackColor = EstiloAplicacion.Fondo };
             formularioCompra.RowStyles.Add(new RowStyle(SizeType.Absolute, 145F));
             formularioCompra.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             formularioCompra.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
@@ -804,14 +830,14 @@ namespace Presentacion
         {
             Panel panel = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(8) };
             Panel encabezado = new Panel { Dock = DockStyle.Top, Height = 44, BackColor = Color.White };
-            Label titulo = new Label { Text = "Compras recientes", Left = 4, Top = 1, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
-            Label descripcion = new Label { Text = "Historial de compras y recepción", Left = 5, Top = 23, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) };
+            Label titulo = new Label { Text = "Compras recientes", Left = 4, Top = 1, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
+            Label descripcion = new Label { Text = "Historial de compras y recepción", Left = 5, Top = 23, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 515, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
-            filtroCompras = new TextBox { Width = 190, Height = 28, Margin = new Padding(8, 0, 0, 0), Text = "Buscar compras", ForeColor = Color.FromArgb(135, 151, 156), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle };
-            filtroCompras.Enter += (s, e) => { if (filtroCompras.Text == "Buscar compras") { filtroCompras.Clear(); filtroCompras.ForeColor = Color.FromArgb(45, 64, 70); } };
-            filtroCompras.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(filtroCompras.Text)) { filtroCompras.Text = "Buscar compras"; filtroCompras.ForeColor = Color.FromArgb(135, 151, 156); } };
+            filtroCompras = new TextBox { Width = 190, Height = 28, Margin = new Padding(8, 0, 0, 0), Text = "Buscar compras", ForeColor = EstiloAplicacion.Secundario, Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle };
+            filtroCompras.Enter += (s, e) => { if (filtroCompras.Text == "Buscar compras") { filtroCompras.Clear(); filtroCompras.ForeColor = EstiloAplicacion.Tinta; } };
+            filtroCompras.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(filtroCompras.Text)) { filtroCompras.Text = "Buscar compras"; filtroCompras.ForeColor = EstiloAplicacion.Secundario; } };
             filtroCompras.TextChanged += (s, e) => FiltrarComprasDePantalla();
-            btnNuevoCompra = new Button { Text = "+ Nuevo registro", Width = 128, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(23, 143, 112), ForeColor = Color.White, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
+            btnNuevoCompra = new Button { Text = "+ Nuevo registro", Width = 128, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Acento, ForeColor = Color.White, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
             btnNuevoCompra.FlatAppearance.BorderSize = 0;
             btnNuevoCompra.Click += (s, e) =>
             {
@@ -831,10 +857,10 @@ namespace Presentacion
             encabezado.Controls.Add(titulo); encabezado.Controls.Add(descripcion); encabezado.Controls.Add(acciones);
             gridHistorialCompras = CrearGrid();
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
-            lblTotalCompras = new Label { Dock = DockStyle.Left, Width = 260, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };
+            lblTotalCompras = new Label { Dock = DockStyle.Left, Width = 260, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel paginacion = new Panel { Dock = DockStyle.Right, Width = 300, BackColor = Color.White };
             btnCompraAnterior = new Button { Text = "‹ Anterior", Left = 0, Top = 4, Width = 94, Height = 32, Enabled = false };
-            lblPaginaCompras = new Label { Text = "Página 1 de 1", Left = 96, Top = 6, Width = 102, Height = 18, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(92, 111, 119) };
+            lblPaginaCompras = new Label { Text = "Página 1 de 1", Left = 96, Top = 6, Width = 102, Height = 18, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             btnCompraSiguiente = new Button { Text = "Siguiente ›", Left = 200, Top = 4, Width = 96, Height = 32, Enabled = false };
             btnCompraAnterior.Click += (s, e) => CambiarPaginaCompra(-1);
             btnCompraSiguiente.Click += (s, e) => CambiarPaginaCompra(1);
@@ -855,6 +881,7 @@ namespace Presentacion
             consulta.Controls.Add(panelDetalle, 0, 1);
             gridHistorialCompras.SelectionChanged += (s, e) => { CargarDetalleCompraSeleccionada(); ActualizarBotonEditarCompra(); };
             panel.Controls.Add(consulta); panel.Controls.Add(pie); panel.Controls.Add(encabezado);
+            BarraListado.Configurar(gridHistorialCompras, filtroCompras, "Compras");
             Redondear(panel, 12);
             return panel;
         }
@@ -910,14 +937,14 @@ namespace Presentacion
             gridHistorialCompras.EnableHeadersVisualStyles = false;
             gridHistorialCompras.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             gridHistorialCompras.ColumnHeadersHeight = 32;
-            gridHistorialCompras.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
-            gridHistorialCompras.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131);
-            gridHistorialCompras.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
-            gridHistorialCompras.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White;
+            gridHistorialCompras.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+            gridHistorialCompras.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            gridHistorialCompras.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            gridHistorialCompras.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino;
             gridHistorialCompras.DefaultCellStyle.Font = new Font("Segoe UI", 8.5F);
-            gridHistorialCompras.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77);
-            gridHistorialCompras.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241);
-            gridHistorialCompras.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56);
+            gridHistorialCompras.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta;
+            gridHistorialCompras.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
+            gridHistorialCompras.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
             gridHistorialCompras.DefaultCellStyle.Padding = new Padding(5, 4, 5, 4);
             gridHistorialCompras.RowTemplate.Height = 36;
             if (gridHistorialCompras.Columns.Contains("Codigo")) gridHistorialCompras.Columns["Codigo"].HeaderText = "COMPRA";
@@ -1257,14 +1284,14 @@ namespace Presentacion
             gridSucursales.EnableHeadersVisualStyles = false;
             gridSucursales.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             gridSucursales.ColumnHeadersHeight = 30;
-            gridSucursales.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
-            gridSucursales.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131);
+            gridSucursales.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+            gridSucursales.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             gridSucursales.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 7F, FontStyle.Bold);
-            gridSucursales.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White;
+            gridSucursales.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino;
             gridSucursales.DefaultCellStyle.Font = new Font("Segoe UI", 8F);
-            gridSucursales.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77);
-            gridSucursales.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241);
-            gridSucursales.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56);
+            gridSucursales.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta;
+            gridSucursales.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
+            gridSucursales.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
             gridSucursales.DefaultCellStyle.Padding = new Padding(4, 7, 4, 7);
             gridSucursales.RowTemplate.Height = 44;
             gridSucursales.AlternatingRowsDefaultCellStyle.BackColor = Color.White;

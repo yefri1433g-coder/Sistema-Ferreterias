@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -50,16 +50,17 @@ namespace Presentacion
             dgvStock.CellDoubleClick -= dgv_CellDoubleClick;
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoStock();
+            BarraListado.Configurar(_gridStockResumen, _buscarStockResumen, "Stock");
             PrepararDialogoStock();
         }
 
         // CONFIGURACIÓN: PrepararDisenoStock
         private void PrepararDisenoStock()
         {
-            Color fondo = Color.FromArgb(241, 246, 245);
-            Color tinta = Color.FromArgb(23, 43, 53);
+            Color fondo = EstiloAplicacion.Fondo;
+            Color tinta = EstiloAplicacion.Tinta;
             Color secundaria = Color.FromArgb(117, 134, 143);
-            Color verde = Color.FromArgb(35, 184, 139);
+            Color verde = EstiloAplicacion.Acento;
 
             BackColor = fondo;
             tabPage1.Padding = Padding.Empty;
@@ -80,9 +81,9 @@ namespace Presentacion
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 120F));
             pantalla.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = fondo };
-            encabezado.Controls.Add(new Label { Text = "Inicio  /  Stock", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(102, 123, 131) });
+            encabezado.Controls.Add(new Label { Text = "Inicio  /  Stock", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
             encabezado.Controls.Add(new Label { Text = "Stock", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = tinta });
-            encabezado.Controls.Add(new Label { Text = "Existencias por sucursal; cada movimiento queda registrado en Kardex.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(102, 123, 131) });
+            encabezado.Controls.Add(new Label { Text = "Existencias por sucursal; cada movimiento queda registrado en Kardex.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = EstiloAplicacion.Secundario });
 
             Panel resumen = new Panel { Dock = DockStyle.Fill, BackColor = fondo, Padding = new Padding(0, 0, 0, 10) };
             TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = fondo };
@@ -91,8 +92,8 @@ namespace Presentacion
             {
                 tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F));
                 Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 0 ? 0 : 8, 0, 8, 0) };
-                Label icono = new Label { Text = i == 0 ? "↗" : i == 1 ? "◷" : "≡", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : verde, BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : Color.FromArgb(237, 249, 246) };
-                Label tituloTarjeta = new Label { Text = titulos[i], Left = 14, Top = 42, Height = 18, AutoEllipsis = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(113, 134, 141) };
+                Label icono = new Label { Text = i == 0 ? "↗" : i == 1 ? "◷" : "≡", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : verde, BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : EstiloAplicacion.FondoSuave };
+                Label tituloTarjeta = new Label { Text = titulos[i], Left = 14, Top = 42, AutoSize = true, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario };
                 _resumenStock[i] = new Label { Text = "0", Left = 14, Top = 62, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = tinta };
                 _detalleResumenStock[i] = new Label { Visible = false };
                 tarjeta.Controls.Add(icono);
@@ -111,11 +112,11 @@ namespace Presentacion
             tabla.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             Panel barra = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
             barra.Controls.Add(new Label { Text = "Existencias por producto y sucursal", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = tinta });
-            barra.Controls.Add(new Label { Text = "Consulta, filtra y administra el stock desde esta pantalla", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            barra.Controls.Add(new Label { Text = "Consulta, filtra y administra el stock desde esta pantalla", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 38, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 2, 0, 0) };
-            _buscarStockResumen = new TextBox { Width = 180, Height = 28, Margin = new Padding(0, 1, 5, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar stock", ForeColor = Color.FromArgb(135, 151, 156), BackColor = Color.White };
-            _buscarStockResumen.Enter += (s, e) => { if (_buscarStockResumen.Text == "Buscar stock") { _buscarStockResumen.Clear(); _buscarStockResumen.ForeColor = Color.FromArgb(45, 64, 70); } };
-            _buscarStockResumen.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarStockResumen.Text)) { _buscarStockResumen.Text = "Buscar stock"; _buscarStockResumen.ForeColor = Color.FromArgb(135, 151, 156); } };
+            _buscarStockResumen = new TextBox { Width = 180, Height = 28, Margin = new Padding(0, 1, 5, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar stock", ForeColor = EstiloAplicacion.Secundario, BackColor = Color.White };
+            _buscarStockResumen.Enter += (s, e) => { if (_buscarStockResumen.Text == "Buscar stock") { _buscarStockResumen.Clear(); _buscarStockResumen.ForeColor = EstiloAplicacion.Tinta; } };
+            _buscarStockResumen.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarStockResumen.Text)) { _buscarStockResumen.Text = "Buscar stock"; _buscarStockResumen.ForeColor = EstiloAplicacion.Secundario; } };
             _buscarStockResumen.TextChanged += (s, e) => { _paginaActualStock = 1; FiltrarStockResumen(); };
             Button limpiar = CrearBotonStock("Limpiar", false); limpiar.Width = 80; limpiar.Height = 30; limpiar.Click += (s, e) => { _buscarStockResumen.Text = ""; _buscarStockResumen.Focus(); };
             _seleccionarTodoStock = new CheckBox { Text = "Seleccionar", AutoSize = true, Margin = new Padding(8, 7, 2, 0), Font = new Font("Segoe UI", 8F), ForeColor = tinta };
@@ -139,16 +140,16 @@ namespace Presentacion
             acciones.Controls.Add(nuevo);
             barra.Controls.Add(acciones);
 
-            _gridStockResumen = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(233, 239, 241), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 40, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true, Font = new Font("Segoe UI", 9F) };
+            _gridStockResumen = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = EstiloAplicacion.Fondo, EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 40, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true, Font = new Font("Segoe UI", 9F) };
             _gridStockResumen.SelectionChanged += (s, e) => ActualizarEstadoBotonEditarStock();
-            _gridStockResumen.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
-            _gridStockResumen.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131);
-            _gridStockResumen.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
-            _gridStockResumen.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White;
-            _gridStockResumen.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(102, 123, 131);
-            _gridStockResumen.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77);
-            _gridStockResumen.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241);
-            _gridStockResumen.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56);
+            _gridStockResumen.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino;
+            _gridStockResumen.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            _gridStockResumen.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            _gridStockResumen.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino;
+            _gridStockResumen.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            _gridStockResumen.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta;
+            _gridStockResumen.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion;
+            _gridStockResumen.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta;
             _gridStockResumen.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5);
             _gridStockResumen.AlternatingRowsDefaultCellStyle.BackColor = Color.White;
             _gridStockResumen.RowTemplate.Height = 42;
@@ -156,14 +157,14 @@ namespace Presentacion
             {
                 if (e.RowIndex < 0 || _gridStockResumen.Columns[e.ColumnIndex].Name != "Estado" || e.Value == null) return;
                 string estado = Convert.ToString(e.Value);
-                e.CellStyle.ForeColor = estado == "Correcto" ? Color.FromArgb(22, 151, 113) : estado == "Bajo" ? Color.FromArgb(190, 127, 42) : Color.FromArgb(193, 78, 78);
+                e.CellStyle.ForeColor = estado == "Correcto" ? EstiloAplicacion.Acento : estado == "Bajo" ? Color.FromArgb(190, 127, 42) : Color.FromArgb(193, 78, 78);
             };
             Panel pie = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
             _totalStockResumen = new Label { Dock = DockStyle.Left, Width = 320, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = secundaria };
             FlowLayoutPanel pagina = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 310, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, Padding = new Padding(0, 4, 0, 0), BackColor = Color.White };
             _siguienteStock = CrearBotonPaginacionStock("Siguiente ›"); _siguienteStock.Click += (s, e) => CambiarPaginaStock(1);
             _anteriorStock = CrearBotonPaginacionStock("‹ Anterior"); _anteriorStock.Click += (s, e) => CambiarPaginaStock(-1);
-            _paginaStock = new Label { Width = 70, Height = 24, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(92, 111, 119) };
+            _paginaStock = new Label { Width = 70, Height = 24, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             pagina.Controls.Add(_siguienteStock); pagina.Controls.Add(_paginaStock); pagina.Controls.Add(_anteriorStock);
             pie.Controls.Add(_totalStockResumen); pie.Controls.Add(pagina);
             tabla.Controls.Add(barra, 0, 0);
@@ -255,9 +256,9 @@ namespace Presentacion
             campos.Controls.Add(CrearCampoEditorStock("Cantidad", _nudCantidadEditorStock), 0, 1);
             campos.Controls.Add(CrearCampoEditorStock("Stock mínimo", _nudMinimoEditorStock), 1, 1);
 
-            _guardarEditorStock = CrearBotonEditorStock("Guardar", Color.FromArgb(23, 143, 112), Color.White);
+            _guardarEditorStock = CrearBotonEditorStock("Guardar", EstiloAplicacion.Acento, Color.White);
             _guardarEditorStock.Click += (s, e) => btnGuardar_Click(s, e);
-            _limpiarEditorStock = CrearBotonEditorStock("Limpiar", Color.White, Color.FromArgb(23, 43, 53));
+            _limpiarEditorStock = CrearBotonEditorStock("Limpiar", Color.White, EstiloAplicacion.Tinta);
             _limpiarEditorStock.FlatAppearance.BorderColor = Color.FromArgb(215, 225, 228);
             _limpiarEditorStock.Click += (s, e) => btnLimpiar_Click(s, e);
             FlowLayoutPanel acciones = new FlowLayoutPanel
@@ -307,7 +308,7 @@ namespace Presentacion
             {
                 Text = titulo,
                 Dock = DockStyle.Fill,
-                ForeColor = Color.FromArgb(102, 123, 131),
+                ForeColor = EstiloAplicacion.Secundario,
                 Font = new Font("Segoe UI", 8.5F)
             }, 0, 0);
             campo.Dock = DockStyle.Fill;
@@ -443,7 +444,7 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBotonPaginacionStock
         private static Button CrearBotonPaginacionStock(string texto)
         {
-            Button boton = new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105), Font = new Font("Segoe UI", 8F), Cursor = Cursors.Hand };
+            Button boton = new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento, Font = new Font("Segoe UI", 8F), Cursor = Cursors.Hand };
             boton.FlatAppearance.BorderSize = 1;
             boton.FlatAppearance.BorderColor = Color.FromArgb(219, 228, 232);
             boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(239, 248, 244);
@@ -508,14 +509,14 @@ namespace Presentacion
                 Height = 34,
                 Margin = new Padding(8, 0, 0, 0),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White,
+                BackColor = principal ? EstiloAplicacion.Acento : Color.White,
                 ForeColor = principal ? Color.White : Color.FromArgb(62, 81, 89),
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
                 Cursor = Cursors.Hand
             };
             boton.FlatAppearance.BorderSize = principal ? 0 : 1;
             boton.FlatAppearance.BorderColor = Color.FromArgb(219, 228, 232);
-            boton.FlatAppearance.MouseOverBackColor = principal ? Color.FromArgb(18, 113, 88) : Color.FromArgb(245, 248, 249);
+            boton.FlatAppearance.MouseOverBackColor = principal ? EstiloAplicacion.Acento : Color.FromArgb(245, 248, 249);
             return boton;
         }
 

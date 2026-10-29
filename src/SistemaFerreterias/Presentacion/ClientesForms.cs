@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -37,6 +37,7 @@ namespace Presentacion
             EstiloAplicacion.Aplicar(this);
             txtNombre.KeyDown += txtNombre_KeyDown;
             PrepararDisenoClientes();
+            BarraListado.Configurar(_gridClientesVista, _buscarClientesVista, "Clientes", () => AbrirEditorCliente(_gridClientesVista.CurrentRow.Tag as Cliente));
         }
 
         // CONFIGURACIÓN: PrepararDisenoClientes
@@ -47,53 +48,53 @@ namespace Presentacion
             Controls.Clear();
 
             _pestanasClientes = new TabControl { Dock = DockStyle.Fill, Appearance = TabAppearance.FlatButtons, ItemSize = new Size(0, 1), SizeMode = TabSizeMode.Fixed };
-            TabPage resumen = new TabPage("Clientes") { BackColor = Color.FromArgb(241, 246, 245), Padding = new Padding(0) };
+            TabPage resumen = new TabPage("Clientes") { BackColor = EstiloAplicacion.Fondo, Padding = new Padding(0) };
             TabPage administracion = new TabPage("Administrar clientes") { BackColor = Color.White, AutoScroll = true };
             foreach (Control control in controlesAnteriores) administracion.Controls.Add(control);
-            Button volver = new Button { Text = "< Volver al resumen", Dock = DockStyle.Top, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(23, 143, 112), TextAlign = ContentAlignment.MiddleLeft, Cursor = Cursors.Hand };
+            Button volver = new Button { Text = "< Volver al resumen", Dock = DockStyle.Top, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento, TextAlign = ContentAlignment.MiddleLeft, Cursor = Cursors.Hand };
             volver.FlatAppearance.BorderSize = 0; volver.Click += (s, e) => _pestanasClientes.SelectedTab = resumen;
             administracion.Controls.Add(volver);
             _pestanasClientes.TabPages.Add(resumen); _pestanasClientes.TabPages.Add(administracion);
             Controls.Add(_pestanasClientes);
 
-            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16), BackColor = Color.FromArgb(241, 246, 245) };
+            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16), BackColor = EstiloAplicacion.Fondo };
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 108F)); pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 120F)); pantalla.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(241, 246, 245) };
-            encabezado.Controls.Add(new Label { Text = "Inicio  /  Clientes", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(102, 123, 131) });
-            encabezado.Controls.Add(new Label { Text = "Clientes", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            encabezado.Controls.Add(new Label { Text = "Consulta sus datos y revisa la actividad reciente.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(102, 123, 131) });
-            LinkLabel administrar = new LinkLabel { Text = "Administrar clientes", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, LinkColor = Color.FromArgb(23, 143, 112), Font = new Font("Segoe UI", 8.5F), Location = new Point(Width - 190, 26) };
+            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Fondo };
+            encabezado.Controls.Add(new Label { Text = "Inicio  /  Clientes", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
+            encabezado.Controls.Add(new Label { Text = "Clientes", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            encabezado.Controls.Add(new Label { Text = "Consulta sus datos y revisa la actividad reciente.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = EstiloAplicacion.Secundario });
+            LinkLabel administrar = new LinkLabel { Text = "Administrar clientes", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, LinkColor = EstiloAplicacion.Acento, Font = new Font("Segoe UI", 8.5F), Location = new Point(Width - 190, 26) };
             administrar.Click += (s, e) => _pestanasClientes.SelectedTab = administracion; encabezado.Controls.Add(administrar);
 
-            Panel resumenPanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(241, 246, 245), Padding = new Padding(0, 0, 0, 10) };
-            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = Color.FromArgb(241, 246, 245) };
+            Panel resumenPanel = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Fondo, Padding = new Padding(0, 0, 0, 10) };
+            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = EstiloAplicacion.Fondo };
             string[] nombres = { "CLIENTES", "CON TELÉFONO", "CON NIT" };
             for (int i = 0; i < 3; i++)
             {
                 tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F));
                 Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 0 ? 0 : 8, 0, 8, 0) };
-                Label icono = new Label { Text = i == 0 ? "+" : i == 1 ? "o" : "!", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : Color.FromArgb(35, 184, 139), BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : Color.FromArgb(237, 249, 246) };
-                Label nombre = new Label { Text = nombres[i], Left = 14, Top = 42, Height = 18, AutoEllipsis = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(113, 134, 141) };
-                _resumenClientes[i] = new Label { Text = "0", Left = 14, Top = 62, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
+                Label icono = new Label { Text = i == 0 ? "+" : i == 1 ? "o" : "!", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : EstiloAplicacion.Acento, BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : EstiloAplicacion.FondoSuave };
+                Label nombre = new Label { Text = nombres[i], Left = 14, Top = 42, Height = 18, AutoEllipsis = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario };
+                _resumenClientes[i] = new Label { Text = "0", Left = 14, Top = 62, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
                 tarjeta.Controls.Add(icono); tarjeta.Controls.Add(nombre); tarjeta.Controls.Add(_resumenClientes[i]); tarjetas.Controls.Add(tarjeta, i, 0);
             }
             resumenPanel.Controls.Add(tarjetas);
 
             Panel lista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(16, 12, 16, 10) };
             Panel barra = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.White };
-            barra.Controls.Add(new Label { Text = "Clientes recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            barra.Controls.Add(new Label { Text = "Directorio actualizado - " + DateTime.Today.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("es-MX")), Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            barra.Controls.Add(new Label { Text = "Clientes recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            barra.Controls.Add(new Label { Text = "Directorio actualizado - " + DateTime.Today.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("es-MX")), Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 405, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
             Button nuevo = CrearBotonCliente("+ Nuevo registro", true); nuevo.Click += (s, e) => AbrirEditorCliente(null);
             Button eliminarClienteVista = CrearBotonCliente("Eliminar", false); eliminarClienteVista.Width = 82; eliminarClienteVista.Click += (s, e) => EliminarClienteVista();
-            _buscarClientesVista = new TextBox { Width = 165, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar clientes", ForeColor = Color.FromArgb(135, 151, 156) };
-            _buscarClientesVista.Enter += (s, e) => { if (_buscarClientesVista.Text == "Buscar clientes") { _buscarClientesVista.Clear(); _buscarClientesVista.ForeColor = Color.FromArgb(45, 64, 70); } };
-            _buscarClientesVista.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarClientesVista.Text)) { _buscarClientesVista.Text = "Buscar clientes"; _buscarClientesVista.ForeColor = Color.FromArgb(135, 151, 156); } };
+            _buscarClientesVista = new TextBox { Width = 165, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar clientes", ForeColor = EstiloAplicacion.Secundario };
+            _buscarClientesVista.Enter += (s, e) => { if (_buscarClientesVista.Text == "Buscar clientes") { _buscarClientesVista.Clear(); _buscarClientesVista.ForeColor = EstiloAplicacion.Tinta; } };
+            _buscarClientesVista.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarClientesVista.Text)) { _buscarClientesVista.Text = "Buscar clientes"; _buscarClientesVista.ForeColor = EstiloAplicacion.Secundario; } };
             _buscarClientesVista.TextChanged += (s, e) => { if (_buscarClientesVista.Text != "Buscar clientes") { _filtroNombre = _buscarClientesVista.Text.Trim(); _paginaActual = 1; _paginaVistaClientes = 1; ConsultarClientes(); } };
             acciones.Controls.Add(nuevo); acciones.Controls.Add(eliminarClienteVista); acciones.Controls.Add(_buscarClientesVista); barra.Controls.Add(acciones);
 
             _gridClientesVista = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
-            _gridClientesVista.ColumnHeadersDefaultCellStyle.BackColor = Color.White; _gridClientesVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131); _gridClientesVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold); _gridClientesVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White; _gridClientesVista.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77); _gridClientesVista.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241); _gridClientesVista.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56); _gridClientesVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridClientesVista.RowTemplate.Height = 42;
+            _gridClientesVista.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridClientesVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridClientesVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridClientesVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridClientesVista.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridClientesVista.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridClientesVista.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridClientesVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridClientesVista.RowTemplate.Height = 42;
             _gridClientesVista.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridClientesVista.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             _gridClientesVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirEditorCliente(_gridClientesVista.Rows[e.RowIndex].Tag as Cliente); };
             eliminarClienteVista.Enabled = false;
@@ -104,8 +105,8 @@ namespace Presentacion
             _gridClientesVista.ContextMenuStrip = menuFila;
             _gridClientesVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridClientesVista.CurrentCell = _gridClientesVista.Rows[e.RowIndex].Cells[0]; };
 
-            _totalClientesVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };
-            _paginaClientesVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(92, 111, 119) };
+            _totalClientesVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
+            _paginaClientesVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
             FlowLayoutPanel controlesPagina = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 310, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
             _siguienteClientesVista = CrearBotonPaginacionCliente("Siguiente >"); _anteriorClientesVista = CrearBotonPaginacionCliente("< Anterior");
@@ -175,7 +176,7 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBotonCliente
         private static Button CrearBotonCliente(string texto, bool principal)
         {
-            Button boton = new Button { Text = texto, Width = principal ? 128 : 82, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
+            Button boton = new Button { Text = texto, Width = principal ? 128 : 82, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? EstiloAplicacion.Acento : Color.White, ForeColor = principal ? Color.White : EstiloAplicacion.Tinta, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
             boton.FlatAppearance.BorderSize = principal ? 0 : 1; boton.FlatAppearance.BorderColor = Color.FromArgb(222, 231, 230);
             return boton;
         }
@@ -183,7 +184,7 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBotonPaginacionCliente
         private static Button CrearBotonPaginacionCliente(string texto)
         {
-            Button boton = new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105), Font = new Font("Segoe UI", 8F) };
+            Button boton = new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento, Font = new Font("Segoe UI", 8F) };
             boton.FlatAppearance.BorderColor = Color.FromArgb(222, 231, 230);
             return boton;
         }
@@ -238,15 +239,15 @@ namespace Presentacion
         private void AbrirEditorCliente(Cliente existente)
         {
             Form dialogo = new Form { Text = existente == null ? "Nuevo cliente" : "Editar cliente", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(470, 390), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
-            Label titulo = new Label { Text = existente == null ? "Nuevo cliente" : "Editar cliente", Left = 22, Top = 18, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
+            Label titulo = new Label { Text = existente == null ? "Nuevo cliente" : "Editar cliente", Left = 22, Top = 18, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
             TextBox nombre = new TextBox { Left = 24, Top = 72, Width = 410, MaxLength = 100, BorderStyle = BorderStyle.FixedSingle };
             TextBox nit = new TextBox { Left = 24, Top = 140, Width = 190, MaxLength = 15, BorderStyle = BorderStyle.FixedSingle };
             TextBox telefono = new TextBox { Left = 244, Top = 140, Width = 190, MaxLength = 15, BorderStyle = BorderStyle.FixedSingle };
             TextBox direccion = new TextBox { Left = 24, Top = 208, Width = 410, MaxLength = 150, BorderStyle = BorderStyle.FixedSingle };
-            Label lNombre = new Label { Text = "Nombre", Left = 24, Top = 52, AutoSize = true, ForeColor = Color.FromArgb(102, 123, 131) };
-            Label lNit = new Label { Text = "NIT", Left = 24, Top = 120, AutoSize = true, ForeColor = Color.FromArgb(102, 123, 131) };
-            Label lTelefono = new Label { Text = "Teléfono", Left = 244, Top = 120, AutoSize = true, ForeColor = Color.FromArgb(102, 123, 131) };
-            Label lDireccion = new Label { Text = "Dirección", Left = 24, Top = 188, AutoSize = true, ForeColor = Color.FromArgb(102, 123, 131) };
+            Label lNombre = new Label { Text = "Nombre", Left = 24, Top = 52, AutoSize = true, ForeColor = EstiloAplicacion.Secundario };
+            Label lNit = new Label { Text = "NIT", Left = 24, Top = 120, AutoSize = true, ForeColor = EstiloAplicacion.Secundario };
+            Label lTelefono = new Label { Text = "Teléfono", Left = 244, Top = 120, AutoSize = true, ForeColor = EstiloAplicacion.Secundario };
+            Label lDireccion = new Label { Text = "Dirección", Left = 24, Top = 188, AutoSize = true, ForeColor = EstiloAplicacion.Secundario };
             if (existente != null) { nombre.Text = existente.Nombre; nit.Text = existente.Nit; telefono.Text = existente.Telefono; direccion.Text = existente.Direccion; }
             Button guardar = CrearBotonCliente("Guardar", true); guardar.Left = 244; guardar.Top = 335; guardar.Width = 90;
             Button cancelar = CrearBotonCliente("Cancelar", false); cancelar.Left = 344; cancelar.Top = 335; cancelar.Width = 90; cancelar.DialogResult = DialogResult.Cancel; dialogo.CancelButton = cancelar;

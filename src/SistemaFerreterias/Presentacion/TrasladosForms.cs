@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -44,6 +44,7 @@ namespace Presentacion
             InitializeComponent();
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoTraslados();
+            BarraListado.Configurar(_gridTrasladosVista, _buscarTrasladosVista, "Traslados", () => AbrirTrasladoExistente((TrasladosEntidad)_gridTrasladosVista.CurrentRow.Tag));
             PrepararDialogoTraslado();
         }
 
@@ -69,75 +70,75 @@ namespace Presentacion
         // CONFIGURACIÓN: PrepararDisenoTraslados
         private void PrepararDisenoTraslados()
         {
-            BackColor = Color.FromArgb(241, 246, 245);
+            BackColor = EstiloAplicacion.Fondo;
             tabControl1.Appearance = TabAppearance.FlatButtons;
             tabControl1.ItemSize = new Size(0, 1);
             tabControl1.SizeMode = TabSizeMode.Fixed;
             tabPage1.Controls.Clear();
             TabPage consultaCompleta = new TabPage("Consulta completa") { BackColor = Color.White };
             consultaCompleta.Controls.Add(PanelPrincipal);
-            Button volver = new Button { Text = "< Volver al resumen", Dock = DockStyle.Top, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(23, 143, 112), TextAlign = ContentAlignment.MiddleLeft, Cursor = Cursors.Hand };
+            Button volver = new Button { Text = "< Volver al resumen", Dock = DockStyle.Top, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento, TextAlign = ContentAlignment.MiddleLeft, Cursor = Cursors.Hand };
             volver.FlatAppearance.BorderSize = 0;
             volver.Click += (s, e) => tabControl1.SelectedTab = tabPage1;
             consultaCompleta.Controls.Add(volver);
             tabControl1.TabPages.Add(consultaCompleta);
 
-            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16), BackColor = Color.FromArgb(241, 246, 245) };
+            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16), BackColor = EstiloAplicacion.Fondo };
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 108F));
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 120F));
             pantalla.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(241, 246, 245) };
-            encabezado.Controls.Add(new Label { Text = "Inicio  /  Traslados", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(102, 123, 131) });
-            encabezado.Controls.Add(new Label { Text = "Traslados", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            encabezado.Controls.Add(new Label { Text = "Seguimiento de mercancía entre sucursales.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(102, 123, 131) });
-            LinkLabel consulta = new LinkLabel { Text = "Consulta completa", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, LinkColor = Color.FromArgb(23, 143, 112), Font = new Font("Segoe UI", 8.5F), Location = new Point(Width - 180, 26) };
+            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Fondo };
+            encabezado.Controls.Add(new Label { Text = "Inicio  /  Traslados", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
+            encabezado.Controls.Add(new Label { Text = "Traslados", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            encabezado.Controls.Add(new Label { Text = "Seguimiento de mercancía entre sucursales.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = EstiloAplicacion.Secundario });
+            LinkLabel consulta = new LinkLabel { Text = "Consulta completa", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, LinkColor = EstiloAplicacion.Acento, Font = new Font("Segoe UI", 8.5F), Location = new Point(Width - 180, 26) };
             consulta.Click += (s, e) => { tabControl1.SelectedTab = consultaCompleta; MtdConsultar(); };
             encabezado.Controls.Add(consulta);
 
-            Panel panelResumen = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(241, 246, 245), Padding = new Padding(0, 0, 0, 10) };
-            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = Color.FromArgb(241, 246, 245) };
+            Panel panelResumen = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Fondo, Padding = new Padding(0, 0, 0, 10) };
+            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = EstiloAplicacion.Fondo };
             string[] nombres = { "TRASLADOS DEL MES", "EN TRÁNSITO", "POR APROBAR" };
             for (int i = 0; i < 3; i++)
             {
                 tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F));
                 Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 0 ? 0 : 8, 0, 8, 0) };
-                Label icono = new Label { Text = i == 0 ? "↗" : i == 1 ? "◷" : "≡", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : Color.FromArgb(35, 184, 139), BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : Color.FromArgb(237, 249, 246) };
-                Label nombre = new Label { Text = nombres[i], Left = 14, Top = 42, Width = 230, Height = 18, AutoEllipsis = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(113, 134, 141) };
-                _resumenTraslados[i] = new Label { Text = "0", Left = 14, Top = 62, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
+                Label icono = new Label { Text = i == 0 ? "↗" : i == 1 ? "◷" : "≡", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : EstiloAplicacion.Acento, BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : EstiloAplicacion.FondoSuave };
+                Label nombre = new Label { Text = nombres[i], Left = 14, Top = 42, Width = 230, Height = 18, AutoEllipsis = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario };
+                _resumenTraslados[i] = new Label { Text = "0", Left = 14, Top = 62, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
                 tarjeta.Controls.Add(icono); tarjeta.Controls.Add(nombre); tarjeta.Controls.Add(_resumenTraslados[i]); tarjetas.Controls.Add(tarjeta, i, 0);
             }
             panelResumen.Controls.Add(tarjetas);
 
             Panel lista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(16, 12, 16, 10) };
             Panel barra = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.White };
-            barra.Controls.Add(new Label { Text = "Traslados recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            barra.Controls.Add(new Label { Text = "Información actualizada · " + DateTime.Today.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("es-MX")), Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            barra.Controls.Add(new Label { Text = "Traslados recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            barra.Controls.Add(new Label { Text = "Información actualizada · " + DateTime.Today.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("es-MX")), Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 410, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
             Button nuevo = CrearBotonTraslado("+ Nuevo registro", true);
             nuevo.Click += (s, e) => btnNuevo_Click(this, EventArgs.Empty);
             Button eliminar = CrearBotonTraslado("Eliminar", false); eliminar.Width = 82; eliminar.Click += (s, e) => EliminarTrasladoVista();
-            _buscarTrasladosVista = new TextBox { Width = 165, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar traslados", ForeColor = Color.FromArgb(135, 151, 156) };
-            _buscarTrasladosVista.Enter += (s, e) => { if (_buscarTrasladosVista.Text == "Buscar traslados") { _buscarTrasladosVista.Clear(); _buscarTrasladosVista.ForeColor = Color.FromArgb(45, 64, 70); } };
-            _buscarTrasladosVista.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarTrasladosVista.Text)) { _buscarTrasladosVista.Text = "Buscar traslados"; _buscarTrasladosVista.ForeColor = Color.FromArgb(135, 151, 156); } };
+            _buscarTrasladosVista = new TextBox { Width = 165, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar traslados", ForeColor = EstiloAplicacion.Secundario };
+            _buscarTrasladosVista.Enter += (s, e) => { if (_buscarTrasladosVista.Text == "Buscar traslados") { _buscarTrasladosVista.Clear(); _buscarTrasladosVista.ForeColor = EstiloAplicacion.Tinta; } };
+            _buscarTrasladosVista.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarTrasladosVista.Text)) { _buscarTrasladosVista.Text = "Buscar traslados"; _buscarTrasladosVista.ForeColor = EstiloAplicacion.Secundario; } };
             _buscarTrasladosVista.TextChanged += (s, e) => { _paginaTraslados = 1; if (_buscarTrasladosVista.Text != "Buscar traslados") FiltrarTrasladosVista(); };
             acciones.Controls.Add(nuevo); acciones.Controls.Add(eliminar); acciones.Controls.Add(_buscarTrasladosVista); barra.Controls.Add(acciones);
 
             _gridTrasladosVista = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
-            _gridTrasladosVista.ColumnHeadersDefaultCellStyle.BackColor = Color.White; _gridTrasladosVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131); _gridTrasladosVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold); _gridTrasladosVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White; _gridTrasladosVista.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77); _gridTrasladosVista.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241); _gridTrasladosVista.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56); _gridTrasladosVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridTrasladosVista.RowTemplate.Height = 42;
+            _gridTrasladosVista.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridTrasladosVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridTrasladosVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridTrasladosVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridTrasladosVista.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridTrasladosVista.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridTrasladosVista.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridTrasladosVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridTrasladosVista.RowTemplate.Height = 42;
             _gridTrasladosVista.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridTrasladosVista.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            _gridTrasladosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridTrasladosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = String.Equals(Convert.ToString(e.Value), EstadosTraslado.Completado, StringComparison.OrdinalIgnoreCase) ? Color.FromArgb(22, 151, 113) : Color.FromArgb(210, 126, 48); };
+            _gridTrasladosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridTrasladosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = String.Equals(Convert.ToString(e.Value), EstadosTraslado.Completado, StringComparison.OrdinalIgnoreCase) ? EstiloAplicacion.Acento : Color.FromArgb(210, 126, 48); };
             _gridTrasladosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirTrasladoExistente((TrasladosEntidad)_gridTrasladosVista.Rows[e.RowIndex].Tag); };
             ContextMenuStrip menuFila = new ContextMenuStrip();
             menuFila.Items.Add("Ver / editar traslado", null, (s, e) => { if (_gridTrasladosVista.CurrentRow != null) AbrirTrasladoExistente((TrasladosEntidad)_gridTrasladosVista.CurrentRow.Tag); });
             _gridTrasladosVista.ContextMenuStrip = menuFila;
             _gridTrasladosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridTrasladosVista.CurrentCell = _gridTrasladosVista.Rows[e.RowIndex].Cells[0]; };
 
-            _totalTrasladosVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };
-            _paginaTrasladosVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(92, 111, 119) };
+            _totalTrasladosVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
+            _paginaTrasladosVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
             FlowLayoutPanel controles = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 310, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
-            _siguienteTrasladosVista = new Button { Text = "Siguiente >", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105) };
-            _anteriorTrasladosVista = new Button { Text = "< Anterior", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105) };
+            _siguienteTrasladosVista = new Button { Text = "Siguiente >", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento };
+            _anteriorTrasladosVista = new Button { Text = "< Anterior", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento };
             _siguienteTrasladosVista.Click += (s, e) => CambiarPaginaTraslados(1); _anteriorTrasladosVista.Click += (s, e) => CambiarPaginaTraslados(-1);
             controles.Controls.Add(_siguienteTrasladosVista); controles.Controls.Add(_paginaTrasladosVista); controles.Controls.Add(_anteriorTrasladosVista);
             pie.Controls.Add(_totalTrasladosVista); pie.Controls.Add(controles);
@@ -203,7 +204,7 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBotonTraslado
         private static Button CrearBotonTraslado(string texto, bool principal)
         {
-            Button boton = new Button { Text = texto, Width = principal ? 128 : 78, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
+            Button boton = new Button { Text = texto, Width = principal ? 128 : 78, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? EstiloAplicacion.Acento : Color.White, ForeColor = principal ? Color.White : EstiloAplicacion.Tinta, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
             boton.FlatAppearance.BorderSize = principal ? 0 : 1;
             boton.FlatAppearance.BorderColor = Color.FromArgb(222, 231, 230);
             return boton;

@@ -80,6 +80,8 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BarraListado.cs" />
+    <Compile Include="PanelDesplazable.cs" />
     <Compile Include="ClientesForms.cs">
       <SubType>Form</SubType>
     </Compile>

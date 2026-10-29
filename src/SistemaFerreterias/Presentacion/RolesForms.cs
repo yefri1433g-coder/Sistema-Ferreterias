@@ -36,7 +36,7 @@ namespace Presentacion
         {
             _usuarioSesion = usuarioSesion;
             Text = "Roles y accesos";
-            BackColor = Color.FromArgb(241, 246, 246);
+            BackColor = EstiloAplicacion.Fondo;
             Font = new Font("Segoe UI", 9F);
             MinimumSize = new Size(780, 570);
             Dock = DockStyle.Fill;
@@ -47,7 +47,7 @@ namespace Presentacion
             principal.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
             principal.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(12, 4, 14, 4) };
-            encabezado.Controls.Add(new Label { Text = "Roles y accesos", Dock = DockStyle.Left, Width = 250, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 12F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
+            encabezado.Controls.Add(new Label { Text = "Roles y accesos", Dock = DockStyle.Left, Width = 250, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 12F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
             encabezado.Controls.Add(new Label
             {
                 Text = TextoUsuarioConectado(),
@@ -55,7 +55,7 @@ namespace Presentacion
                 Width = 360,
                 TextAlign = ContentAlignment.MiddleRight,
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(54, 76, 79),
+                ForeColor = EstiloAplicacion.Tinta,
                 AutoEllipsis = true
             });
             Panel panelLista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(12) };
@@ -95,7 +95,7 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBoton
         private static Button CrearBoton(string texto, int x, int y)
         {
-            return new Button { Text = texto, Left = x, Top = y, Width = texto == "Guardar cambios" ? 146 : 108, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(22, 139, 112), ForeColor = Color.White, Cursor = Cursors.Hand };
+            return new Button { Text = texto, Left = x, Top = y, Width = texto == "Guardar cambios" ? 146 : 108, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Acento, ForeColor = Color.White, Cursor = Cursors.Hand };
         }
 
         // CARGA DE DATOS: CargarRoles

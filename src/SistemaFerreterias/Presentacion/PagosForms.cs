@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -35,6 +35,7 @@ namespace Presentacion
         {
             InitializeComponent();
             PrepararDisenoPagos();
+            BarraListado.Configurar(_gridHistorial, _buscarPagos, "Pagos", () => _gridHistorial_CellDoubleClick(_gridHistorial, new DataGridViewCellEventArgs(0, _gridHistorial.CurrentRow.Index)), () => EliminarPagoSeleccionado(_gridHistorial.CurrentRow));
             EstiloAplicacion.Aplicar(this);
         }
 
@@ -82,7 +83,7 @@ namespace Presentacion
         {
             Control[] controlesEditor = Controls.Cast<Control>().ToArray();
             Controls.Clear();
-            _dialogoPago = new Form { Text = "Registrar pago", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(920, 620), BackColor = Color.FromArgb(241, 246, 253), Font = new Font("Segoe UI", 9F) };
+            _dialogoPago = new Form { Text = "Registrar pago", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(920, 620), BackColor = EstiloAplicacion.Fondo, Font = new Font("Segoe UI", 9F) };
             _dialogoPago.Controls.AddRange(controlesEditor);
             ConfigurarEditorPagoCompacto();
             EstiloAplicacion.AplicarDialogo(_dialogoPago);
@@ -95,20 +96,20 @@ namespace Presentacion
                 CargarHistorial();
             };
 
-            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(22, 18, 22, 18), BackColor = Color.FromArgb(241, 246, 246), ColumnCount = 1, RowCount = 3 };
+            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(22, 18, 22, 18), BackColor = EstiloAplicacion.Fondo, ColumnCount = 1, RowCount = 3 };
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 110)); layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(18, 10, 18, 8) };
-            encabezado.Controls.Add(new Label { Text = "Inicio  /  Pagos", Location = new Point(18, 6), AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
-            encabezado.Controls.Add(new Label { Text = "Pagos", Location = new Point(18, 25), AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            encabezado.Controls.Add(new Label { Text = "Pagos recibidos y saldos pendientes.", Location = new Point(18, 66), AutoSize = true, Font = new Font("Segoe UI", 9F), ForeColor = Color.FromArgb(95, 116, 125) });
+            encabezado.Controls.Add(new Label { Text = "Inicio  /  Pagos", Location = new Point(18, 6), AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
+            encabezado.Controls.Add(new Label { Text = "Pagos", Location = new Point(18, 25), AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            encabezado.Controls.Add(new Label { Text = "Pagos recibidos y saldos pendientes.", Location = new Point(18, 66), AutoSize = true, Font = new Font("Segoe UI", 9F), ForeColor = EstiloAplicacion.Secundario });
 
-            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, Padding = new Padding(0, 8, 0, 4), BackColor = Color.FromArgb(241, 246, 246) };
-            for (int i = 0; i < 3; i++) { tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F)); Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 1 ? 8 : 0, 0, i == 2 ? 0 : 8, 0), Padding = new Padding(18, 12, 12, 8) }; Label nombre = new Label { Dock = DockStyle.Top, Height = 22, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(102, 123, 131) }; _resumenPagos[i] = new Label { Dock = DockStyle.Top, Height = 43, Font = new Font("Segoe UI", 17F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) }; nombre.Text = i == 0 ? "PAGOS DE HOY" : i == 1 ? "COBRADO HOY" : "PENDIENTE"; tarjeta.Controls.Add(_resumenPagos[i]); tarjeta.Controls.Add(nombre); tarjetas.Controls.Add(tarjeta, i, 0); }
+            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, Padding = new Padding(0, 8, 0, 4), BackColor = EstiloAplicacion.Fondo };
+            for (int i = 0; i < 3; i++) { tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F)); Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 1 ? 8 : 0, 0, i == 2 ? 0 : 8, 0), Padding = new Padding(18, 12, 12, 8) }; Label nombre = new Label { Dock = DockStyle.Top, Height = 22, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario }; _resumenPagos[i] = new Label { Dock = DockStyle.Top, Height = 43, Font = new Font("Segoe UI", 17F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta }; nombre.Text = i == 0 ? "PAGOS DE HOY" : i == 1 ? "COBRADO HOY" : "PENDIENTE"; tarjeta.Controls.Add(_resumenPagos[i]); tarjeta.Controls.Add(nombre); tarjetas.Controls.Add(tarjeta, i, 0); }
 
             Panel lista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(16, 12, 16, 10) };
             Panel barra = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.White };
-            barra.Controls.Add(new Label { Text = "Pagos recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            barra.Controls.Add(new Label { Text = "Historial · doble clic edita · Supr elimina", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            barra.Controls.Add(new Label { Text = "Pagos recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            barra.Controls.Add(new Label { Text = "Historial · doble clic edita · Supr elimina", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 350, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
             Button nuevo = CrearBotonPago("+ Nuevo registro", true); nuevo.Click += (s, e) => { btnNuevo_Click(s, e); _dialogoPago.Text = "Registrar pago"; _dialogoPago.ShowDialog(this); };
             _buscarPagos = new TextBox { Width = 190, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle };
@@ -118,17 +119,17 @@ namespace Presentacion
             _gridHistorial.CellClick += _gridHistorial_CellClick;
             _gridHistorial.CellDoubleClick += _gridHistorial_CellDoubleClick;
             _gridHistorial.KeyDown += _gridHistorial_KeyDown;
-            _gridHistorial.ColumnHeadersDefaultCellStyle.BackColor = Color.White; _gridHistorial.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131); _gridHistorial.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold); _gridHistorial.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White; _gridHistorial.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77); _gridHistorial.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241); _gridHistorial.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56); _gridHistorial.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridHistorial.RowTemplate.Height = 42;
+            _gridHistorial.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridHistorial.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridHistorial.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridHistorial.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridHistorial.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridHistorial.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridHistorial.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridHistorial.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridHistorial.RowTemplate.Height = 42;
             _gridHistorial.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridHistorial.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            _textoRegistros = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };
-            _textoPagina = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(92, 111, 119) };
+            _textoRegistros = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
+            _textoPagina = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
             FlowLayoutPanel paginacion = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 310, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
             _siguiente = CrearBotonPaginacionPago("Siguiente >"); _anterior = CrearBotonPaginacionPago("< Anterior"); _siguiente.Click += (s, e) => CambiarPagina(1); _anterior.Click += (s, e) => CambiarPagina(-1);
             paginacion.Controls.Add(_siguiente); paginacion.Controls.Add(_textoPagina); paginacion.Controls.Add(_anterior); pie.Controls.Add(_textoRegistros); pie.Controls.Add(paginacion);
             lista.Controls.Add(_gridHistorial); lista.Controls.Add(pie); lista.Controls.Add(barra);
             layout.Controls.Add(encabezado, 0, 0); layout.Controls.Add(tarjetas, 0, 1); layout.Controls.Add(lista, 0, 2); Controls.Add(layout);
-            Text = "Pagos"; BackColor = Color.FromArgb(241, 246, 246); MinimumSize = new Size(980, 620);
+            Text = "Pagos"; BackColor = EstiloAplicacion.Fondo; MinimumSize = new Size(980, 620);
         }
 
         // CONFIGURACIÓN: ConfigurarEditorPagoCompacto
@@ -153,13 +154,13 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBotonPago
         private static Button CrearBotonPago(string texto, bool primario)
         {
-            return new Button { Text = texto, Width = primario ? 132 : 100, Height = 30, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = primario ? Color.FromArgb(22, 139, 112) : Color.White, ForeColor = primario ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
+            return new Button { Text = texto, Width = primario ? 132 : 100, Height = 30, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = primario ? EstiloAplicacion.Acento : Color.White, ForeColor = primario ? Color.White : EstiloAplicacion.Tinta, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
         }
 
         // CREAR ELEMENTO VISUAL: CrearBotonPaginacionPago
         private static Button CrearBotonPaginacionPago(string texto)
         {
-            return new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 3, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(68, 91, 101), Font = new Font("Segoe UI", 8F) };
+            return new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 3, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Secundario, Font = new Font("Segoe UI", 8F) };
         }
 
         // CARGA DE DATOS: CargarHistorial

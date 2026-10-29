@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -40,12 +40,13 @@ namespace Presentacion
             InitializeComponent();
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoInventarios();
+            BarraListado.Configurar(_gridExistencias, _buscarExistencias, "Inventarios", () => AbrirEditorStock((StockEntidad)_gridExistencias.CurrentRow.Tag));
         }
 
         // CONFIGURACIÓN: PrepararDisenoInventarios
         private void PrepararDisenoInventarios()
         {
-            BackColor = Color.FromArgb(241, 246, 245);
+            BackColor = EstiloAplicacion.Fondo;
             Text = "Inventarios";
             tabControl1.Appearance = TabAppearance.FlatButtons;
             tabControl1.ItemSize = new Size(0, 1);
@@ -53,75 +54,75 @@ namespace Presentacion
             tabPage1.Controls.Clear();
             TabPage registrosConteo = new TabPage("Registros de conteo") { Name = "tabRegistrosConteo", BackColor = Color.White };
             registrosConteo.Controls.Add(PanelPrincipal);
-            Button volverExistencias = new Button { Text = "< Volver a existencias", Dock = DockStyle.Top, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(23, 143, 112), TextAlign = ContentAlignment.MiddleLeft, Cursor = Cursors.Hand };
+            Button volverExistencias = new Button { Text = "< Volver a existencias", Dock = DockStyle.Top, Height = 34, FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento, TextAlign = ContentAlignment.MiddleLeft, Cursor = Cursors.Hand };
             volverExistencias.FlatAppearance.BorderSize = 0;
             volverExistencias.Click += (s, e) => tabControl1.SelectedTab = tabPage1;
             registrosConteo.Controls.Add(volverExistencias);
             tabControl1.TabPages.Add(registrosConteo);
 
-            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16), BackColor = Color.FromArgb(241, 246, 245) };
+            TableLayoutPanel pantalla = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16), BackColor = EstiloAplicacion.Fondo };
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 108F));
             pantalla.RowStyles.Add(new RowStyle(SizeType.Absolute, 120F));
             pantalla.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
-            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(241, 246, 245) };
-            Label ruta = new Label { Text = "Inicio  /  Inventarios", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(102, 123, 131) };
-            Label tituloPrincipal = new Label { Text = "Inventarios", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
-            Label subtituloPrincipal = new Label { Text = "Existencias por producto y sucursal.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(102, 123, 131) };
-            LinkLabel conteos = new LinkLabel { Text = "Registros de conteo", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, LinkColor = Color.FromArgb(23, 143, 112), Font = new Font("Segoe UI", 8.5F) };
+            Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Fondo };
+            Label ruta = new Label { Text = "Inicio  /  Inventarios", Left = 5, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
+            Label tituloPrincipal = new Label { Text = "Inventarios", Left = 4, Top = 22, AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
+            Label subtituloPrincipal = new Label { Text = "Existencias por producto y sucursal.", Left = 7, Top = 66, AutoSize = true, Font = new Font("Segoe UI", 8.5F), ForeColor = EstiloAplicacion.Secundario };
+            LinkLabel conteos = new LinkLabel { Text = "Registros de conteo", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right, LinkColor = EstiloAplicacion.Acento, Font = new Font("Segoe UI", 8.5F) };
             conteos.Location = new Point(Width - 190, 26);
             conteos.Click += (s, e) => { tabControl1.SelectedTab = registrosConteo; MtdConsultar(); };
             encabezado.Controls.Add(ruta); encabezado.Controls.Add(tituloPrincipal); encabezado.Controls.Add(subtituloPrincipal); encabezado.Controls.Add(conteos);
 
-            Panel resumen = new Panel { Name = "panelResumenInventarios", Dock = DockStyle.Fill, BackColor = Color.FromArgb(241, 246, 245), Padding = new Padding(0, 0, 0, 10) };
-            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = Color.FromArgb(241, 246, 245) };
+            Panel resumen = new Panel { Name = "panelResumenInventarios", Dock = DockStyle.Fill, BackColor = EstiloAplicacion.Fondo, Padding = new Padding(0, 0, 0, 10) };
+            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, BackColor = EstiloAplicacion.Fondo };
             string[] titulos = { "ARTÍCULOS", "UNIDADES EN EXISTENCIA", "ALERTAS DE STOCK" };
             for (int i = 0; i < 3; i++)
             {
                 tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F));
                 Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 0 ? 0 : 8, 0, 8, 0) };
-                Label icono = new Label { Text = i == 0 ? "↗" : i == 1 ? "◷" : "!", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : Color.FromArgb(35, 184, 139), BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : Color.FromArgb(237, 249, 246) };
-                Label titulo = new Label { Text = titulos[i], Left = 14, Top = 42, Height = 18, AutoEllipsis = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(113, 134, 141) };
-                _resumenInventarios[i] = new Label { Text = "0", Left = 14, Top = 62, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
+                Label icono = new Label { Text = i == 0 ? "↗" : i == 1 ? "◷" : "!", Left = 14, Top = 10, Size = new Size(28, 28), TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI Symbol", 10F, FontStyle.Bold), ForeColor = i == 2 ? Color.FromArgb(222, 143, 61) : EstiloAplicacion.Acento, BackColor = i == 2 ? Color.FromArgb(255, 246, 233) : EstiloAplicacion.FondoSuave };
+                Label titulo = new Label { Text = titulos[i], Left = 14, Top = 42, Height = 18, AutoEllipsis = true, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario };
+                _resumenInventarios[i] = new Label { Text = "0", Left = 14, Top = 62, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
                 tarjeta.Controls.Add(icono); tarjeta.Controls.Add(_resumenInventarios[i]); tarjeta.Controls.Add(titulo); tarjetas.Controls.Add(tarjeta, i, 0);
             }
             resumen.Controls.Add(tarjetas);
 
             Panel lista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(16, 12, 16, 10) };
             Panel barra = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.White };
-            Label tituloLista = new Label { Text = "Inventarios recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
-            Label descripcionLista = new Label { Text = "Existencias registradas por producto y sucursal", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) };
+            Label tituloLista = new Label { Text = "Inventarios recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
+            Label descripcionLista = new Label { Text = "Existencias registradas por producto y sucursal", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 405, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
             Button nuevo = CrearBotonInventario("+ Nuevo registro", true); nuevo.Click += (s, e) => AbrirEditorStock(null);
             Button eliminarInventarioVista = CrearBotonInventario("Eliminar", false); eliminarInventarioVista.Width = 82; eliminarInventarioVista.Click += (s, e) => EliminarStockSeleccionado();
-            _buscarExistencias = new TextBox { Width = 165, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar inventarios", ForeColor = Color.FromArgb(135, 151, 156) };
-            _buscarExistencias.Enter += (s, e) => { if (_buscarExistencias.Text == "Buscar inventarios") { _buscarExistencias.Clear(); _buscarExistencias.ForeColor = Color.FromArgb(45, 64, 70); } };
-            _buscarExistencias.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarExistencias.Text)) { _buscarExistencias.Text = "Buscar inventarios"; _buscarExistencias.ForeColor = Color.FromArgb(135, 151, 156); } };
+            _buscarExistencias = new TextBox { Width = 165, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar inventarios", ForeColor = EstiloAplicacion.Secundario };
+            _buscarExistencias.Enter += (s, e) => { if (_buscarExistencias.Text == "Buscar inventarios") { _buscarExistencias.Clear(); _buscarExistencias.ForeColor = EstiloAplicacion.Tinta; } };
+            _buscarExistencias.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarExistencias.Text)) { _buscarExistencias.Text = "Buscar inventarios"; _buscarExistencias.ForeColor = EstiloAplicacion.Secundario; } };
             _buscarExistencias.TextChanged += (s, e) => { if (_buscarExistencias.Text != "Buscar inventarios") BuscarExistencias(); };
             acciones.Controls.Add(nuevo); acciones.Controls.Add(eliminarInventarioVista); acciones.Controls.Add(_buscarExistencias);
             barra.Controls.Add(tituloLista); barra.Controls.Add(descripcionLista); barra.Controls.Add(acciones);
             _gridExistencias = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
             eliminarInventarioVista.Enabled = false;
             _gridExistencias.SelectionChanged += (s, e) => eliminarInventarioVista.Enabled = _gridExistencias.CurrentRow != null;
-            _gridExistencias.ColumnHeadersDefaultCellStyle.BackColor = Color.White; _gridExistencias.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131); _gridExistencias.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold); _gridExistencias.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White; _gridExistencias.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77); _gridExistencias.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241); _gridExistencias.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56); _gridExistencias.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridExistencias.RowTemplate.Height = 42;
+            _gridExistencias.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridExistencias.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridExistencias.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridExistencias.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridExistencias.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridExistencias.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridExistencias.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridExistencias.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridExistencias.RowTemplate.Height = 42;
             _gridExistencias.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridExistencias.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             _gridExistencias.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirEditorStock((StockEntidad)_gridExistencias.Rows[e.RowIndex].Tag); };
             _gridExistencias.CellFormatting += (s, e) =>
             {
                 if (e.RowIndex < 0 || _gridExistencias.Columns[e.ColumnIndex].Name != "Estado" || e.Value == null) return;
-                e.CellStyle.ForeColor = Convert.ToString(e.Value) == "Stock bajo" ? Color.FromArgb(210, 126, 48) : Color.FromArgb(22, 151, 113);
+                e.CellStyle.ForeColor = Convert.ToString(e.Value) == "Stock bajo" ? Color.FromArgb(210, 126, 48) : EstiloAplicacion.Acento;
             };
             ContextMenuStrip menuFila = new ContextMenuStrip();
             menuFila.Items.Add("Editar registro", null, (s, e) => { if (_gridExistencias.CurrentRow != null) AbrirEditorStock((StockEntidad)_gridExistencias.CurrentRow.Tag); });
             menuFila.Items.Add("Eliminar registro", null, (s, e) => EliminarStockSeleccionado());
             _gridExistencias.ContextMenuStrip = menuFila;
             _gridExistencias.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridExistencias.CurrentCell = _gridExistencias.Rows[e.RowIndex].Cells[0]; };
-            _totalExistencias = new Label { Dock = DockStyle.Left, Width = 250, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };
-            _paginaExistencias = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(92, 111, 119) };
+            _totalExistencias = new Label { Dock = DockStyle.Left, Width = 250, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
+            _paginaExistencias = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
             FlowLayoutPanel controlesPagina = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 310, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
-            _siguienteExistencias = new Button { Text = "Siguiente >", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105) };
-            _anteriorExistencias = new Button { Text = "< Anterior", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(37, 120, 105) };
+            _siguienteExistencias = new Button { Text = "Siguiente >", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento };
+            _anteriorExistencias = new Button { Text = "< Anterior", Width = 96, Height = 32, Margin = new Padding(3, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Acento };
             _siguienteExistencias.Click += (s, e) => CambiarPaginaExistencias(1);
             _anteriorExistencias.Click += (s, e) => CambiarPaginaExistencias(-1);
             controlesPagina.Controls.Add(_siguienteExistencias); controlesPagina.Controls.Add(_paginaExistencias); controlesPagina.Controls.Add(_anteriorExistencias);
@@ -185,7 +186,7 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBotonInventario
         private static Button CrearBotonInventario(string texto, bool principal)
         {
-            Button boton = new Button { Text = texto, Width = principal ? 128 : 74, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? Color.FromArgb(23, 143, 112) : Color.White, ForeColor = principal ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
+            Button boton = new Button { Text = texto, Width = principal ? 128 : 74, Height = 29, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = principal ? EstiloAplicacion.Acento : Color.White, ForeColor = principal ? Color.White : EstiloAplicacion.Tinta, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
             boton.FlatAppearance.BorderSize = principal ? 0 : 1;
             boton.FlatAppearance.BorderColor = Color.FromArgb(222, 231, 230);
             return boton;
@@ -258,7 +259,7 @@ namespace Presentacion
         private void AbrirEditorStock(StockEntidad existente)
         {
             Form dialogo = new Form { Text = existente == null ? "Nuevo registro de inventario" : "Editar inventario", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(470, 350), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
-            Label titulo = new Label { Text = existente == null ? "Nuevo registro" : "Editar registro", Left = 22, Top = 18, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) };
+            Label titulo = new Label { Text = existente == null ? "Nuevo registro" : "Editar registro", Left = 22, Top = 18, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
             Label lSucursal = new Label { Text = "Sucursal", Left = 24, Top = 70, Width = 190 };
             ComboBox sucursal = new ComboBox { Left = 24, Top = 92, Width = 410, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Texto", ValueMember = "Codigo", DataSource = _catalogosNegocioStock.MtdSucursales() };
             Label lProducto = new Label { Text = "Producto", Left = 24, Top = 135, Width = 190 };

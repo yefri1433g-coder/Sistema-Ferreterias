@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -38,6 +38,7 @@ namespace Presentacion
             InitializeComponent();
             _usuarioSesion = usuarioSesion;
             PrepararDisenoUsuarios();
+            BarraListado.Configurar(_gridUsuariosVista, _buscarUsuariosVista, "Usuarios", () => AbrirAdministracion(_gridUsuariosVista.CurrentRow.Tag as Usuario));
             EstiloAplicacion.Aplicar(this);
             MinimumSize = new System.Drawing.Size(780, 520);
             cboRol.BackColor = System.Drawing.Color.White;
@@ -58,14 +59,14 @@ namespace Presentacion
         {
             Control[] controlesEditor = Controls.Cast<Control>().ToArray();
             Controls.Clear();
-            _dialogoUsuarios = new Form { Text = "Administrar usuarios", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(940, 620), MinimumSize = new Size(800, 540), BackColor = Color.FromArgb(241, 246, 253), Font = new Font("Segoe UI", 9F) };
+            _dialogoUsuarios = new Form { Text = "Administrar usuarios", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(940, 620), MinimumSize = new Size(800, 540), BackColor = EstiloAplicacion.Fondo, Font = new Font("Segoe UI", 9F) };
             _dialogoUsuarios.Controls.AddRange(controlesEditor);
             _dialogoUsuarios.FormClosed += (s, e) => CargarUsuarios();
 
-            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(22, 18, 22, 18), BackColor = Color.FromArgb(241, 246, 246), ColumnCount = 1, RowCount = 3 };
+            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(22, 18, 22, 18), BackColor = EstiloAplicacion.Fondo, ColumnCount = 1, RowCount = 3 };
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 110)); layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 120)); layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             Panel encabezado = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(18, 10, 18, 8) };
-            encabezado.Controls.Add(new Label { Text = "Inicio  /  Usuarios", Location = new Point(18, 6), AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            encabezado.Controls.Add(new Label { Text = "Inicio  /  Usuarios", Location = new Point(18, 6), AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
             Label usuarioConectado = new Label
             {
                 Text = TextoUsuarioConectado(),
@@ -73,20 +74,20 @@ namespace Presentacion
                 Width = 300,
                 TextAlign = ContentAlignment.MiddleRight,
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(54, 76, 79),
+                ForeColor = EstiloAplicacion.Tinta,
                 AutoEllipsis = true
             };
             encabezado.Controls.Add(usuarioConectado);
-            encabezado.Controls.Add(new Label { Text = "Usuarios", Location = new Point(18, 25), AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            encabezado.Controls.Add(new Label { Text = "Gestiona cuentas, roles y acceso al sistema.", Location = new Point(18, 66), AutoSize = true, Font = new Font("Segoe UI", 9F), ForeColor = Color.FromArgb(95, 116, 125) });
+            encabezado.Controls.Add(new Label { Text = "Usuarios", Location = new Point(18, 25), AutoSize = true, Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            encabezado.Controls.Add(new Label { Text = "Gestiona cuentas, roles y acceso al sistema.", Location = new Point(18, 66), AutoSize = true, Font = new Font("Segoe UI", 9F), ForeColor = EstiloAplicacion.Secundario });
 
-            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, Padding = new Padding(0, 8, 0, 4), BackColor = Color.FromArgb(241, 246, 246) };
-            for (int i = 0; i < 3; i++) { tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F)); Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 1 ? 8 : 0, 0, i == 2 ? 0 : 8, 0), Padding = new Padding(18, 12, 12, 8) }; Label nombre = new Label { Dock = DockStyle.Top, Height = 22, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = Color.FromArgb(102, 123, 131) }; _resumenUsuarios[i] = new Label { Dock = DockStyle.Top, Height = 42, Font = new Font("Segoe UI", 17F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) }; nombre.Text = i == 0 ? "USUARIOS" : i == 1 ? "ACTIVOS" : "ROLES"; tarjeta.Controls.Add(_resumenUsuarios[i]); tarjeta.Controls.Add(nombre); tarjetas.Controls.Add(tarjeta, i, 0); }
+            TableLayoutPanel tarjetas = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, Padding = new Padding(0, 8, 0, 4), BackColor = EstiloAplicacion.Fondo };
+            for (int i = 0; i < 3; i++) { tarjetas.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.333F)); Panel tarjeta = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Margin = new Padding(i == 1 ? 8 : 0, 0, i == 2 ? 0 : 8, 0), Padding = new Padding(18, 12, 12, 8) }; Label nombre = new Label { Dock = DockStyle.Top, Height = 22, Font = new Font("Segoe UI", 8F, FontStyle.Bold), ForeColor = EstiloAplicacion.Secundario }; _resumenUsuarios[i] = new Label { Dock = DockStyle.Top, Height = 42, Font = new Font("Segoe UI", 17F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta }; nombre.Text = i == 0 ? "USUARIOS" : i == 1 ? "ACTIVOS" : "ROLES"; tarjeta.Controls.Add(_resumenUsuarios[i]); tarjeta.Controls.Add(nombre); tarjetas.Controls.Add(tarjeta, i, 0); }
 
             Panel lista = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(16, 12, 16, 10) };
             Panel barra = new Panel { Dock = DockStyle.Top, Height = 58, BackColor = Color.White };
-            barra.Controls.Add(new Label { Text = "Usuarios recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = Color.FromArgb(23, 43, 53) });
-            barra.Controls.Add(new Label { Text = "Cuentas y roles registrados", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(123, 139, 147) });
+            barra.Controls.Add(new Label { Text = "Usuarios recientes", Left = 4, Top = 0, AutoSize = true, Font = new Font("Segoe UI", 10F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta });
+            barra.Controls.Add(new Label { Text = "Cuentas y roles registrados", Left = 5, Top = 24, AutoSize = true, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario });
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 410, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
             Button nuevo = CrearBotonUsuarioVista("+ Nuevo registro", true); nuevo.Click += (s, e) => AbrirAdministracion(null);
             Button eliminarUsuarioVista = CrearBotonUsuarioVista("Eliminar", false); eliminarUsuarioVista.Width = 82; eliminarUsuarioVista.Click += (s, e) => EliminarUsuarioVista();
@@ -94,9 +95,9 @@ namespace Presentacion
             _buscarUsuariosVista.TextChanged += (s, e) => { BuscarUsuariosVista(); };
             acciones.Controls.Add(nuevo); acciones.Controls.Add(eliminarUsuarioVista); acciones.Controls.Add(_buscarUsuariosVista); barra.Controls.Add(acciones);
             _gridUsuariosVista = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
-            _gridUsuariosVista.ColumnHeadersDefaultCellStyle.BackColor = Color.White; _gridUsuariosVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(102, 123, 131); _gridUsuariosVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 8F, FontStyle.Bold); _gridUsuariosVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.White; _gridUsuariosVista.DefaultCellStyle.ForeColor = Color.FromArgb(50, 69, 77); _gridUsuariosVista.DefaultCellStyle.SelectionBackColor = Color.FromArgb(231, 246, 241); _gridUsuariosVista.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 59, 56); _gridUsuariosVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridUsuariosVista.RowTemplate.Height = 42;
+            _gridUsuariosVista.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridUsuariosVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridUsuariosVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridUsuariosVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridUsuariosVista.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridUsuariosVista.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridUsuariosVista.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridUsuariosVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridUsuariosVista.RowTemplate.Height = 42;
             _gridUsuariosVista.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridUsuariosVista.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            _gridUsuariosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridUsuariosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = Convert.ToString(e.Value) == "Activo" ? Color.FromArgb(22, 151, 113) : Color.FromArgb(210, 126, 48); };
+            _gridUsuariosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridUsuariosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = Convert.ToString(e.Value) == "Activo" ? EstiloAplicacion.Acento : Color.FromArgb(210, 126, 48); };
             eliminarUsuarioVista.Enabled = false;
             _gridUsuariosVista.SelectionChanged += (s, e) => eliminarUsuarioVista.Enabled = _gridUsuariosVista.CurrentRow != null;
             _gridUsuariosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirAdministracion(_gridUsuariosVista.Rows[e.RowIndex].Tag as Usuario); };
@@ -105,15 +106,15 @@ namespace Presentacion
             menuFila.Items.Add("Eliminar usuario", null, (s, e) => EliminarUsuarioVista());
             _gridUsuariosVista.ContextMenuStrip = menuFila;
             _gridUsuariosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridUsuariosVista.CurrentCell = _gridUsuariosVista.Rows[e.RowIndex].Cells[0]; };
-            _textoRegistrosVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(119, 136, 145) };
-            _textoPaginaVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = Color.FromArgb(92, 111, 119) };
+            _textoRegistrosVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
+            _textoPaginaVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
             FlowLayoutPanel paginacion = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 310, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
             _siguienteVista = CrearBotonPaginacionUsuario("Siguiente >"); _anteriorVista = CrearBotonPaginacionUsuario("< Anterior"); _siguienteVista.Click += (s, e) => CambiarPaginaVista(1); _anteriorVista.Click += (s, e) => CambiarPaginaVista(-1);
             paginacion.Controls.Add(_siguienteVista); paginacion.Controls.Add(_textoPaginaVista); paginacion.Controls.Add(_anteriorVista); pie.Controls.Add(_textoRegistrosVista); pie.Controls.Add(paginacion);
             lista.Controls.Add(_gridUsuariosVista); lista.Controls.Add(pie); lista.Controls.Add(barra);
             layout.Controls.Add(encabezado, 0, 0); layout.Controls.Add(tarjetas, 0, 1); layout.Controls.Add(lista, 0, 2); Controls.Add(layout);
-            Text = "Usuarios"; BackColor = Color.FromArgb(241, 246, 246); MinimumSize = new Size(980, 620);
+            Text = "Usuarios"; BackColor = EstiloAplicacion.Fondo; MinimumSize = new Size(980, 620);
         }
 
         private string TextoUsuarioConectado()
@@ -125,13 +126,13 @@ namespace Presentacion
         // CREAR ELEMENTO VISUAL: CrearBotonUsuarioVista
         private static Button CrearBotonUsuarioVista(string texto, bool primario)
         {
-            return new Button { Text = texto, Width = primario ? 132 : 100, Height = 30, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = primario ? Color.FromArgb(22, 139, 112) : Color.White, ForeColor = primario ? Color.White : Color.FromArgb(50, 69, 77), Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
+            return new Button { Text = texto, Width = primario ? 132 : 100, Height = 30, Margin = new Padding(8, 0, 0, 0), FlatStyle = FlatStyle.Flat, BackColor = primario ? EstiloAplicacion.Acento : Color.White, ForeColor = primario ? Color.White : EstiloAplicacion.Tinta, Font = new Font("Segoe UI", 8F, FontStyle.Bold), Cursor = Cursors.Hand };
         }
 
         // CREAR ELEMENTO VISUAL: CrearBotonPaginacionUsuario
         private static Button CrearBotonPaginacionUsuario(string texto)
         {
-            return new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 3, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(68, 91, 101), Font = new Font("Segoe UI", 8F) };
+            return new Button { Text = texto, Width = 96, Height = 32, Margin = new Padding(3, 0, 3, 0), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Secundario, Font = new Font("Segoe UI", 8F) };
         }
 
         // PRESENTAR DATOS: MostrarUsuariosVista
