@@ -12,16 +12,16 @@
 | 06 Login y roles | COMPLETADO | Migración aplicada; Supervisor, Cajero y Bodeguero tienen accesos configurables. El estudiante confirmó el Login, la navegación y accesos por rol, el CRUD de Roles y los encabezados con usuario y rol. Integrado a `main` y GitHub; la solución compiló y la aplicación se inició desde `main` el 28 de octubre de 2026. |
 | 07 Panel de navegación | IMPLEMENTADO; PENDIENTE DE APROBACIÓN FINAL | Autorizado por el estudiante el 29 de octubre de 2026. Panel organizado en cinco secciones, controles definidos en el diseñador y 16 enlaces probados. Compilación sin errores; comprobados segundo clic, cierre y reapertura, maximizar/restaurar y desplazamiento en ventana pequeña. Se conservó la integración aprobada del Documento 06. Falta revisión visual y confirmación final del estudiante. |
 | 08 Dashboard | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó contra SQL Server: Ventas de hoy, Productos activos, Traslados pendientes, Clientes registrados, Ventas de los últimos 7 días, Estado de existencias y Actividad reciente. El diseño se conservó sin modificar `DashboardForms.Designer.cs`. |
-| 09 Integración general | COMPLETADO | Los tres integrantes confirmaron Login y Panel, accesos por rol, CRUD contra SQL Server, Dashboard comparado con SQL Server, compilación sin errores y ramas de GitHub integradas sin conflictos. |
-| 10 Publicación y entrega final | EN PROCESO | El grupo aprobó 10.3 (conexión local mediante `FERRETERIA_CONNECTION_STRING`) y 10.4 (carpeta externa Release de Presentación). La entrega está en `C:\2026_Progra2_Entrega\Presentacion_Release`, sin contraseñas. Pendiente probarla en otro equipo Windows y autorización final del grupo; no publicar todavía. |
+| 09 Integración general | COMPLETADO | Los tres integrantes confirmaron Login y Panel, accesos por rol, CRUD contra SQL Server, Dashboard comparado con SQL Server, compilación sin errores y ramas de GitHub integradas sin conflictos. Confirmación incorporada en d50df1a. |
+| 10 Publicación y entrega final | EN PROCESO | Se conserva la entrega externa documentada en `C:\2026_Progra2_Entrega\Presentacion_Release`. En este repositorio se preparó además `entrega/ProyectoFinal_20261029/`, con Release, Login abierto en este equipo y respaldo real verificado fuera de Docker. Pendientes otro Windows, pruebas del ejecutable de destino y autorización final de entrega del grupo. El estudiante autorizó subir esta documentación. Ver docs/ENTREGA_FINAL.md. |
 | 11 Publicación complementaria | PENDIENTE | Sin inicio autorizado. |
 
 ## Base documental comprobada
 
-- Están los archivos raíz requeridos, las carpetas planas `skills/`, `database/` y `docs/`, y los once documentos de trabajo.
+- La revisión actual encontró ausentes la guía de publicación y los documentos de conexión/respaldo citados anteriormente. Se reconstruyeron a partir de las instrucciones del estudiante y las verificaciones actuales; no se afirma que existan todos los documentos históricos.
 - Existe `src/SistemaFerreterias/` con la solución y los proyectos Entidad, Datos, Negocio y Presentación.
 - El catálogo de `db_Ferreteria` se verificó en solo lectura el 16 de octubre: 17 tablas y 19 claves foráneas. El detalle está en `database/CONEXION_DATABASE.md`.
-- El respaldo `Docker/Backups/db_Ferreteria_20261016.bak` superó `RESTORE VERIFYONLY` y su hash coincide con el archivo del contenedor.
+- La referencia al respaldo del 16 de octubre es histórica. Para esta entrega existe un respaldo nuevo del 29 de octubre en `entrega/ProyectoFinal_20261029/respaldo/`, verificado dentro y fuera de Docker; ver `database/CONEXION_DATABASE.md`.
 
 ## Documento 02: estado de módulos
 

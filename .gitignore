@@ -34,3 +34,6 @@ local.settings.json
 # OS/editor files
 Thumbs.db
 .DS_Store
+
+# Entrega local: ejecutables, respaldos y pruebas fuera del código fuente
+entrega/

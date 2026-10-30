@@ -81,9 +81,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BarraListado.cs" />
-    <Compile Include="NotificacionForms.cs" />
-    <Compile Include="ConfirmacionForms.cs" />
-    <Compile Include="PanelDesplazable.cs" />
+    <Compile Include="NotificacionForms.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfirmacionForms.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PanelDesplazable.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ClientesForms.cs">
       <SubType>Form</SubType>
     </Compile>
