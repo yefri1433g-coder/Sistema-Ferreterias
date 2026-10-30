@@ -1,6 +1,6 @@
 # Estado de documentos
 
-Última revisión: 28 de octubre de 2026.
+Última revisión: 29 de octubre de 2026.
 
 | Documento | Estado | Nota |
 |---|---|---|
@@ -12,8 +12,8 @@
 | 06 Login y roles | COMPLETADO | Migración aplicada; Supervisor, Cajero y Bodeguero tienen accesos configurables. El estudiante confirmó el Login, la navegación y accesos por rol, el CRUD de Roles y los encabezados con usuario y rol. Integrado a `main` y GitHub; la solución compiló y la aplicación se inició desde `main` el 28 de octubre de 2026. |
 | 07 Panel de navegación | IMPLEMENTADO; PENDIENTE DE APROBACIÓN FINAL | Autorizado por el estudiante el 29 de octubre de 2026. Panel organizado en cinco secciones, controles definidos en el diseñador y 16 enlaces probados. Compilación sin errores; comprobados segundo clic, cierre y reapertura, maximizar/restaurar y desplazamiento en ventana pequeña. Se conservó la integración aprobada del Documento 06. Falta revisión visual y confirmación final del estudiante. |
 | 08 Dashboard | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó contra SQL Server: Ventas de hoy, Productos activos, Traslados pendientes, Clientes registrados, Ventas de los últimos 7 días, Estado de existencias y Actividad reciente. El diseño se conservó sin modificar `DashboardForms.Designer.cs`. |
-| 09 Revisión del proyecto | BLOQUEADO | Requiere autorización posterior. |
-| 10 Publicación | BLOQUEADO | Requiere autorización posterior. |
+| 09 Integración general | COMPLETADO | Los tres integrantes confirmaron Login y Panel, accesos por rol, CRUD contra SQL Server, Dashboard comparado con SQL Server, compilación sin errores y ramas de GitHub integradas sin conflictos. |
+| 10 Publicación y entrega final | EN PROCESO | El grupo aprobó 10.3 (conexión local mediante `FERRETERIA_CONNECTION_STRING`) y 10.4 (carpeta externa Release de Presentación). La entrega está en `C:\2026_Progra2_Entrega\Presentacion_Release`, sin contraseñas. Pendiente probarla en otro equipo Windows y autorización final del grupo; no publicar todavía. |
 | 11 Publicación complementaria | PENDIENTE | Sin inicio autorizado. |
 
 ## Base documental comprobada
@@ -37,7 +37,7 @@
 - Proveedores : el módulo incluye Consultar, Buscar, Agregar, Editar, Eliminar y paginación de diez registros por página. La implementación se comprobó en las capas Entidad, Datos, Negocio y Presentación; faltan registrar las pruebas manuales del estudiante, si no se han confirmado aún.
 - Ventas: la consulta de productos por sucursal incluye productos activos con stock cero y la validación evita vender sobre la existencia; el estudiante confirmó su funcionamiento.
 
-No se han iniciado pruebas nuevas ni código adicional con esta actualización documental. Los documentos bloqueados permanecen bloqueados.
+No se han iniciado pruebas nuevas ni código adicional con esta actualización documental. El Documento 09 quedó completado con la confirmación de los tres integrantes. El Documento 10 está en proceso para las etapas autorizadas 10.3 y 10.4; la publicación continúa pendiente de autorización final del grupo.
 
 ## Documento 03: módulos autorizados
 

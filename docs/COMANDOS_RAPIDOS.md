@@ -1,5 +1,21 @@
 # Comandos rápidos
 
+## Cierre confirmado — Documento 09: Integración general
+
+El 29 de octubre de 2026, los tres integrantes confirmaron: Login y entrada al Panel, permisos por rol, CRUD contra SQL Server, Dashboard contrastado con consultas SQL Server, compilación sin errores y ramas integradas sin conflictos. El Documento 09 está **COMPLETADO**.
+
+El Documento 10 está en proceso únicamente para sus etapas autorizadas. No publicar el sistema sin autorización expresa final del grupo.
+
+## Entrega local Release — Documento 10
+
+La carpeta ejecutable aprobada se generó fuera del proyecto en:
+
+```text
+C:\2026_Progra2_Entrega\Presentacion_Release
+```
+
+Contiene `Presentacion.exe`, `Presentacion.exe.config` y todas las DLL de la compilación Release. Antes de abrirla en el equipo destino, configurar localmente `FERRETERIA_CONNECTION_STRING`; no guardar una contraseña real en el archivo `.config`, documentos ni GitHub. La publicación y la prueba en otro equipo siguen pendientes de autorización final del grupo.
+
 ## Compilar y revisar el Panel — Documento 07
 
 Repositorio actual verificado: `C:\2026_ProgramacionII`.
