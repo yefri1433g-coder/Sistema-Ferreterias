@@ -280,9 +280,8 @@ namespace Presentacion
             if (fila == null || fila.Cells["id_pago"].Value == null) return;
 
             int idPago = Convert.ToInt32(fila.Cells["id_pago"].Value);
-            DialogResult confirmacion = MessageBox.Show(
-                "¿Deseas eliminar el pago No. " + idPago + "? Esta acción no se puede deshacer.",
-                "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult confirmacion = AyudaForms.MtdConfirmacion(
+                "¿Deseas eliminar el pago No. " + idPago + "? Esta acción no se puede deshacer.");
             if (confirmacion != DialogResult.Yes) return;
 
             string mensaje;

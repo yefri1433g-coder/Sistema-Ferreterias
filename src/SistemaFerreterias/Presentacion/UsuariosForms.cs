@@ -200,7 +200,7 @@ namespace Presentacion
         {
             if (_gridUsuariosVista.CurrentRow == null || !(_gridUsuariosVista.CurrentRow.Tag is Usuario)) return;
             Usuario usuario = (Usuario)_gridUsuariosVista.CurrentRow.Tag;
-            if (MessageBox.Show("¿Deseas eliminar el usuario " + usuario.NombreUsuario + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            if (AyudaForms.MtdConfirmacion("¿Deseas eliminar el usuario " + usuario.NombreUsuario + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(usuario.IdUsuario); CargarUsuarios(); AyudaForms.MtdInfo("Usuario eliminado correctamente."); }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }
@@ -404,9 +404,8 @@ namespace Presentacion
                 return;
             }
 
-            DialogResult confirmar = MessageBox.Show(
-                "¿Deseas eliminar el usuario seleccionado? Si está asignado a un empleado, SQL Server no permitirá borrarlo.",
-                "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult confirmar = AyudaForms.MtdConfirmacion(
+                "¿Deseas eliminar el usuario seleccionado? Si está asignado a un empleado, SQL Server no permitirá borrarlo.");
             if (confirmar != DialogResult.Yes)
                 return;
 

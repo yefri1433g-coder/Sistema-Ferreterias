@@ -29,7 +29,14 @@ namespace Presentacion
 
         public static bool MtdConfirmar(string mensaje)
         {
-            return MessageBox.Show(mensaje, "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+            return MtdConfirmacion(mensaje) == DialogResult.Yes;
+        }
+
+        public static DialogResult MtdConfirmacion(string mensaje)
+        {
+            Form propietario = Form.ActiveForm;
+            using (ConfirmacionForms dialogo = new ConfirmacionForms(mensaje))
+                return propietario == null ? dialogo.ShowDialog() : dialogo.ShowDialog(propietario);
         }
 
         public static void MtdError(Exception ex)

@@ -274,7 +274,7 @@ namespace Presentacion
                 return;
             }
 
-            DialogResult respuesta = MessageBox.Show("¿Deseas eliminar el registro seleccionado?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult respuesta = AyudaForms.MtdConfirmacion("¿Deseas eliminar el registro seleccionado?");
             if (respuesta != DialogResult.Yes) return;
             if (modulo == "Categorías") EliminarCategoria();
             else if (modulo == "Productos") EliminarProducto();
@@ -1011,9 +1011,8 @@ namespace Presentacion
             DataGridViewRow fila = gridHistorialCompras.SelectedRows[0];
             int id = Convert.ToInt32(fila.Cells["Codigo"].Value);
             string proveedor = Convert.ToString(fila.Cells["Proveedor"].Value);
-            DialogResult confirmar = MessageBox.Show(
-                "¿Eliminar la compra No. " + id + " de " + proveedor + "? También se revertirá su existencia en la sucursal y se registrará en Kardex. Si el stock ya se consumió, la operación se cancelará.",
-                "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult confirmar = AyudaForms.MtdConfirmacion(
+                "¿Eliminar la compra No. " + id + " de " + proveedor + "? También se revertirá su existencia en la sucursal y se registrará en Kardex. Si el stock ya se consumió, la operación se cancelará.");
             if (confirmar != DialogResult.Yes) return;
 
             if (Ejecutar(() =>
@@ -1316,9 +1315,8 @@ namespace Presentacion
             return Ejecutar(() =>
             {
                 int id = IdSeleccionado(gridSucursales, "Codigo");
-                DialogResult confirmar = MessageBox.Show(
-                    "¿Deseas eliminar la sucursal seleccionada? Si tiene empleados, inventario, stock o traslados relacionados, SQL Server no permitirá borrarla.",
-                    "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                DialogResult confirmar = AyudaForms.MtdConfirmacion(
+                    "¿Deseas eliminar la sucursal seleccionada? Si tiene empleados, inventario, stock o traslados relacionados, SQL Server no permitirá borrarla.");
                 if (confirmar != DialogResult.Yes) return;
 
                 negocio.EliminarSucursal(id);

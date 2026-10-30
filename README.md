@@ -28,6 +28,13 @@ Para bases antiguas sin sucursal en Ventas, ejecuta también
 [`database/scripts/20261029_ventas_sucursal.sql`](database/scripts/20261029_ventas_sucursal.sql).
 Las ventas antiguas conservan la sucursal sin asignar.
 
+Para distinguir Pendiente, En tránsito y Completado en Traslados, la migración
+[`database/scripts/20261029_traslados_estado.sql`](database/scripts/20261029_traslados_estado.sql)
+amplía `Tbl_Traslados.estado` de `BIT` a `TINYINT`. Conserva 0 = Completado
+y 1 = Pendiente, y permite 2 = En tránsito. Este ajuste del modelo fue aprobado
+el 29 de octubre de 2026. En bases existentes se debe aplicar esta migración;
+sin ella, En tránsito muestra un aviso y no se guarda como Pendiente.
+
 Para habilitar el Login con roles y accesos configurables, ejecuta también
 [`database/scripts/20261028_login_roles.sql`](database/scripts/20261028_login_roles.sql).
 La migración conserva las cuentas antiguas, reasigna `Administrador` a `Supervisor`

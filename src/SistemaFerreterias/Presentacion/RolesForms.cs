@@ -171,7 +171,7 @@ namespace Presentacion
         private void EliminarRol()
         {
             if (_seleccionado == null) return;
-            if (MessageBox.Show("¿Eliminar el rol " + _seleccionado.NombreRol + "?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            if (AyudaForms.MtdConfirmacion("¿Eliminar el rol " + _seleccionado.NombreRol + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(_seleccionado.CodigoRol); _seleccionado = null; CargarRoles(); AyudaForms.MtdInfo("Rol eliminado correctamente."); }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Roles y accesos", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }

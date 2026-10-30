@@ -155,7 +155,7 @@ CREATE TABLE Tbl_Traslados (
     id_sucursal_origen INT NOT NULL,
     id_sucursal_destino INT NOT NULL,
     fecha DATETIME NOT NULL,
-    estado BIT NOT NULL,
+    estado TINYINT NOT NULL, -- 0 = Completado, 1 = Pendiente, 2 = En tránsito
     id_empleado INT NOT NULL,
     FOREIGN KEY (id_sucursal_origen) REFERENCES Tbl_Sucursales(id_sucursal),
     FOREIGN KEY (id_sucursal_destino) REFERENCES Tbl_Sucursales(id_sucursal),

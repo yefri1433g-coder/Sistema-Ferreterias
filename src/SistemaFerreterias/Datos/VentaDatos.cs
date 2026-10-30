@@ -20,7 +20,9 @@ namespace Datos
                 using (SqlConnection cn = _conexion.MtdObtenerConexionBDD())
                 using (SqlDataAdapter da = new SqlDataAdapter(
                     "SELECT v.id_venta, c.nombre AS cliente, ISNULL(s.nombre, 'Sucursal no registrada') AS sucursal, " +
-                    "v.id_sucursal, v.fecha, v.total, ISNULL(SUM(p.monto), 0) AS pagado " +
+                    "v.id_sucursal, v.fecha, v.total, ISNULL(SUM(p.monto), 0) AS pagado, COUNT(p.id_pago) AS cantidad_pagos, " +
+                    "CASE WHEN COUNT(p.id_pago) = 0 THEN 'Pendiente' " +
+                    "WHEN ISNULL(SUM(p.monto), 0) >= v.total THEN 'Pagada' ELSE 'Pago parcial' END AS estado " +
                     "FROM Tbl_Ventas v INNER JOIN Tbl_Clientes c ON c.id_cliente = v.id_cliente " +
                     "LEFT JOIN Tbl_Sucursales s ON s.id_sucursal = v.id_sucursal " +
                     "LEFT JOIN Tbl_Pagos p ON p.id_venta = v.id_venta " +

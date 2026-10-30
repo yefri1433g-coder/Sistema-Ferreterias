@@ -275,7 +275,7 @@ namespace Presentacion
         {
             if (_gridClientesVista.CurrentRow == null || !(_gridClientesVista.CurrentRow.Tag is Cliente)) { MessageBox.Show("Selecciona un cliente.", "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
             Cliente cliente = (Cliente)_gridClientesVista.CurrentRow.Tag;
-            DialogResult confirmar = MessageBox.Show("¿Deseas eliminar a " + cliente.Nombre + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult confirmar = AyudaForms.MtdConfirmacion("¿Deseas eliminar a " + cliente.Nombre + "?");
             if (confirmar != DialogResult.Yes) return;
             try { _negocio.Eliminar(cliente.IdCliente); ConsultarClientes(); AyudaForms.MtdInfo("Cliente eliminado correctamente."); }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
@@ -417,9 +417,8 @@ namespace Presentacion
                 return;
             }
 
-            DialogResult confirmar = MessageBox.Show(
-                "¿Deseas eliminar el cliente seleccionado? Si tiene ventas relacionadas, SQL Server no permitirá borrarlo.",
-                "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult confirmar = AyudaForms.MtdConfirmacion(
+                "¿Deseas eliminar el cliente seleccionado? Si tiene ventas relacionadas, SQL Server no permitirá borrarlo.");
             if (confirmar != DialogResult.Yes)
                 return;
 

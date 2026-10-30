@@ -1,4 +1,4 @@
-﻿using Entidad;
+using Entidad;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -32,7 +32,7 @@ namespace Datos
                                t.id_sucursal_origen AS SucursalOrigen, so.nombre AS NombreOrigen,
                                t.id_sucursal_destino AS SucursalDestino, sd.nombre AS NombreDestino,
                                t.fecha AS FechaTraslado,
-                               CASE WHEN t.estado = 1 THEN 'Pendiente' ELSE 'Completado' END AS Estado
+                               CASE t.estado WHEN 0 THEN 'Completado' WHEN 1 THEN 'Pendiente' WHEN 2 THEN 'En tránsito' ELSE 'Desconocido' END AS Estado
                         FROM Tbl_Traslados t
                         INNER JOIN Tbl_Empleados e ON e.id_empleado = t.id_empleado
                         INNER JOIN Tbl_Sucursales so ON so.id_sucursal = t.id_sucursal_origen
@@ -42,7 +42,7 @@ namespace Datos
                                OR sd.nombre LIKE '%' + @Filtro + '%'
                                OR e.nombre LIKE '%' + @Filtro + '%'
                                OR e.apellido LIKE '%' + @Filtro + '%'
-                               OR CASE WHEN t.estado = 1 THEN 'Pendiente' ELSE 'Completado' END LIKE '%' + @Filtro + '%')
+                               OR CASE t.estado WHEN 0 THEN 'Completado' WHEN 1 THEN 'Pendiente' WHEN 2 THEN 'En tránsito' ELSE 'Desconocido' END LIKE '%' + @Filtro + '%')
                         ORDER BY t.id_traslado DESC;
                     ";
 
@@ -173,7 +173,7 @@ namespace Datos
         // CONSULTAR: MtdLeerEstado
         private string MtdLeerEstado(SqlConnection conn, SqlTransaction tx, int codigoTraslado)
         {
-            using (SqlCommand cmd = new SqlCommand("SELECT CASE WHEN estado = 1 THEN 'Pendiente' ELSE 'Completado' END FROM Tbl_Traslados WITH (UPDLOCK, ROWLOCK) WHERE id_traslado = @CodigoTraslado;", conn, tx))
+            using (SqlCommand cmd = new SqlCommand("SELECT CASE estado WHEN 0 THEN 'Completado' WHEN 1 THEN 'Pendiente' WHEN 2 THEN 'En tránsito' ELSE 'Desconocido' END FROM Tbl_Traslados WITH (UPDLOCK, ROWLOCK) WHERE id_traslado = @CodigoTraslado;", conn, tx))
             {
                 cmd.Parameters.AddWithValue("@CodigoTraslado", codigoTraslado);
                 object resultado = cmd.ExecuteScalar();
@@ -331,7 +331,7 @@ namespace Datos
                         int destino;
                         string actual;
 
-                        using (SqlCommand sel = new SqlCommand("SELECT id_sucursal_origen AS SucursalOrigen, id_sucursal_destino AS SucursalDestino, CASE WHEN estado = 1 THEN 'Pendiente' ELSE 'Completado' END AS Estado FROM Tbl_Traslados WITH (UPDLOCK, ROWLOCK) WHERE id_traslado = @CodigoTraslado;", conn, tx))
+                        using (SqlCommand sel = new SqlCommand("SELECT id_sucursal_origen AS SucursalOrigen, id_sucursal_destino AS SucursalDestino, CASE estado WHEN 0 THEN 'Completado' WHEN 1 THEN 'Pendiente' WHEN 2 THEN 'En tránsito' ELSE 'Desconocido' END AS Estado FROM Tbl_Traslados WITH (UPDLOCK, ROWLOCK) WHERE id_traslado = @CodigoTraslado;", conn, tx))
                         {
                             sel.Parameters.AddWithValue("@CodigoTraslado", codigoTraslado);
 
@@ -411,9 +411,16 @@ namespace Datos
                             }
                         }
 
-                        using (SqlCommand upd = new SqlCommand("UPDATE Tbl_Traslados SET estado = @Estado WHERE id_traslado = @CodigoTraslado;", conn, tx))
+                        using (SqlCommand upd = new SqlCommand(@"
+                            IF @Estado = 2 AND EXISTS (
+                                SELECT 1 FROM sys.columns
+                                WHERE object_id = OBJECT_ID(N'dbo.Tbl_Traslados')
+                                  AND name = N'estado' AND TYPE_NAME(system_type_id) = N'bit'
+                            )
+                                THROW 50001, 'Para guardar En tránsito, aplica 20261029_traslados_estado.sql.', 1;
+                            UPDATE Tbl_Traslados SET estado = @Estado WHERE id_traslado = @CodigoTraslado;", conn, tx))
                         {
-                            upd.Parameters.AddWithValue("@Estado", nuevoEstado == EstadosTraslado.Completado ? 0 : 1);
+                            upd.Parameters.AddWithValue("@Estado", nuevoEstado == EstadosTraslado.Completado ? 0 : nuevoEstado == EstadosTraslado.EnTransito ? 2 : 1);
                             upd.Parameters.AddWithValue("@CodigoTraslado", codigoTraslado);
                             upd.ExecuteNonQuery();
                         }
@@ -425,6 +432,8 @@ namespace Datos
             }
             catch (SqlException ex)
             {
+                if (ex.Number == 50001)
+                    throw new InvalidOperationException("La base de datos todavía no admite el estado En tránsito. Se necesita actualizar la configuración de estados de Traslados.", ex);
                 throw ErrorDatos.Traducir(ex, "cambiar el estado del traslado");
             }
         }

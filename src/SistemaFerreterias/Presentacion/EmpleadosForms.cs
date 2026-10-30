@@ -411,7 +411,7 @@ namespace Presentacion
         {
             if (_gridEmpleadosVista.CurrentRow == null || !(_gridEmpleadosVista.CurrentRow.Tag is Empleado)) { MessageBox.Show("Selecciona un empleado.", "Empleados", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
             Empleado empleado = (Empleado)_gridEmpleadosVista.CurrentRow.Tag;
-            if (MessageBox.Show("¿Deseas eliminar a " + empleado.Nombre + " " + empleado.Apellido + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            if (AyudaForms.MtdConfirmacion("¿Deseas eliminar a " + empleado.Nombre + " " + empleado.Apellido + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(empleado.IdEmpleado); _empleadoSeleccionado = null; CargarEmpleados(); AyudaForms.MtdInfo("Empleado eliminado correctamente."); }
             catch (Exception ex) { MostrarError(ex); }
         }
@@ -539,9 +539,8 @@ namespace Presentacion
                 return;
             }
 
-            DialogResult confirmar = MessageBox.Show(
-                "¿Deseas eliminar el empleado seleccionado?",
-                "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult confirmar = AyudaForms.MtdConfirmacion(
+                "¿Deseas eliminar el empleado seleccionado?");
             if (confirmar != DialogResult.Yes) return;
 
             try

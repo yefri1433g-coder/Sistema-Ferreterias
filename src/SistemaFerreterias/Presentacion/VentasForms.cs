@@ -32,7 +32,7 @@ namespace Presentacion
         {
             InitializeComponent();
             PrepararDisenoVentas();
-            BarraListado.Configurar(_gridVentas, _buscarVentas, "Ventas", mostrarEdicion: false);
+            BarraListado.Configurar(_gridVentas, _buscarVentas, "Ventas");
             EstiloAplicacion.Aplicar(this);
         }
 
@@ -175,6 +175,9 @@ namespace Presentacion
             _gridVentas.Columns["total"].DefaultCellStyle.FormatProvider = CultureInfo.GetCultureInfo("es-GT");
             _gridVentas.Columns["total"].FillWeight = 18;
             _gridVentas.Columns["pagado"].Visible = false;
+            _gridVentas.Columns["cantidad_pagos"].Visible = false;
+            _gridVentas.Columns["estado"].HeaderText = "ESTADO";
+            _gridVentas.Columns["estado"].FillWeight = 18;
             _gridVentas.ClearSelection();
             ActualizarAccionesVentaSeleccionada();
             int desde = totalRegistros == 0 ? 0 : ((_pagina - 1) * VentasPorPagina) + 1, hasta = Math.Min(_pagina * VentasPorPagina, totalRegistros);
@@ -290,10 +293,10 @@ namespace Presentacion
         // EDITAR: ActualizarAccionesVentaSeleccionada
         private void ActualizarAccionesVentaSeleccionada()
         {
-            DataRowView fila = _gridVentas == null || _gridVentas.SelectedRows.Count == 0
+            DataRowView fila = _gridVentas == null || _gridVentas.SelectedRows.Count != 1
                 ? null
                 : _gridVentas.SelectedRows[0].DataBoundItem as DataRowView;
-            bool pendiente = fila != null && fila.Row.Table.Columns.Contains("pagado") && Convert.ToDecimal(fila["pagado"]) == 0m;
+            bool pendiente = fila != null && fila.Row.Table.Columns.Contains("cantidad_pagos") && Convert.ToInt32(fila["cantidad_pagos"]) == 0;
             if (_editarVenta != null) _editarVenta.Enabled = pendiente;
             if (_eliminarVenta != null) _eliminarVenta.Enabled = pendiente;
         }
@@ -301,9 +304,9 @@ namespace Presentacion
         private int VentaSeleccionadaId(out bool pendiente)
         {
             pendiente = false;
-            DataRowView fila = _gridVentas.SelectedRows.Count == 0 ? null : _gridVentas.SelectedRows[0].DataBoundItem as DataRowView;
+            DataRowView fila = _gridVentas.SelectedRows.Count != 1 ? null : _gridVentas.SelectedRows[0].DataBoundItem as DataRowView;
             if (fila == null) return 0;
-            pendiente = fila.Row.Table.Columns.Contains("pagado") && Convert.ToDecimal(fila["pagado"]) == 0m;
+            pendiente = fila.Row.Table.Columns.Contains("cantidad_pagos") && Convert.ToInt32(fila["cantidad_pagos"]) == 0;
             return Convert.ToInt32(fila["id_venta"]);
         }
 
@@ -364,9 +367,8 @@ namespace Presentacion
                 int idSucursal = SucursalSeleccionadaId();
                 if (idSucursal <= 0) idSucursal = ElegirSucursalOriginal();
                 if (idSucursal <= 0) return;
-                DialogResult confirmacion = MessageBox.Show(
-                    "Se restaurará el inventario de la sucursal original registrada y se eliminarán los detalles de la venta No. " + idVenta + ". ¿Deseas continuar?",
-                    "Eliminar venta pendiente", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                DialogResult confirmacion = AyudaForms.MtdConfirmacion(
+                    "Se restaurará el inventario de la sucursal original registrada y se eliminarán los detalles de la venta No. " + idVenta + ". ¿Deseas continuar?");
                 if (confirmacion != DialogResult.Yes) return;
 
                 string error = _negocio.EliminarPendiente(idVenta, idSucursal);
@@ -376,6 +378,7 @@ namespace Presentacion
                     return;
                 }
                 CargarVentas();
+                AyudaForms.MtdInfo("Venta eliminada correctamente.");
             }
             catch (Exception ex)
             {
