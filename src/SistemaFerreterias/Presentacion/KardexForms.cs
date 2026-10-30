@@ -37,7 +37,7 @@ namespace Presentacion
             InitializeComponent();
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoKardex();
-            BarraListado.Configurar(_gridKardexVista, _buscarKardexVista, "Kardex");
+            BarraListado.Configurar(_gridKardexVista, _buscarKardexVista, "Kardex", mostrarEdicion: false);
         }
 
         // CONFIGURACIÓN: PrepararDisenoKardex

@@ -44,7 +44,9 @@ namespace Presentacion
             InitializeComponent();
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoTraslados();
-            BarraListado.Configurar(_gridTrasladosVista, _buscarTrasladosVista, "Traslados", mostrarEdicion: false);
+            BarraListado.Configurar(_gridTrasladosVista, _buscarTrasladosVista, "Traslados",
+                () => AbrirTrasladoExistente(ObtenerTrasladoVista(_gridTrasladosVista.CurrentRow)),
+                EliminarTrasladoVista);
             PrepararDialogoTraslado();
         }
 
@@ -119,12 +121,11 @@ namespace Presentacion
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 410, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 4, 0, 0) };
             Button nuevo = CrearBotonTraslado("+ Nuevo registro", true);
             nuevo.Click += (s, e) => btnNuevo_Click(this, EventArgs.Empty);
-            Button eliminar = CrearBotonTraslado("Eliminar", false); eliminar.Width = 82; eliminar.Click += (s, e) => EliminarTrasladoVista();
             _buscarTrasladosVista = new TextBox { Width = 165, Height = 28, Margin = new Padding(8, 1, 0, 0), Font = new Font("Segoe UI", 8F), BorderStyle = BorderStyle.FixedSingle, Text = "Buscar traslados", ForeColor = EstiloAplicacion.Secundario };
             _buscarTrasladosVista.Enter += (s, e) => { if (_buscarTrasladosVista.Text == "Buscar traslados") { _buscarTrasladosVista.Clear(); _buscarTrasladosVista.ForeColor = EstiloAplicacion.Tinta; } };
             _buscarTrasladosVista.Leave += (s, e) => { if (String.IsNullOrWhiteSpace(_buscarTrasladosVista.Text)) { _buscarTrasladosVista.Text = "Buscar traslados"; _buscarTrasladosVista.ForeColor = EstiloAplicacion.Secundario; } };
             _buscarTrasladosVista.TextChanged += (s, e) => { _paginaTraslados = 1; if (_buscarTrasladosVista.Text != "Buscar traslados") FiltrarTrasladosVista(); };
-            acciones.Controls.Add(nuevo); acciones.Controls.Add(eliminar); acciones.Controls.Add(_buscarTrasladosVista); barra.Controls.Add(acciones);
+            acciones.Controls.Add(nuevo); acciones.Controls.Add(_buscarTrasladosVista); barra.Controls.Add(acciones);
 
             _gridTrasladosVista = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
             _gridTrasladosVista.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridTrasladosVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridTrasladosVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridTrasladosVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridTrasladosVista.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridTrasladosVista.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridTrasladosVista.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridTrasladosVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridTrasladosVista.RowTemplate.Height = 42;
@@ -132,7 +133,7 @@ namespace Presentacion
             _gridTrasladosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridTrasladosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = String.Equals(Convert.ToString(e.Value), EstadosTraslado.Completado, StringComparison.OrdinalIgnoreCase) ? EstiloAplicacion.Acento : Color.FromArgb(210, 126, 48); };
             _gridTrasladosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirTrasladoExistente(ObtenerTrasladoVista(_gridTrasladosVista.Rows[e.RowIndex])); };
             ContextMenuStrip menuFila = new ContextMenuStrip();
-            menuFila.Items.Add("Consultar traslado", null, (s, e) => { if (_gridTrasladosVista.CurrentRow != null) AbrirTrasladoExistente(ObtenerTrasladoVista(_gridTrasladosVista.CurrentRow)); });
+            menuFila.Items.Add("Ver / editar traslado", null, (s, e) => { if (_gridTrasladosVista.CurrentRow != null) AbrirTrasladoExistente(ObtenerTrasladoVista(_gridTrasladosVista.CurrentRow)); });
             _gridTrasladosVista.ContextMenuStrip = menuFila;
             _gridTrasladosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridTrasladosVista.CurrentCell = _gridTrasladosVista.Rows[e.RowIndex].Cells[0]; };
 
@@ -306,10 +307,11 @@ namespace Presentacion
             try
             {
                 MtdCargarEnCampos(item);
-                _modo = String.Empty;
-                MtdHabilitarCampos(false);
-                btnGuardar.Visible = false;
-                btnLimpiar.Visible = false;
+                bool editable = !String.Equals(item.Estado, EstadosTraslado.Completado, StringComparison.OrdinalIgnoreCase);
+                _modo = editable ? "Editar" : String.Empty;
+                MtdHabilitarCampos(editable);
+                btnGuardar.Visible = editable;
+                btnLimpiar.Visible = editable;
                 btnEditar.Visible = false;
                 btnNuevo.Visible = false;
                 MostrarDialogoTraslado(false);
