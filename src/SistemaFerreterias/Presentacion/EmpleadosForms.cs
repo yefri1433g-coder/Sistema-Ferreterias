@@ -54,7 +54,7 @@ namespace Presentacion
             Load += EmpleadosForms_Load;
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoEmpleados();
-            BarraListado.Configurar(_gridEmpleadosVista, _buscarEmpleadosVista, "Empleados", () => AbrirEditorEmpleado(_gridEmpleadosVista.CurrentRow.Tag as Empleado));
+            BarraListado.Configurar(_gridEmpleadosVista, _buscarEmpleadosVista, "Empleados", () => AbrirEditorEmpleado(ObtenerEmpleadoVista(_gridEmpleadosVista.CurrentRow)));
         }
 
         // CONFIGURACIÓN: PrepararDisenoEmpleados
@@ -111,9 +111,9 @@ namespace Presentacion
             _gridEmpleadosVista.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridEmpleadosVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridEmpleadosVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridEmpleadosVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridEmpleadosVista.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridEmpleadosVista.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridEmpleadosVista.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridEmpleadosVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridEmpleadosVista.RowTemplate.Height = 42;
             _gridEmpleadosVista.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridEmpleadosVista.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             _gridEmpleadosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridEmpleadosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = Convert.ToString(e.Value) == "Activo" ? EstiloAplicacion.Acento : Color.FromArgb(210, 126, 48); };
-            _gridEmpleadosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirEditorEmpleado(_gridEmpleadosVista.Rows[e.RowIndex].Tag as Empleado); };
-            ContextMenuStrip menuFila = new ContextMenuStrip(); menuFila.Items.Add("Editar empleado", null, (s, e) => { if (_gridEmpleadosVista.CurrentRow != null) AbrirEditorEmpleado(_gridEmpleadosVista.CurrentRow.Tag as Empleado); }); menuFila.Items.Add("Eliminar empleado", null, (s, e) => EliminarEmpleadoVista()); _gridEmpleadosVista.ContextMenuStrip = menuFila;
-            _gridEmpleadosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridEmpleadosVista.CurrentCell = _gridEmpleadosVista.Rows[e.RowIndex].Cells[0]; };
+            _gridEmpleadosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirEditorEmpleado(ObtenerEmpleadoVista(_gridEmpleadosVista.Rows[e.RowIndex])); };
+            ContextMenuStrip menuFila = new ContextMenuStrip(); menuFila.Items.Add("Editar empleado", null, (s, e) => { if (_gridEmpleadosVista.CurrentRow != null) AbrirEditorEmpleado(ObtenerEmpleadoVista(_gridEmpleadosVista.CurrentRow)); }); menuFila.Items.Add("Eliminar empleado", null, (s, e) => EliminarEmpleadoVista()); _gridEmpleadosVista.ContextMenuStrip = menuFila;
+            _gridEmpleadosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridEmpleadosVista.CurrentCell = _gridEmpleadosVista.Rows[e.RowIndex].Cells["Empleado"]; };
             _totalEmpleadosVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             _paginaEmpleadosVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
@@ -327,16 +327,16 @@ namespace Presentacion
             int paginas = Math.Max(1, (int)Math.Ceiling(lista.Count / (double)EmpleadosPorPaginaVista));
             _paginaVistaEmpleados = Math.Max(1, Math.Min(_paginaVistaEmpleados, paginas));
             List<Empleado> pagina = lista.Skip((_paginaVistaEmpleados - 1) * EmpleadosPorPaginaVista).Take(EmpleadosPorPaginaVista).ToList();
-            DataTable tabla = new DataTable(); tabla.Columns.Add("Empleado"); tabla.Columns.Add("Puesto"); tabla.Columns.Add("Sucursal"); tabla.Columns.Add("Telefono"); tabla.Columns.Add("Estado");
-            foreach (Empleado empleado in pagina) tabla.Rows.Add(((empleado.Nombre ?? "") + " " + (empleado.Apellido ?? "")).Trim(), empleado.Cargo, empleado.Sucursal, String.IsNullOrWhiteSpace(empleado.Telefono) ? "-" : empleado.Telefono, empleado.Estado ? "Activo" : "Inactivo");
+            DataTable tabla = new DataTable(); tabla.Columns.Add("IdEmpleado", typeof(int)); tabla.Columns.Add("Empleado"); tabla.Columns.Add("Puesto"); tabla.Columns.Add("Sucursal"); tabla.Columns.Add("Telefono"); tabla.Columns.Add("Estado");
+            foreach (Empleado empleado in pagina) tabla.Rows.Add(empleado.IdEmpleado, ((empleado.Nombre ?? "") + " " + (empleado.Apellido ?? "")).Trim(), empleado.Cargo, empleado.Sucursal, String.IsNullOrWhiteSpace(empleado.Telefono) ? "-" : empleado.Telefono, empleado.Estado ? "Activo" : "Inactivo");
             _gridEmpleadosVista.DataSource = tabla;
+            _gridEmpleadosVista.Columns["IdEmpleado"].Visible = false;
             _gridEmpleadosVista.Columns["Empleado"].HeaderText = "EMPLEADO"; _gridEmpleadosVista.Columns["Empleado"].FillWeight = 23;
             _gridEmpleadosVista.Columns["Puesto"].HeaderText = "PUESTO"; _gridEmpleadosVista.Columns["Puesto"].FillWeight = 22;
             _gridEmpleadosVista.Columns["Sucursal"].HeaderText = "SUCURSAL"; _gridEmpleadosVista.Columns["Sucursal"].FillWeight = 20;
             _gridEmpleadosVista.Columns["Telefono"].HeaderText = "TELÉFONO"; _gridEmpleadosVista.Columns["Telefono"].FillWeight = 20;
             _gridEmpleadosVista.Columns["Estado"].HeaderText = "ESTADO"; _gridEmpleadosVista.Columns["Estado"].FillWeight = 15;
             _gridEmpleadosVista.ClearSelection();
-            for (int i = 0; i < _gridEmpleadosVista.Rows.Count; i++) _gridEmpleadosVista.Rows[i].Tag = pagina[i];
             int desde = lista.Count == 0 ? 0 : ((_paginaVistaEmpleados - 1) * EmpleadosPorPaginaVista) + 1;
             int hasta = Math.Min(_paginaVistaEmpleados * EmpleadosPorPaginaVista, lista.Count);
             _totalEmpleadosVista.Text = "Mostrando " + desde + "-" + hasta + " de " + lista.Count + " registros";
@@ -409,8 +409,8 @@ namespace Presentacion
         // ELIMINAR: EliminarEmpleadoVista
         private void EliminarEmpleadoVista()
         {
-            if (_gridEmpleadosVista.CurrentRow == null || !(_gridEmpleadosVista.CurrentRow.Tag is Empleado)) { AyudaForms.MtdMensaje("Selecciona un empleado.", "Empleados"); return; }
-            Empleado empleado = (Empleado)_gridEmpleadosVista.CurrentRow.Tag;
+            if (_gridEmpleadosVista.CurrentRow == null || ObtenerEmpleadoVista(_gridEmpleadosVista.CurrentRow) == null) { AyudaForms.MtdMensaje("Selecciona un empleado.", "Empleados"); return; }
+            Empleado empleado = ObtenerEmpleadoVista(_gridEmpleadosVista.CurrentRow);
             if (AyudaForms.MtdConfirmacion("¿Deseas eliminar a " + empleado.Nombre + " " + empleado.Apellido + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(empleado.IdEmpleado); _empleadoSeleccionado = null; CargarEmpleados(); AyudaForms.MtdInfo("Empleado eliminado correctamente."); }
             catch (Exception ex) { MostrarError(ex); }
@@ -656,6 +656,14 @@ namespace Presentacion
         {
             public int Id { get; set; }
             public string Texto { get; set; }
+        }
+
+        // El identificador enlazado permanece estable al crear u ordenar las filas.
+        private Empleado ObtenerEmpleadoVista(DataGridViewRow fila)
+        {
+            if (fila == null) return null;
+            int codigo = Convert.ToInt32(fila.Cells["IdEmpleado"].Value);
+            return _empleadosTotales.FirstOrDefault(x => x.IdEmpleado == codigo);
         }
     }
 }

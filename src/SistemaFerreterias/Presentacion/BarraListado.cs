@@ -56,9 +56,10 @@ namespace Presentacion
             if (nuevo != null) { nuevo.Text = "+ Nuevo"; barra.Controls.Add(nuevo); }
             foreach (Button boton in barra.Controls.OfType<Button>())
             {
-                boton.Size = new Size(boton == nuevo ? 96 : 80, 30);
+                int anchoMinimo = boton == nuevo || boton.Text == "Imprimir" || boton.Text == "Exportar" ? 96 : 80;
+                boton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                boton.Size = new Size(Math.Max(anchoMinimo, TextRenderer.MeasureText(boton.Text, boton.Font).Width + 24), 34);
                 boton.Margin = new Padding(0, 0, 8, 0);
-                boton.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
                 boton.FlatStyle = FlatStyle.Flat;
                 boton.Padding = Padding.Empty;
                 boton.TextAlign = ContentAlignment.MiddleCenter;

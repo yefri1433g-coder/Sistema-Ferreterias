@@ -38,7 +38,7 @@ namespace Presentacion
             InitializeComponent();
             _usuarioSesion = usuarioSesion;
             PrepararDisenoUsuarios();
-            BarraListado.Configurar(_gridUsuariosVista, _buscarUsuariosVista, "Usuarios", () => AbrirAdministracion(_gridUsuariosVista.CurrentRow.Tag as Usuario));
+            BarraListado.Configurar(_gridUsuariosVista, _buscarUsuariosVista, "Usuarios", () => AbrirAdministracion(ObtenerUsuarioVista(_gridUsuariosVista.CurrentRow)));
             EstiloAplicacion.Aplicar(this);
             MinimumSize = new System.Drawing.Size(780, 520);
             cboRol.BackColor = System.Drawing.Color.White;
@@ -100,12 +100,12 @@ namespace Presentacion
             _gridUsuariosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridUsuariosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = Convert.ToString(e.Value) == "Activo" ? EstiloAplicacion.Acento : Color.FromArgb(210, 126, 48); };
             eliminarUsuarioVista.Enabled = false;
             _gridUsuariosVista.SelectionChanged += (s, e) => eliminarUsuarioVista.Enabled = _gridUsuariosVista.CurrentRow != null;
-            _gridUsuariosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirAdministracion(_gridUsuariosVista.Rows[e.RowIndex].Tag as Usuario); };
+            _gridUsuariosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirAdministracion(ObtenerUsuarioVista(_gridUsuariosVista.Rows[e.RowIndex])); };
             ContextMenuStrip menuFila = new ContextMenuStrip();
-            menuFila.Items.Add("Editar usuario", null, (s, e) => { if (_gridUsuariosVista.CurrentRow != null) AbrirAdministracion(_gridUsuariosVista.CurrentRow.Tag as Usuario); });
+            menuFila.Items.Add("Editar usuario", null, (s, e) => { if (_gridUsuariosVista.CurrentRow != null) AbrirAdministracion(ObtenerUsuarioVista(_gridUsuariosVista.CurrentRow)); });
             menuFila.Items.Add("Eliminar usuario", null, (s, e) => EliminarUsuarioVista());
             _gridUsuariosVista.ContextMenuStrip = menuFila;
-            _gridUsuariosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridUsuariosVista.CurrentCell = _gridUsuariosVista.Rows[e.RowIndex].Cells[0]; };
+            _gridUsuariosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridUsuariosVista.CurrentCell = _gridUsuariosVista.Rows[e.RowIndex].Cells["NombreUsuario"]; };
             _textoRegistrosVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             _textoPaginaVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             Panel pie = new Panel { Dock = DockStyle.Bottom, Height = 40, BackColor = Color.White };
@@ -141,13 +141,14 @@ namespace Presentacion
             if (_gridUsuariosVista == null) return;
             int paginas = Math.Max(1, (int)Math.Ceiling(_usuarios.Count / (double)UsuariosPorPaginaVista)); _paginaVista = Math.Max(1, Math.Min(_paginaVista, paginas));
             List<Usuario> pagina = _usuarios.Skip((_paginaVista - 1) * UsuariosPorPaginaVista).Take(UsuariosPorPaginaVista).ToList();
-            DataTable tabla = new DataTable(); tabla.Columns.Add("NombreUsuario"); tabla.Columns.Add("Rol"); tabla.Columns.Add("Estado");
-            foreach (Usuario u in pagina) tabla.Rows.Add(u.NombreUsuario, u.Rol, u.Estado ? "Activo" : "Inactivo");
+            DataTable tabla = new DataTable(); tabla.Columns.Add("IdUsuario", typeof(int)); tabla.Columns.Add("NombreUsuario"); tabla.Columns.Add("Rol"); tabla.Columns.Add("Estado");
+            foreach (Usuario u in pagina) tabla.Rows.Add(u.IdUsuario, u.NombreUsuario, u.Rol, u.Estado ? "Activo" : "Inactivo");
             _gridUsuariosVista.DataSource = tabla;
+            _gridUsuariosVista.Columns["IdUsuario"].Visible = false;
             _gridUsuariosVista.Columns["NombreUsuario"].HeaderText = "USUARIO"; _gridUsuariosVista.Columns["NombreUsuario"].FillWeight = 35;
             _gridUsuariosVista.Columns["Rol"].HeaderText = "ROL"; _gridUsuariosVista.Columns["Rol"].FillWeight = 35;
             _gridUsuariosVista.Columns["Estado"].HeaderText = "ESTADO"; _gridUsuariosVista.Columns["Estado"].FillWeight = 30;
-            _gridUsuariosVista.ClearSelection(); for (int i = 0; i < pagina.Count; i++) _gridUsuariosVista.Rows[i].Tag = pagina[i];
+            _gridUsuariosVista.ClearSelection();
             int desde = _usuarios.Count == 0 ? 0 : ((_paginaVista - 1) * UsuariosPorPaginaVista) + 1, hasta = Math.Min(_paginaVista * UsuariosPorPaginaVista, _usuarios.Count);
             _textoRegistrosVista.Text = "Mostrando " + desde + "-" + hasta + " de " + _usuarios.Count + " registros"; _textoPaginaVista.Text = _paginaVista + " de " + paginas;
             _anteriorVista.Enabled = _paginaVista > 1; _siguienteVista.Enabled = _paginaVista < paginas;
@@ -198,8 +199,8 @@ namespace Presentacion
         // ELIMINAR: EliminarUsuarioVista
         private void EliminarUsuarioVista()
         {
-            if (_gridUsuariosVista.CurrentRow == null || !(_gridUsuariosVista.CurrentRow.Tag is Usuario)) return;
-            Usuario usuario = (Usuario)_gridUsuariosVista.CurrentRow.Tag;
+            if (_gridUsuariosVista.CurrentRow == null || ObtenerUsuarioVista(_gridUsuariosVista.CurrentRow) == null) return;
+            Usuario usuario = ObtenerUsuarioVista(_gridUsuariosVista.CurrentRow);
             if (AyudaForms.MtdConfirmacion("¿Deseas eliminar el usuario " + usuario.NombreUsuario + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(usuario.IdUsuario); CargarUsuarios(); AyudaForms.MtdInfo("Usuario eliminado correctamente."); }
             catch (Exception ex) { AyudaForms.MtdMensaje(ex.Message, "Usuarios"); }
@@ -441,6 +442,14 @@ namespace Presentacion
         private void btnCerrar_Click_1(object sender, EventArgs e)
         {
             btnCerrar_Click(sender, e);
+        }
+
+        // El identificador enlazado permanece estable al crear u ordenar las filas.
+        private Usuario ObtenerUsuarioVista(DataGridViewRow fila)
+        {
+            if (fila == null) return null;
+            int codigo = Convert.ToInt32(fila.Cells["IdUsuario"].Value);
+            return _usuariosTotales.FirstOrDefault(x => x.IdUsuario == codigo);
         }
     }
 }

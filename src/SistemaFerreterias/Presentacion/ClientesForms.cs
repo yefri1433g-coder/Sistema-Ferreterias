@@ -37,7 +37,7 @@ namespace Presentacion
             EstiloAplicacion.Aplicar(this);
             txtNombre.KeyDown += txtNombre_KeyDown;
             PrepararDisenoClientes();
-            BarraListado.Configurar(_gridClientesVista, _buscarClientesVista, "Clientes", () => AbrirEditorCliente(_gridClientesVista.CurrentRow.Tag as Cliente));
+            BarraListado.Configurar(_gridClientesVista, _buscarClientesVista, "Clientes", () => AbrirEditorCliente(ObtenerClienteVista(_gridClientesVista.CurrentRow)));
         }
 
         // CONFIGURACIÓN: PrepararDisenoClientes
@@ -96,14 +96,14 @@ namespace Presentacion
             _gridClientesVista = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
             _gridClientesVista.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridClientesVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridClientesVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridClientesVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridClientesVista.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridClientesVista.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridClientesVista.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridClientesVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridClientesVista.RowTemplate.Height = 42;
             _gridClientesVista.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridClientesVista.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            _gridClientesVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirEditorCliente(_gridClientesVista.Rows[e.RowIndex].Tag as Cliente); };
+            _gridClientesVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirEditorCliente(ObtenerClienteVista(_gridClientesVista.Rows[e.RowIndex])); };
             eliminarClienteVista.Enabled = false;
             _gridClientesVista.SelectionChanged += (s, e) => eliminarClienteVista.Enabled = _gridClientesVista.CurrentRow != null;
             ContextMenuStrip menuFila = new ContextMenuStrip();
-            menuFila.Items.Add("Editar cliente", null, (s, e) => { if (_gridClientesVista.CurrentRow != null) AbrirEditorCliente(_gridClientesVista.CurrentRow.Tag as Cliente); });
+            menuFila.Items.Add("Editar cliente", null, (s, e) => { if (_gridClientesVista.CurrentRow != null) AbrirEditorCliente(ObtenerClienteVista(_gridClientesVista.CurrentRow)); });
             menuFila.Items.Add("Eliminar cliente", null, (s, e) => EliminarClienteVista());
             _gridClientesVista.ContextMenuStrip = menuFila;
-            _gridClientesVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridClientesVista.CurrentCell = _gridClientesVista.Rows[e.RowIndex].Cells[0]; };
+            _gridClientesVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridClientesVista.CurrentCell = _gridClientesVista.Rows[e.RowIndex].Cells["Nombre"]; };
 
             _totalClientesVista = new Label { Dock = DockStyle.Left, Width = 300, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
             _paginaClientesVista = new Label { Width = 90, Height = 25, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 8F), ForeColor = EstiloAplicacion.Secundario };
@@ -211,15 +211,15 @@ namespace Presentacion
             int paginas = Math.Max(1, (int)Math.Ceiling(lista.Count / (double)ClientesPorPaginaVista));
             _paginaVistaClientes = Math.Max(1, Math.Min(_paginaVistaClientes, paginas));
             List<Cliente> pagina = lista.Skip((_paginaVistaClientes - 1) * ClientesPorPaginaVista).Take(ClientesPorPaginaVista).ToList();
-            DataTable tabla = new DataTable(); tabla.Columns.Add("Nombre"); tabla.Columns.Add("NIT"); tabla.Columns.Add("Telefono"); tabla.Columns.Add("Direccion");
-            foreach (Cliente cliente in pagina) tabla.Rows.Add(cliente.Nombre, String.IsNullOrWhiteSpace(cliente.Nit) ? "-" : cliente.Nit, String.IsNullOrWhiteSpace(cliente.Telefono) ? "-" : cliente.Telefono, String.IsNullOrWhiteSpace(cliente.Direccion) ? "-" : cliente.Direccion);
+            DataTable tabla = new DataTable(); tabla.Columns.Add("IdCliente", typeof(int)); tabla.Columns.Add("Nombre"); tabla.Columns.Add("NIT"); tabla.Columns.Add("Telefono"); tabla.Columns.Add("Direccion");
+            foreach (Cliente cliente in pagina) tabla.Rows.Add(cliente.IdCliente, cliente.Nombre, String.IsNullOrWhiteSpace(cliente.Nit) ? "-" : cliente.Nit, String.IsNullOrWhiteSpace(cliente.Telefono) ? "-" : cliente.Telefono, String.IsNullOrWhiteSpace(cliente.Direccion) ? "-" : cliente.Direccion);
             _gridClientesVista.DataSource = tabla;
+            _gridClientesVista.Columns["IdCliente"].Visible = false;
             _gridClientesVista.Columns["Nombre"].HeaderText = "CLIENTE"; _gridClientesVista.Columns["Nombre"].FillWeight = 24;
             _gridClientesVista.Columns["NIT"].HeaderText = "NIT"; _gridClientesVista.Columns["NIT"].FillWeight = 16;
             _gridClientesVista.Columns["Telefono"].HeaderText = "TELÉFONO"; _gridClientesVista.Columns["Telefono"].FillWeight = 20;
             _gridClientesVista.Columns["Direccion"].HeaderText = "DIRECCIÓN"; _gridClientesVista.Columns["Direccion"].FillWeight = 40;
             _gridClientesVista.ClearSelection();
-            for (int i = 0; i < _gridClientesVista.Rows.Count; i++) _gridClientesVista.Rows[i].Tag = pagina[i];
             int desde = lista.Count == 0 ? 0 : ((_paginaVistaClientes - 1) * ClientesPorPaginaVista) + 1;
             int hasta = Math.Min(_paginaVistaClientes * ClientesPorPaginaVista, lista.Count);
             _totalClientesVista.Text = "Mostrando " + desde + "-" + hasta + " de " + lista.Count + " registros";
@@ -273,8 +273,8 @@ namespace Presentacion
         // ELIMINAR: EliminarClienteVista
         private void EliminarClienteVista()
         {
-            if (_gridClientesVista.CurrentRow == null || !(_gridClientesVista.CurrentRow.Tag is Cliente)) { AyudaForms.MtdMensaje("Selecciona un cliente.", "Clientes"); return; }
-            Cliente cliente = (Cliente)_gridClientesVista.CurrentRow.Tag;
+            if (_gridClientesVista.CurrentRow == null || ObtenerClienteVista(_gridClientesVista.CurrentRow) == null) { AyudaForms.MtdMensaje("Selecciona un cliente.", "Clientes"); return; }
+            Cliente cliente = ObtenerClienteVista(_gridClientesVista.CurrentRow);
             DialogResult confirmar = AyudaForms.MtdConfirmacion("¿Deseas eliminar a " + cliente.Nombre + "?");
             if (confirmar != DialogResult.Yes) return;
             try { _negocio.Eliminar(cliente.IdCliente); ConsultarClientes(); AyudaForms.MtdInfo("Cliente eliminado correctamente."); }
@@ -432,6 +432,14 @@ namespace Presentacion
             {
                 AyudaForms.MtdMensaje(ex.Message, "Clientes");
             }
+        }
+
+        // El identificador enlazado permanece estable al crear u ordenar las filas.
+        private Cliente ObtenerClienteVista(DataGridViewRow fila)
+        {
+            if (fila == null) return null;
+            int codigo = Convert.ToInt32(fila.Cells["IdCliente"].Value);
+            return _clientesTotales.FirstOrDefault(x => x.IdCliente == codigo);
         }
     }
 }
