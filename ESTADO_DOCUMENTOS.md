@@ -2,19 +2,21 @@
 
 Última revisión: 29 de octubre de 2026.
 
+Los documentos 01 al 11 se marcan como COMPLETADOS por indicación expresa del estudiante. Esta actualización registra el cierre documental y no añade pruebas técnicas nuevas; los resultados anteriores se conservan como antecedentes.
+
 | Documento | Estado | Nota |
 |---|---|---|
-| 01 Inspección inicial | COMPLETADO Y APROBADO | El Integrante 1, Yefry Yahir García García, confirmó este documento como completado y aprobado. |
+| 01 Inspección inicial | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó este documento como completado y aprobado. |
 | 02 CRUD simple | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó este documento como completado. |
-| 03 CRUD relacional | COMPLETADO PARCIAL | El Integrante 1, Yefry Yahir García García, confirmó los módulos Inventarios y Empleados. No se registran otros módulos como probados. |
+| 03 CRUD relacional | COMPLETADO | Cierre documental registrado por indicación del estudiante el 29 de octubre de 2026. Las pruebas registradas de Inventarios y Empleados se conservan como antecedentes. |
 | 04 Maestro detalle | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó Traslados: Consultar con detalle, Agregar, Buscar, Editar y Eliminar. |
-| 05 Git colaborativo | EN CIERRE | El historial local confirma el clon en `C:\2026_Progra2_Integracion`, `main` sincronizada con `origin/main`, ramas remotas publicadas `integrante1`, `integrante2` e `Integrante-3`, y los Pull Requests #1, #2 y #4 integrados. Falta que el grupo confirme la visibilidad privada del repositorio, que conservó las carpetas originales y que probó sus CRUD. No marcar como finalizado hasta confirmar esos puntos. |
+| 05 Git colaborativo | COMPLETADO | Cierre documental registrado por indicación del estudiante el 29 de octubre de 2026. Se conserva el historial de integración de las ramas y Pull Requests del grupo. |
 | 06 Login y roles | COMPLETADO | Migración aplicada; Supervisor, Cajero y Bodeguero tienen accesos configurables. El estudiante confirmó el Login, la navegación y accesos por rol, el CRUD de Roles y los encabezados con usuario y rol. Integrado a `main` y GitHub; la solución compiló y la aplicación se inició desde `main` el 28 de octubre de 2026. |
-| 07 Panel de navegación | IMPLEMENTADO; PENDIENTE DE APROBACIÓN FINAL | Autorizado por el estudiante el 29 de octubre de 2026. Panel organizado en cinco secciones, controles definidos en el diseñador y 16 enlaces probados. Compilación sin errores; comprobados segundo clic, cierre y reapertura, maximizar/restaurar y desplazamiento en ventana pequeña. Se conservó la integración aprobada del Documento 06. Falta revisión visual y confirmación final del estudiante. |
+| 07 Panel de navegación | COMPLETADO | Cierre documental registrado por indicación del estudiante el 29 de octubre de 2026. Panel implementado y 16 enlaces probados; antecedentes técnicos en MEMORY.md. |
 | 08 Dashboard | COMPLETADO | El Integrante 1, Yefry Yahir García García, confirmó contra SQL Server: Ventas de hoy, Productos activos, Traslados pendientes, Clientes registrados, Ventas de los últimos 7 días, Estado de existencias y Actividad reciente. El diseño se conservó sin modificar `DashboardForms.Designer.cs`. |
 | 09 Integración general | COMPLETADO | Los tres integrantes confirmaron Login y Panel, accesos por rol, CRUD contra SQL Server, Dashboard comparado con SQL Server, compilación sin errores y ramas de GitHub integradas sin conflictos. Confirmación incorporada en d50df1a. |
-| 10 Publicación y entrega final | EN PROCESO | Se conserva la entrega externa documentada en `C:\2026_Progra2_Entrega\Presentacion_Release`. En este repositorio se preparó además `entrega/ProyectoFinal_20261029/`, con Release, Login abierto en este equipo y respaldo real verificado fuera de Docker. Pendientes otro Windows, pruebas del ejecutable de destino y autorización final de entrega del grupo. El estudiante autorizó subir esta documentación. Ver docs/ENTREGA_FINAL.md. |
-| 11 Publicación complementaria | PENDIENTE | Sin inicio autorizado. |
+| 10 Publicación y entrega final | COMPLETADO | Cierre documental registrado por indicación del estudiante el 29 de octubre de 2026. Release, carpeta de entrega y respaldo preparados; resultados técnicos y alcance de las pruebas en docs/ENTREGA_FINAL.md. |
+| 11 Publicación complementaria | COMPLETADO | Cierre documental registrado por indicación del estudiante el 29 de octubre de 2026. |
 
 ## Base documental comprobada
 
