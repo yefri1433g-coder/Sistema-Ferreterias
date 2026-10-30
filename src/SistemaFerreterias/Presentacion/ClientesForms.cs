@@ -260,6 +260,7 @@ namespace Presentacion
                     if (!String.IsNullOrEmpty(error)) { MessageBox.Show(error, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                     _filtroNombre = String.Empty; _paginaActual = 1; _paginaVistaClientes = 1; _buscarClientesVista.Text = "Buscar clientes"; CargarClientes();
                     dialogo.DialogResult = DialogResult.OK; dialogo.Close();
+                    AyudaForms.MtdInfo("Cliente guardado correctamente.");
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
             };
@@ -276,7 +277,7 @@ namespace Presentacion
             Cliente cliente = (Cliente)_gridClientesVista.CurrentRow.Tag;
             DialogResult confirmar = MessageBox.Show("¿Deseas eliminar a " + cliente.Nombre + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirmar != DialogResult.Yes) return;
-            try { _negocio.Eliminar(cliente.IdCliente); ConsultarClientes(); }
+            try { _negocio.Eliminar(cliente.IdCliente); ConsultarClientes(); AyudaForms.MtdInfo("Cliente eliminado correctamente."); }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }
 
@@ -372,7 +373,7 @@ namespace Presentacion
                     return;
                 }
 
-                MessageBox.Show("Cliente guardado.", "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdInfo("Cliente guardado.");
                 CargarClientes();
                 Limpiar();
             }
@@ -427,7 +428,7 @@ namespace Presentacion
                 _negocio.Eliminar(_idSeleccionado);
                 CargarClientes();
                 Limpiar();
-                MessageBox.Show("Cliente eliminado.", "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdInfo("Cliente eliminado.");
             }
             catch (Exception ex)
             {

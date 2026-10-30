@@ -61,6 +61,15 @@ namespace Presentacion
             btnEditar.Visible = false;
             btnEliminar.Visible = false;
             _dialogoTraslado.Controls.Add(PanelPrincipalGestionar);
+            panelAgregarDetalle.Height = 84;
+            lblProductoDetalle.AutoSize = false;
+            lblCantidadDetalle.AutoSize = false;
+            lblProductoDetalle.SetBounds(16, 8, 440, 24);
+            cboProducto.SetBounds(16, 38, 440, 28);
+            lblCantidadDetalle.SetBounds(480, 8, 100, 24);
+            nudCantidad.SetBounds(480, 38, 100, 28);
+            btnAgregarDetalle.SetBounds(604, 32, 116, 36);
+            btnQuitarDetalle.SetBounds(736, 32, 116, 36);
         }
 
         // PRESENTAR DATOS: MostrarDialogoTraslado
@@ -645,7 +654,7 @@ namespace Presentacion
                 if (_modo == "Agregar")
                 {
                     int codigoNuevo = _trasladosNegocio.MtdAgregar(traslado);
-                    AyudaForms.MtdInfo("Traslado #" + codigoNuevo + " guardado en estado Pendiente.\n\nCuando se complete, cárgalo (doble clic en Consultar) y usa el botón Completar para mover el stock.");
+                    AyudaForms.MtdInfo("Traslado #" + codigoNuevo + " guardado en estado Pendiente.");
                 }
                 else
                 {

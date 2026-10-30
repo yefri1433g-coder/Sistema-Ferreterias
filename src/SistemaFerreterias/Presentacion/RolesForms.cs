@@ -161,6 +161,7 @@ namespace Presentacion
                 _negocio.Guardar(rol);
                 _seleccionado = rol;
                 _estado.Text = "Rol y accesos guardados.";
+                AyudaForms.MtdInfo("Rol y accesos guardados.");
                 CargarRoles();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Roles y accesos", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
@@ -171,7 +172,7 @@ namespace Presentacion
         {
             if (_seleccionado == null) return;
             if (MessageBox.Show("¿Eliminar el rol " + _seleccionado.NombreRol + "?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-            try { _negocio.Eliminar(_seleccionado.CodigoRol); _seleccionado = null; CargarRoles(); }
+            try { _negocio.Eliminar(_seleccionado.CodigoRol); _seleccionado = null; CargarRoles(); AyudaForms.MtdInfo("Rol eliminado correctamente."); }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Roles y accesos", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }
     }

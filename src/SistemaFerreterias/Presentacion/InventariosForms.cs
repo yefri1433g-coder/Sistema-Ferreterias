@@ -258,7 +258,7 @@ namespace Presentacion
         }
         private void AbrirEditorStock(StockEntidad existente)
         {
-            Form dialogo = new Form { Text = existente == null ? "Nuevo registro de inventario" : "Editar inventario", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(470, 350), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
+            Form dialogo = new Form { Text = existente == null ? "Nuevo inventario" : "Editar inventario", StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, ShowInTaskbar = false, ClientSize = new Size(470, 350), BackColor = Color.White, Font = new Font("Segoe UI", 9F) };
             Label titulo = new Label { Text = existente == null ? "Nuevo registro" : "Editar registro", Left = 22, Top = 18, AutoSize = true, Font = new Font("Segoe UI", 16F, FontStyle.Bold), ForeColor = EstiloAplicacion.Tinta };
             Label lSucursal = new Label { Text = "Sucursal", Left = 24, Top = 70, Width = 190 };
             ComboBox sucursal = new ComboBox { Left = 24, Top = 92, Width = 410, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Texto", ValueMember = "Codigo", DataSource = _catalogosNegocioStock.MtdSucursales() };
@@ -281,6 +281,7 @@ namespace Presentacion
                         : new StockEntidad(existente.CodigoStock, Convert.ToInt32(sucursal.SelectedValue), existente.NombreSucursal, Convert.ToInt32(producto.SelectedValue), existente.NombreProducto, (int)cantidad.Value, (int)minimo.Value);
                     if (existente == null) _stockNegocio.MtdAgregar(entidad); else _stockNegocio.MtdEditar(entidad);
                     MtdConsultarExistencias(); dialogo.DialogResult = DialogResult.OK; dialogo.Close();
+                    AyudaForms.MtdInfo("Inventario guardado correctamente.");
                 }
                 catch (Exception ex) { AyudaForms.MtdError(ex); }
             };
@@ -300,6 +301,7 @@ namespace Presentacion
                 if (!AyudaForms.MtdConfirmar("¿Seguro que deseas eliminar este registro de inventario?")) return;
                 _stockNegocio.MtdEliminar(item.CodigoStock);
                 MtdConsultarExistencias();
+                AyudaForms.MtdInfo("Inventario eliminado correctamente.");
             }
             catch (Exception ex) { AyudaForms.MtdError(ex); }
         }

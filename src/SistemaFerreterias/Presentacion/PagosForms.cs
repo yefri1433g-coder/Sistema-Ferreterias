@@ -140,14 +140,16 @@ namespace Presentacion
             lblTitulo.Text = "Registrar pago"; lblTitulo.Location = new Point(24, 18); lblTitulo.Font = new Font("Segoe UI", 17F, FontStyle.Bold);
             lblSubtitulo.Text = "Selecciona una venta y registra el abono."; lblSubtitulo.Location = new Point(26, 57); lblSubtitulo.Font = new Font("Segoe UI", 9F);
             lblTitulo.Visible = false; lblSubtitulo.Visible = false;
-            lblVenta.SetBounds(24, 100, 100, 22); cmbVenta.SetBounds(150, 96, 714, 30);
-            lblTotalTitulo.SetBounds(24, 154, 70, 30); lblTotalValor.SetBounds(94, 152, 140, 34);
-            lblPagadoTitulo.SetBounds(300, 154, 80, 30); lblPagadoValor.SetBounds(382, 152, 140, 34);
-            lblSaldoTitulo.SetBounds(584, 154, 70, 30); lblSaldoValor.SetBounds(654, 152, 210, 34);
-            lblMonto.SetBounds(24, 210, 100, 28); nudMonto.SetBounds(150, 208, 150, 30);
-            lblMetodo.SetBounds(330, 210, 140, 28); cmbMetodo.SetBounds(470, 208, 200, 30);
-            btnRegistrar.SetBounds(690, 205, 174, 38);
-            lblHistorial.SetBounds(24, 260, 240, 28); dgvPagos.SetBounds(24, 292, 840, 220);
+            foreach (Label etiqueta in new[] { lblVenta, lblTotalTitulo, lblTotalValor, lblPagadoTitulo, lblPagadoValor, lblSaldoTitulo, lblSaldoValor, lblMonto, lblMetodo, lblHistorial })
+                etiqueta.AutoSize = false;
+            lblVenta.SetBounds(24, 24, 840, 22); cmbVenta.SetBounds(24, 52, 840, 30);
+            lblTotalTitulo.SetBounds(24, 100, 240, 22); lblTotalValor.SetBounds(24, 128, 240, 30);
+            lblPagadoTitulo.SetBounds(310, 100, 240, 22); lblPagadoValor.SetBounds(310, 128, 240, 30);
+            lblSaldoTitulo.SetBounds(596, 100, 268, 22); lblSaldoValor.SetBounds(596, 128, 268, 30);
+            lblMonto.SetBounds(24, 184, 250, 22); nudMonto.SetBounds(24, 212, 250, 30);
+            lblMetodo.SetBounds(300, 184, 350, 22); cmbMetodo.SetBounds(300, 212, 350, 30);
+            btnRegistrar.SetBounds(680, 207, 184, 38);
+            lblHistorial.SetBounds(24, 274, 840, 22); dgvPagos.SetBounds(24, 304, 840, 220);
             btnNuevo.Visible = false; btnCerrar.Text = "Cancelar"; btnCerrar.SetBounds(744, 535, 120, 38);
         }
 
@@ -285,8 +287,8 @@ namespace Presentacion
 
             string mensaje;
             bool eliminado = _negocio.MtdEliminar(idPago, out mensaje);
-            MessageBox.Show(mensaje, "Pagos", MessageBoxButtons.OK,
-                eliminado ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            if (eliminado) AyudaForms.MtdInfo("Pago eliminado correctamente.");
+            else AyudaForms.MtdAviso(mensaje);
 
             if (eliminado)
             {
@@ -453,8 +455,8 @@ namespace Presentacion
                 ? _negocio.MtdEditar(pago, out mensaje)
                 : _negocio.MtdRegistrar(pago, out mensaje);
 
-            MessageBox.Show(mensaje, "Pagos", MessageBoxButtons.OK,
-                ok ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            if (ok) AyudaForms.MtdInfo(_idPagoEdicion.HasValue ? "Pago actualizado correctamente." : "Pago registrado correctamente.");
+            else AyudaForms.MtdAviso(mensaje);
 
             if (ok && _idPagoEdicion.HasValue)
             {

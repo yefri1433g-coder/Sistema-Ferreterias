@@ -70,7 +70,6 @@ namespace Presentacion
             _dialogoVenta.Controls.AddRange(controlesEditor);
             ConfigurarEditorVentaCompacto();
             EstiloAplicacion.AplicarDialogo(_dialogoVenta);
-            EnmarcarDialogoVenta();
             _dialogoVenta.FormClosed += (s, e) => CargarVentas();
 
             TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(22, 18, 22, 18), BackColor = EstiloAplicacion.Fondo, ColumnCount = 1, RowCount = 3 };
@@ -108,17 +107,6 @@ namespace Presentacion
             lista.Controls.Add(_gridVentas); lista.Controls.Add(pie); lista.Controls.Add(barra);
             layout.Controls.Add(encabezado, 0, 0); layout.Controls.Add(tarjetas, 0, 1); layout.Controls.Add(lista, 0, 2); Controls.Add(layout);
             Text = "Ventas"; BackColor = EstiloAplicacion.Fondo; MinimumSize = new Size(980, 620);
-        }
-
-        private void EnmarcarDialogoVenta()
-        {
-            Panel cabecera = _dialogoVenta.Controls["cabeceraComunDialogo"] as Panel;
-            Panel contenido = _dialogoVenta.Controls["contenidoComunDialogo"] as Panel;
-            if (cabecera == null || contenido == null) return;
-
-            _dialogoVenta.BackColor = Color.FromArgb(71, 85, 105);
-            cabecera.Bounds = new Rectangle(2, 2, _dialogoVenta.ClientSize.Width - 4, 58);
-            contenido.Bounds = new Rectangle(2, 62, _dialogoVenta.ClientSize.Width - 4, _dialogoVenta.ClientSize.Height - 64);
         }
 
         // CONFIGURACIÓN: ConfigurarEditorVentaCompacto
@@ -586,9 +574,8 @@ namespace Presentacion
                 ? "\nSaldo pendiente disponible en Pagos."
                 : "";
 
-            MessageBox.Show(
-                (_ventaEnEdicion == null ? "Venta No. " + v.IdVenta + " guardada." : "Venta No. " + v.IdVenta + " actualizada.") + "\nTotal: Q " + v.Total.ToString("N2") + estadoPago,
-                "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            AyudaForms.MtdInfo(
+                (_ventaEnEdicion == null ? "Venta No. " + v.IdVenta + " guardada." : "Venta No. " + v.IdVenta + " actualizada.") + "\nTotal: Q " + v.Total.ToString("N2") + estadoPago);
 
             bool estabaEditando = _ventaEnEdicion != null;
             Nuevo();

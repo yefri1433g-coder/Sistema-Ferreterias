@@ -187,6 +187,7 @@ namespace Presentacion
                 catch (Exception ex) { MessageBox.Show(ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 if (!String.IsNullOrEmpty(error)) { MessageBox.Show(error, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 _paginaVista = 1; CargarUsuarios(); dialogo.DialogResult = DialogResult.OK; dialogo.Close();
+                AyudaForms.MtdInfo("Usuario guardado correctamente.");
             };
             dialogo.Controls.AddRange(new Control[] { lUsuario, nombre, lContrasena, contrasena, lRol, rol, activo, guardar, cancelar });
             dialogo.AcceptButton = guardar; dialogo.CancelButton = cancelar;
@@ -200,7 +201,7 @@ namespace Presentacion
             if (_gridUsuariosVista.CurrentRow == null || !(_gridUsuariosVista.CurrentRow.Tag is Usuario)) return;
             Usuario usuario = (Usuario)_gridUsuariosVista.CurrentRow.Tag;
             if (MessageBox.Show("¿Deseas eliminar el usuario " + usuario.NombreUsuario + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-            try { _negocio.Eliminar(usuario.IdUsuario); CargarUsuarios(); }
+            try { _negocio.Eliminar(usuario.IdUsuario); CargarUsuarios(); AyudaForms.MtdInfo("Usuario eliminado correctamente."); }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }
 
@@ -371,8 +372,7 @@ namespace Presentacion
                 _paginaActual = int.MaxValue;
             CargarUsuarios();
             Limpiar();
-            MessageBox.Show(agregado ? "Usuario agregado." : "Usuario actualizado.", "Usuarios",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            AyudaForms.MtdInfo(agregado ? "Usuario agregado." : "Usuario actualizado.");
         }
 
         private void dgvUsuarios_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -415,7 +415,7 @@ namespace Presentacion
                 _negocio.Eliminar(_idSeleccionado);
                 CargarUsuarios();
                 Limpiar();
-                MessageBox.Show("Usuario eliminado.", "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdInfo("Usuario eliminado.");
             }
             catch (Exception ex)
             {

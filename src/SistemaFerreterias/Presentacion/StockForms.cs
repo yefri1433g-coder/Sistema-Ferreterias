@@ -33,7 +33,6 @@ namespace Presentacion
         private Label _totalStockResumen;
         private List<StockEntidad> _listaStockResumen = new List<StockEntidad>();
         private Form _dialogoStock;
-        private Label _tituloEditorStock;
         private ComboBox _cboSucursalEditorStock, _cboProductoEditorStock;
         private NumericUpDown _nudCantidadEditorStock, _nudMinimoEditorStock;
         private Button _guardarEditorStock, _limpiarEditorStock;
@@ -195,44 +194,6 @@ namespace Presentacion
                 StartPosition = FormStartPosition.CenterParent
             };
 
-            Panel encabezado = new Panel { Dock = DockStyle.Top, Height = 68, BackColor = Color.FromArgb(15, 34, 46) };
-            _tituloEditorStock = new Label
-            {
-                Text = "Stock · Editar registro",
-                Left = 24,
-                Top = 9,
-                AutoSize = true,
-                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                ForeColor = Color.White
-            };
-            encabezado.Controls.Add(_tituloEditorStock);
-            encabezado.Controls.Add(new Label
-            {
-                Text = "Actualiza las existencias de la sucursal.",
-                Left = 26,
-                Top = 37,
-                AutoSize = true,
-                Font = new Font("Segoe UI", 8.5F),
-                ForeColor = Color.FromArgb(220, 229, 234)
-            });
-            Button cancelar = new Button
-            {
-                Text = "Cancelar",
-                Width = 100,
-                Height = 34,
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Left = 850,
-                Top = 14,
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(15, 34, 46),
-                ForeColor = Color.White,
-                Cursor = Cursors.Hand
-            };
-            cancelar.FlatAppearance.BorderColor = Color.FromArgb(190, 205, 214);
-            cancelar.Click += (s, e) => btnCancelar_Click(s, e);
-            encabezado.Controls.Add(cancelar);
-            encabezado.Resize += (s, e) => cancelar.Left = encabezado.ClientSize.Width - cancelar.Width - 20;
-
             Panel contenido = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(22, 18, 22, 8) };
             _cboSucursalEditorStock = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
             _cboProductoEditorStock = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
@@ -276,7 +237,7 @@ namespace Presentacion
             contenido.Controls.Add(acciones);
 
             _dialogoStock.Controls.Add(contenido);
-            _dialogoStock.Controls.Add(encabezado);
+            // El encabezado y Cancelar se comparten con los otros diálogos.
         }
 
         // CREAR ELEMENTO VISUAL: CrearCantidadEditorStock
@@ -339,9 +300,9 @@ namespace Presentacion
         {
             btnNuevo_Click(this, EventArgs.Empty);
             _dialogoStock.Text = "Nuevo registro de stock";
-            _tituloEditorStock.Text = "Stock · Nuevo registro";
             _limpiarEditorStock.Visible = true;
             _dialogoStock.DialogResult = DialogResult.None;
+            EstiloAplicacion.AplicarDialogo(_dialogoStock);
             _dialogoStock.ShowDialog(this);
             MtdVolverAModoConsulta();
         }
@@ -358,9 +319,9 @@ namespace Presentacion
             _nudMinimoEditorStock.Value = item.StockMinimo;
             MtdHabilitarCampos(true, false);
             _dialogoStock.Text = "Editar registro de stock";
-            _tituloEditorStock.Text = "Stock · Editar registro";
             _limpiarEditorStock.Visible = false;
             _dialogoStock.DialogResult = DialogResult.None;
+            EstiloAplicacion.AplicarDialogo(_dialogoStock);
             _dialogoStock.ShowDialog(this);
             MtdVolverAModoConsulta();
         }

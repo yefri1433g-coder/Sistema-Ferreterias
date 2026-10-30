@@ -1026,7 +1026,7 @@ namespace Presentacion
                 }
                 negocio.EliminarCompra(id);
                 RefrescarTodo();
-                MessageBox.Show("La compra No. " + id + " fue eliminada y el inventario se actualizó.", "Compra eliminada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdInfo("Compra No. " + id + " eliminada. Inventario actualizado.");
             }))
                 CargarDetalleCompraSeleccionada();
         }
@@ -1197,20 +1197,20 @@ namespace Presentacion
         }
         private static DataTable TablaCompra(){DataTable t=new DataTable();t.Columns.Add("IdProducto",typeof(int));t.Columns.Add("Producto");t.Columns.Add("Cantidad",typeof(decimal));t.Columns.Add("Costo unitario",typeof(decimal));t.Columns.Add("Subtotal",typeof(decimal));return t;}
         // GUARDAR: GuardarCategoria
-        private bool GuardarCategoria(){return Ejecutar(()=>{negocio.GuardarCategoria(catId,catNombre.Text,catDescripcion.Text);LimpiarCategoria();RefrescarTodo();});}
+        private bool GuardarCategoria(){return Ejecutar(()=>{negocio.GuardarCategoria(catId,catNombre.Text,catDescripcion.Text);LimpiarCategoria();RefrescarTodo();AyudaForms.MtdInfo("Categoría guardada correctamente.");});}
         // LIMPIAR: LimpiarCategoria
         private void LimpiarCategoria(){catId=null;catNombre.Clear();catDescripcion.Clear();}
         private int IdSeleccionado(DataGridView g,string col){if(g.CurrentRow==null)throw new InvalidOperationException("Selecciona un registro de la lista.");return Convert.ToInt32(g.CurrentRow.Cells[col].Value);}
         // ELIMINAR: EliminarCategoria
-        private bool EliminarCategoria(){return Ejecutar(()=>{negocio.EliminarCategoria(IdSeleccionado(gridCategorias,"Codigo"));RefrescarTodo();});}
+        private bool EliminarCategoria(){return Ejecutar(()=>{negocio.EliminarCategoria(IdSeleccionado(gridCategorias,"Codigo"));RefrescarTodo();AyudaForms.MtdInfo("Categoría eliminada correctamente.");});}
         // GUARDAR: GuardarProducto
-        private bool GuardarProducto(){return Ejecutar(()=>{if(prodCategoria.SelectedValue==null)throw new InvalidOperationException("Primero registra una categoría.");negocio.GuardarProducto(prodId,prodCodigo.Text,prodNombre.Text,prodDescripcion.Text,prodCosto.Value,prodPrecio.Value,Convert.ToInt32(prodCategoria.SelectedValue),prodActivo.Checked);LimpiarProducto();RefrescarTodo();});}
+        private bool GuardarProducto(){return Ejecutar(()=>{if(prodCategoria.SelectedValue==null)throw new InvalidOperationException("Primero registra una categoría.");negocio.GuardarProducto(prodId,prodCodigo.Text,prodNombre.Text,prodDescripcion.Text,prodCosto.Value,prodPrecio.Value,Convert.ToInt32(prodCategoria.SelectedValue),prodActivo.Checked);LimpiarProducto();RefrescarTodo();AyudaForms.MtdInfo("Producto guardado correctamente.");});}
         // LIMPIAR: LimpiarProducto
         private void LimpiarProducto(){prodId=null;prodCodigo.Clear();prodNombre.Clear();prodDescripcion.Clear();prodCosto.Value=0;prodPrecio.Value=0;prodActivo.Checked=true;if(prodCategoria.Items.Count>0)prodCategoria.SelectedIndex=0;}
         // ELIMINAR: EliminarProducto
-        private bool EliminarProducto(){return Ejecutar(()=>{negocio.EliminarProducto(IdSeleccionado(gridProductos,"Codigo"));RefrescarTodo();});}
+        private bool EliminarProducto(){return Ejecutar(()=>{negocio.EliminarProducto(IdSeleccionado(gridProductos,"Codigo"));RefrescarTodo();AyudaForms.MtdInfo("Producto eliminado correctamente.");});}
         // GUARDAR: GuardarSucursal
-        private bool GuardarSucursal(){return Ejecutar(()=>{Sucursal sucursal=new Sucursal{IdSucursal=sucId.GetValueOrDefault(),Nombre=sucNombre.Text,Direccion=sucDireccion.Text,Telefono=sucTelefono.Text,Estado=sucActivo.Checked};if(sucId.HasValue){negocio.EditarSucursal(sucursal);}else{negocio.AgregarSucursal(sucursal);}LimpiarSucursal();RefrescarTodo();});}
+        private bool GuardarSucursal(){return Ejecutar(()=>{Sucursal sucursal=new Sucursal{IdSucursal=sucId.GetValueOrDefault(),Nombre=sucNombre.Text,Direccion=sucDireccion.Text,Telefono=sucTelefono.Text,Estado=sucActivo.Checked};if(sucId.HasValue){negocio.EditarSucursal(sucursal);}else{negocio.AgregarSucursal(sucursal);}LimpiarSucursal();RefrescarTodo();AyudaForms.MtdInfo("Sucursal guardada correctamente.");});}
         // CONSULTAR: ConsultarSucursales
         private void ConsultarSucursales(){Ejecutar(()=>MostrarSucursales(negocio.Sucursales()));}
         // BUSCAR: BuscarSucursales
@@ -1324,6 +1324,7 @@ namespace Presentacion
                 negocio.EliminarSucursal(id);
                 LimpiarSucursal();
                 RefrescarTodo();
+                AyudaForms.MtdInfo("Sucursal eliminada correctamente.");
             });
         }
         // AGREGAR: AgregarLinea
@@ -1354,7 +1355,7 @@ namespace Presentacion
                 btnGuardarCompra.Text = "Guardar compra y actualizar inventario";
                 MostrarLineas();
                 RefrescarTodo();
-                MessageBox.Show("Compra No. " + id + (idEditado.HasValue ? " actualizada" : " guardada") + ". El inventario y el kardex fueron actualizados.", "Compra", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdInfo("Compra No. " + id + (idEditado.HasValue ? " actualizada." : " guardada.") + " Inventario y Kardex actualizados.");
                 dialogoCompra.Close();
             });
         }

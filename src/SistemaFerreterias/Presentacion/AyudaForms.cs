@@ -19,7 +19,7 @@ namespace Presentacion
 
         public static void MtdInfo(string mensaje)
         {
-            MessageBox.Show(mensaje, "Ferreterias Multisucursal", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            NotificacionForms.Mostrar(mensaje);
         }
 
         public static void MtdAviso(string mensaje)

@@ -107,7 +107,7 @@ namespace Presentacion
             if (etiqueta != null && !etiqueta.AutoSize && etiqueta.Dock == DockStyle.None)
             {
                 etiqueta.Height = Math.Max(etiqueta.Height, etiqueta.Font.Height + 4);
-                if (etiqueta.AutoEllipsis && etiqueta.Parent != null)
+                if (etiqueta.AutoEllipsis && etiqueta.Parent != null && etiqueta.Parent.Name != "cabeceraComunDialogo")
                     etiqueta.Width = Math.Max(etiqueta.Width, Math.Min(etiqueta.Parent.ClientSize.Width - etiqueta.Left - 8,
                         TextRenderer.MeasureText(etiqueta.Text, etiqueta.Font).Width + 6));
             }
@@ -210,7 +210,7 @@ namespace Presentacion
                 dialogo.Controls.CopyTo(contenidoOriginal, 0);
                 int altoOriginal = dialogo.ClientSize.Height;
                 int anchoOriginal = dialogo.ClientSize.Width;
-                const int altoCabecera = 62;
+                const int altoCabecera = 80;
                 dialogo.Controls.Clear();
                 dialogo.ClientSize = new Size(anchoOriginal, altoOriginal + altoCabecera);
                 Panel contenido = new Panel { Name = "contenidoComunDialogo", Bounds = new Rectangle(0, altoCabecera, anchoOriginal, altoOriginal), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, BackColor = Color.White };
@@ -218,11 +218,11 @@ namespace Presentacion
                 dialogo.Controls.Add(contenido);
 
                 Panel cabecera = new Panel { Name = "cabeceraComunDialogo", Bounds = new Rectangle(0, 0, anchoOriginal, altoCabecera), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, BackColor = EstiloAplicacion.Marino, Padding = new Padding(20, 6, 12, 4) };
-                Label titulo = new Label { Name = "tituloComunDialogo", Text = dialogo.Text, Dock = DockStyle.Top, Height = 27, Font = new Font("Segoe UI", 12F, FontStyle.Bold), ForeColor = Color.White, TextAlign = ContentAlignment.MiddleLeft };
-                Label subtitulo = new Label { Text = "Completa los campos para continuar.", Dock = DockStyle.Top, Height = 19, Font = new Font("Segoe UI", 8.5F), ForeColor = Color.FromArgb(192, 207, 211), TextAlign = ContentAlignment.MiddleLeft };
-                Button cerrar = new Button { Name = "btnCerrarComunDialogo", Text = "×", Dock = DockStyle.Right, Width = 38, FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Marino, ForeColor = Color.White, Font = new Font("Segoe UI", 16F), Cursor = Cursors.Hand, TabStop = false };
+                Label titulo = new Label { Name = "tituloComunDialogo", Text = dialogo.Text, Bounds = new Rectangle(24, 12, anchoOriginal - 210, 28), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, Font = new Font("Segoe UI", 12F, FontStyle.Bold), ForeColor = Color.White, TextAlign = ContentAlignment.MiddleLeft, AutoEllipsis = true };
+                Label subtitulo = new Label { Text = "Completa los campos para continuar.", Bounds = new Rectangle(24, 43, anchoOriginal - 210, 24), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, Font = new Font("Segoe UI", 9F), ForeColor = Color.FromArgb(192, 207, 211), TextAlign = ContentAlignment.MiddleLeft, AutoEllipsis = true };
+                Button cerrar = new Button { Name = "btnCerrarComunDialogo", Text = "×", Bounds = new Rectangle(anchoOriginal - 52, 22, 36, 36), Anchor = AnchorStyles.Top | AnchorStyles.Right, FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Marino, ForeColor = Color.White, Font = new Font("Segoe UI", 16F), Cursor = Cursors.Hand, TabStop = false };
                 Button cancelar = new Button { Name = "btnCancelarComunDialogo", Text = "Cancelar", Width = 86, Height = 32, Anchor = AnchorStyles.Top | AnchorStyles.Right, FlatStyle = FlatStyle.Flat, BackColor = EstiloAplicacion.Marino, ForeColor = Color.White, Font = new Font("Segoe UI", 8.5F), Cursor = Cursors.Hand, TabStop = false };
-                cancelar.Location = new Point(anchoOriginal - 146, 15);
+                cancelar.Location = new Point(anchoOriginal - 154, 24);
                 cerrar.FlatAppearance.BorderSize = 0;
                 cancelar.FlatAppearance.BorderColor = Color.FromArgb(90, 112, 123);
                 cerrar.FlatAppearance.MouseOverBackColor = Color.FromArgb(185, 28, 28);
@@ -248,6 +248,14 @@ namespace Presentacion
                 cabecera.BringToFront();
                 OcultarBotonesSalir(contenido.Controls);
                 dialogo.CancelButton = cancelar;
+                dialogo.VisibleChanged += (s, e) =>
+                {
+                    if (!dialogo.Visible) return;
+                    titulo.Text = dialogo.Text;
+                    AplicarEstiloDialogo(dialogo.Controls);
+                    SepararEtiquetas(dialogo);
+                    OcultarBotonesSalir(contenido.Controls);
+                };
             }
             Panel encabezadoDialogo = dialogo.Controls["cabeceraComunDialogo"] as Panel;
             if (encabezadoDialogo != null && encabezadoDialogo.Controls["tituloComunDialogo"] != null)
@@ -256,6 +264,7 @@ namespace Presentacion
             AplicarTablas(dialogo.Controls);
             AplicarPaleta(dialogo);
             AjustarTipografia(dialogo);
+            SepararEtiquetas(dialogo);
             if (encabezadoDialogo != null && encabezadoDialogo.Controls["btnCerrarComunDialogo"] is Button botonCerrar)
             {
                 botonCerrar.BackColor = EstiloAplicacion.Marino;
@@ -266,6 +275,23 @@ namespace Presentacion
                 botonCancelar.BackColor = EstiloAplicacion.Marino;
                 botonCancelar.ForeColor = Color.White;
             }
+        }
+
+        // Los formularios pequeños usan etiquetas encima del campo; reservar su alto real.
+        private static void SepararEtiquetas(Control contenedor)
+        {
+            if (!(contenedor is TableLayoutPanel) && !(contenedor is FlowLayoutPanel))
+            {
+                foreach (Control campo in contenedor.Controls.Cast<Control>().Where(c =>
+                    c is TextBox || c is ComboBox || c is NumericUpDown || c is DateTimePicker))
+                {
+                    Label etiqueta = contenedor.Controls.OfType<Label>()
+                        .Where(l => l.Visible && Math.Abs(l.Left - campo.Left) <= 4 && l.Top < campo.Top && campo.Top < l.Bottom + 6)
+                        .OrderByDescending(l => l.Top).FirstOrDefault();
+                    if (etiqueta != null) campo.Top = etiqueta.Bottom + 6;
+                }
+            }
+            foreach (Control hijo in contenedor.Controls) SepararEtiquetas(hijo);
         }
 
         // BUSCAR: BuscarBotonPorTexto
@@ -304,7 +330,9 @@ namespace Presentacion
         {
             foreach (Control control in controles)
             {
-                control.Font = new Font("Segoe UI", control.Font.SizeInPoints > 0 ? control.Font.SizeInPoints : 9F, control.Font.Style);
+                bool enCabecera = control.Parent != null && control.Parent.Name == "cabeceraComunDialogo";
+                control.Font = new Font("Segoe UI", enCabecera ? control.Font.SizeInPoints : 9F,
+                    control is Button || control is GroupBox ? FontStyle.Bold : enCabecera ? control.Font.Style : FontStyle.Regular);
                 Label etiqueta = control as Label;
                 bool etiquetaEnCabecera = control.Parent != null && control.Parent.Name == "cabeceraComunDialogo";
                 if (etiqueta != null && etiqueta.Font.Size < 14F && !etiquetaEnCabecera)
@@ -320,6 +348,8 @@ namespace Presentacion
                 if (combo != null) { combo.BackColor = Color.White; combo.ForeColor = Tinta; combo.FlatStyle = FlatStyle.Standard; }
                 NumericUpDown numero = control as NumericUpDown;
                 if (numero != null) { numero.BorderStyle = BorderStyle.FixedSingle; numero.BackColor = Color.White; numero.ForeColor = Tinta; }
+                FontAwesome.Sharp.IconButton icono = control as FontAwesome.Sharp.IconButton;
+                if (icono != null) { icono.IconChar = FontAwesome.Sharp.IconChar.None; icono.TextImageRelation = TextImageRelation.Overlay; icono.Padding = Padding.Empty; }
 
                 DataGridView grid = control as DataGridView;
                 if (grid != null)
@@ -351,7 +381,11 @@ namespace Presentacion
                     boton.Height = Math.Max(boton.Height, 34);
                     boton.FlatAppearance.BorderColor = Color.FromArgb(218, 228, 230);
                     string textoBoton = (boton.Name + " " + boton.Text).ToLowerInvariant();
-                    if (textoBoton.Contains("eliminar") || textoBoton.Contains("quitar"))
+                    if (enCabecera)
+                    {
+                        boton.BackColor = Marino; boton.ForeColor = Color.White;
+                    }
+                    else if (textoBoton.Contains("eliminar") || textoBoton.Contains("quitar"))
                     {
                         boton.BackColor = Color.FromArgb(254, 242, 242); boton.ForeColor = Color.FromArgb(185, 28, 28); boton.FlatAppearance.BorderColor = Color.FromArgb(254, 202, 202);
                     }

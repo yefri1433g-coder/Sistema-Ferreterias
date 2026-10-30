@@ -378,6 +378,7 @@ namespace Presentacion
                     Empleado empleado = new Empleado { IdEmpleado = existente == null ? 0 : existente.IdEmpleado, IdUsuario = Convert.ToInt32(usuario.SelectedValue), IdSucursal = Convert.ToInt32(sucursal.SelectedValue), Nombre = nombre.Text, Apellido = apellido.Text, Cargo = cargo.Text, Telefono = telefono.Text, Estado = activo.Checked };
                     if (existente == null) _negocio.Agregar(empleado); else _negocio.Editar(empleado);
                     txtBuscar.Clear(); _paginaActual = 1; _paginaVistaEmpleados = 1; _buscarEmpleadosVista.Text = "Buscar empleados"; CargarEmpleados(); dialogo.DialogResult = DialogResult.OK; dialogo.Close();
+                    AyudaForms.MtdInfo("Empleado guardado correctamente.");
                 }
                 catch (Exception ex) { MostrarError(ex); }
             };
@@ -411,7 +412,7 @@ namespace Presentacion
             if (_gridEmpleadosVista.CurrentRow == null || !(_gridEmpleadosVista.CurrentRow.Tag is Empleado)) { MessageBox.Show("Selecciona un empleado.", "Empleados", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
             Empleado empleado = (Empleado)_gridEmpleadosVista.CurrentRow.Tag;
             if (MessageBox.Show("¿Deseas eliminar a " + empleado.Nombre + " " + empleado.Apellido + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-            try { _negocio.Eliminar(empleado.IdEmpleado); _empleadoSeleccionado = null; CargarEmpleados(); }
+            try { _negocio.Eliminar(empleado.IdEmpleado); _empleadoSeleccionado = null; CargarEmpleados(); AyudaForms.MtdInfo("Empleado eliminado correctamente."); }
             catch (Exception ex) { MostrarError(ex); }
         }
 
@@ -546,8 +547,7 @@ namespace Presentacion
             try
             {
                 _negocio.Eliminar(_empleadoSeleccionado.IdEmpleado);
-                MessageBox.Show("Empleado eliminado correctamente.", "Empleados",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdInfo("Empleado eliminado correctamente.");
                 CargarEmpleados();
                 LimpiarCampos();
             }
@@ -621,8 +621,7 @@ namespace Presentacion
                     _negocio.Agregar(empleado);
 
                 bool fueEdicion = _modoEdicion;
-                MessageBox.Show(fueEdicion ? "Empleado actualizado correctamente." : "Empleado agregado correctamente.", "Empleados",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdInfo(fueEdicion ? "Empleado actualizado correctamente." : "Empleado agregado correctamente.");
                 if (!fueEdicion)
                     _paginaActual = Math.Max(1, (int)Math.Ceiling((_empleados.Count + 1) / (double)RegistrosPorPagina));
                 CargarEmpleados();
