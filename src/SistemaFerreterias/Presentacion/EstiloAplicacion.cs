@@ -19,6 +19,28 @@ namespace Presentacion
         internal static readonly Color Seleccion = Color.FromArgb(225, 234, 247);
         internal static readonly Color FondoSuave = Color.FromArgb(237, 242, 250);
 
+        // Presenta el encabezado seleccionado y sus productos en dos áreas del mismo listado.
+        internal static Control CrearConsultaConDetalle(DataGridView listado, string titulo, out DataGridView detalle)
+        {
+            TableLayoutPanel consulta = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1,
+                RowCount = 2, BackColor = Color.White, Margin = Padding.Empty };
+            consulta.RowStyles.Add(new RowStyle(SizeType.Percent, 60));
+            consulta.RowStyles.Add(new RowStyle(SizeType.Percent, 40));
+            Panel panelDetalle = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(0, 10, 0, 0), Margin = Padding.Empty };
+            detalle = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false, AutoGenerateColumns = false, RowHeadersVisible = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect, BorderStyle = BorderStyle.None };
+            panelDetalle.Controls.Add(detalle);
+            panelDetalle.Controls.Add(new Label { Text = titulo, Dock = DockStyle.Top, Height = 30,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = Secundario });
+            listado.Margin = Padding.Empty;
+            consulta.Controls.Add(listado, 0, 0);
+            consulta.Controls.Add(panelDetalle, 0, 1);
+            AplicarTablas(consulta.Controls);
+            return consulta;
+        }
+
         // CONFIGURACIÓN: Aplicar
         internal static void Aplicar(Form formulario)
         {

@@ -31,6 +31,7 @@ namespace Presentacion
         private List<TrasladosEntidad> _trasladosCompletos = new List<TrasladosEntidad>();
         private List<TrasladosEntidad> _trasladosVisibles = new List<TrasladosEntidad>();
         private DataGridView _gridTrasladosVista;
+        private DataGridView _detalleTrasladoSeleccionado;
         private TextBox _buscarTrasladosVista;
         private Label _totalTrasladosVista, _paginaTrasladosVista;
         private Button _anteriorTrasladosVista, _siguienteTrasladosVista;
@@ -155,7 +156,13 @@ namespace Presentacion
             _siguienteTrasladosVista.Click += (s, e) => CambiarPaginaTraslados(1); _anteriorTrasladosVista.Click += (s, e) => CambiarPaginaTraslados(-1);
             controles.Controls.Add(_siguienteTrasladosVista); controles.Controls.Add(_paginaTrasladosVista); controles.Controls.Add(_anteriorTrasladosVista);
             pie.Controls.Add(_totalTrasladosVista); pie.Controls.Add(controles);
-            lista.Controls.Add(_gridTrasladosVista); lista.Controls.Add(pie); lista.Controls.Add(barra);
+            Control consultaDetalle = EstiloAplicacion.CrearConsultaConDetalle(_gridTrasladosVista, "Detalle del traslado seleccionado", out _detalleTrasladoSeleccionado);
+            string[] camposDetalle = { "CodigoProducto", "NombreProducto", "Cantidad" };
+            string[] titulosDetalle = { "CÓDIGO PRODUCTO", "PRODUCTO", "CANTIDAD" };
+            for (int i = 0; i < camposDetalle.Length; i++)
+                _detalleTrasladoSeleccionado.Columns.Add(new DataGridViewTextBoxColumn { Name = camposDetalle[i], DataPropertyName = camposDetalle[i], HeaderText = titulosDetalle[i] });
+            _gridTrasladosVista.SelectionChanged += (s, e) => MostrarDetalleTrasladoVista();
+            lista.Controls.Add(consultaDetalle); lista.Controls.Add(pie); lista.Controls.Add(barra);
             RedondearPanel(lista, 14); for (int i = 0; i < tarjetas.Controls.Count; i++) RedondearPanel(tarjetas.Controls[i], 10);
             pantalla.Controls.Add(encabezado, 0, 0); pantalla.Controls.Add(panelResumen, 0, 1); pantalla.Controls.Add(lista, 0, 2);
             tabPage1.Controls.Add(pantalla);
@@ -182,6 +189,22 @@ namespace Presentacion
             {
                 AyudaForms.MtdError(ex);
             }
+        }
+
+        // Consulta los productos del traslado seleccionado sin abrir el editor.
+        private void MostrarDetalleTrasladoVista()
+        {
+            _detalleTrasladoSeleccionado.DataSource = null;
+            if (_gridTrasladosVista.SelectedRows.Count != 1) return;
+            DataGridViewRow fila = _gridTrasladosVista.SelectedRows[0];
+            if (!_gridTrasladosVista.Columns.Contains("CodigoTraslado") || fila.Cells["CodigoTraslado"].Value == null) return;
+            try
+            {
+                int codigo = Convert.ToInt32(fila.Cells["CodigoTraslado"].Value);
+                _detalleTrasladoSeleccionado.DataSource = _trasladosNegocio.MtdConsultarDetalle(codigo);
+                _detalleTrasladoSeleccionado.ClearSelection();
+            }
+            catch (Exception ex) { AyudaForms.MtdError(ex); }
         }
 
         // ELIMINAR: EliminarTrasladoVista

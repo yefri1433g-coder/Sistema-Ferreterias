@@ -18,6 +18,7 @@ namespace Presentacion
         private readonly BindingList<DetalleVenta> _detalle = new BindingList<DetalleVenta>();
         private readonly Label[] _resumenVentas = new Label[3];
         private DataGridView _gridVentas;
+        private DataGridView _detalleVentaSeleccionada;
         private TextBox _buscarVentas;
         private Label _textoRegistros, _textoPagina;
         private Button _anterior, _siguiente, _editarVenta, _eliminarVenta;
@@ -94,7 +95,7 @@ namespace Presentacion
             _buscarVentas.TextChanged += (s, e) => { _pagina = 1; MostrarVentas(); };
             acciones.Controls.Add(nuevo); acciones.Controls.Add(_editarVenta); acciones.Controls.Add(_eliminarVenta); acciones.Controls.Add(_buscarVentas); barra.Controls.Add(acciones);
             _gridVentas = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal, GridColor = Color.FromArgb(234, 240, 240), EnableHeadersVisualStyles = false, ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None, ColumnHeadersHeight = 36, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, Font = new Font("Segoe UI", 9F) };
-            _gridVentas.SelectionChanged += (s, e) => ActualizarAccionesVentaSeleccionada();
+            _gridVentas.SelectionChanged += (s, e) => { ActualizarAccionesVentaSeleccionada(); MostrarDetalleVentaSeleccionada(); };
             _gridVentas.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) ConsultarVentaSeleccionada(); };
             _gridVentas.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridVentas.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridVentas.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridVentas.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridVentas.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridVentas.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridVentas.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridVentas.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridVentas.RowTemplate.Height = 42;
             _gridVentas.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridVentas.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
@@ -104,7 +105,14 @@ namespace Presentacion
             FlowLayoutPanel paginacion = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 310, FlowDirection = FlowDirection.RightToLeft, WrapContents = false, BackColor = Color.White, Padding = new Padding(0, 3, 0, 0) };
             _siguiente = CrearBotonPaginacion("Siguiente >"); _anterior = CrearBotonPaginacion("< Anterior"); _siguiente.Click += (s, e) => CambiarPagina(1); _anterior.Click += (s, e) => CambiarPagina(-1);
             paginacion.Controls.Add(_siguiente); paginacion.Controls.Add(_textoPagina); paginacion.Controls.Add(_anterior); pie.Controls.Add(_textoRegistros); pie.Controls.Add(paginacion);
-            lista.Controls.Add(_gridVentas); lista.Controls.Add(pie); lista.Controls.Add(barra);
+            Control consulta = EstiloAplicacion.CrearConsultaConDetalle(_gridVentas, "Detalle de la venta seleccionada", out _detalleVentaSeleccionada);
+            string[] camposDetalle = { "Codigo", "Producto", "Cantidad", "PrecioUnitario", "Subtotal" };
+            string[] titulosDetalle = { "CÓDIGO PRODUCTO", "PRODUCTO", "CANTIDAD", "PRECIO UNITARIO", "SUBTOTAL" };
+            for (int i = 0; i < camposDetalle.Length; i++)
+                _detalleVentaSeleccionada.Columns.Add(new DataGridViewTextBoxColumn { Name = camposDetalle[i], DataPropertyName = camposDetalle[i], HeaderText = titulosDetalle[i] });
+            foreach (string campo in new[] { "PrecioUnitario", "Subtotal" })
+                _detalleVentaSeleccionada.Columns[campo].DefaultCellStyle.Format = "Q #,##0.00";
+            lista.Controls.Add(consulta); lista.Controls.Add(pie); lista.Controls.Add(barra);
             layout.Controls.Add(encabezado, 0, 0); layout.Controls.Add(tarjetas, 0, 1); layout.Controls.Add(lista, 0, 2); Controls.Add(layout);
             Text = "Ventas"; BackColor = EstiloAplicacion.Fondo; MinimumSize = new Size(980, 620);
         }
@@ -288,6 +296,23 @@ namespace Presentacion
             btnCerrar.Visible = true; btnCerrar.Text = "Cerrar"; btnCerrar.SetBounds(354, 548, 120, 40);
             ConfigurarGrid();
             ActualizarTotal();
+        }
+
+        // Consulta los productos al seleccionar una sola venta en el listado.
+        private void MostrarDetalleVentaSeleccionada()
+        {
+            if (_detalleVentaSeleccionada == null) return;
+            _detalleVentaSeleccionada.DataSource = null;
+            if (_gridVentas.SelectedRows.Count != 1) return;
+            DataRowView fila = _gridVentas.SelectedRows[0].DataBoundItem as DataRowView;
+            if (fila == null) return;
+            try
+            {
+                Venta venta = _negocio.Consultar(Convert.ToInt32(fila["id_venta"]));
+                _detalleVentaSeleccionada.DataSource = venta.Detalles;
+                _detalleVentaSeleccionada.ClearSelection();
+            }
+            catch (Exception ex) { AyudaForms.MtdError(ex); }
         }
 
         // EDITAR: ActualizarAccionesVentaSeleccionada
