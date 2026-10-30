@@ -44,7 +44,7 @@ namespace Presentacion
             InitializeComponent();
             EstiloAplicacion.Aplicar(this);
             PrepararDisenoTraslados();
-            BarraListado.Configurar(_gridTrasladosVista, _buscarTrasladosVista, "Traslados", () => AbrirTrasladoExistente((TrasladosEntidad)_gridTrasladosVista.CurrentRow.Tag));
+            BarraListado.Configurar(_gridTrasladosVista, _buscarTrasladosVista, "Traslados", mostrarEdicion: false);
             PrepararDialogoTraslado();
         }
 
@@ -56,6 +56,8 @@ namespace Presentacion
             PanelPrincipalGestionar.Dock = DockStyle.Fill;
             panelEncabezadoGestionar.Visible = false;
             PanelCerrarGestionar.Visible = false;
+            btnEditar.Visible = false;
+            btnEliminar.Visible = false;
             _dialogoTraslado.Controls.Add(PanelPrincipalGestionar);
         }
 
@@ -128,9 +130,9 @@ namespace Presentacion
             _gridTrasladosVista.ColumnHeadersDefaultCellStyle.BackColor = EstiloAplicacion.Marino; _gridTrasladosVista.ColumnHeadersDefaultCellStyle.ForeColor = Color.White; _gridTrasladosVista.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold); _gridTrasladosVista.ColumnHeadersDefaultCellStyle.SelectionBackColor = EstiloAplicacion.Marino; _gridTrasladosVista.DefaultCellStyle.ForeColor = EstiloAplicacion.Tinta; _gridTrasladosVista.DefaultCellStyle.SelectionBackColor = EstiloAplicacion.Seleccion; _gridTrasladosVista.DefaultCellStyle.SelectionForeColor = EstiloAplicacion.Tinta; _gridTrasladosVista.DefaultCellStyle.Padding = new Padding(6, 5, 6, 5); _gridTrasladosVista.RowTemplate.Height = 42;
             _gridTrasladosVista.DefaultCellStyle.WrapMode = DataGridViewTriState.True; _gridTrasladosVista.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             _gridTrasladosVista.CellFormatting += (s, e) => { if (e.RowIndex >= 0 && _gridTrasladosVista.Columns[e.ColumnIndex].Name == "Estado" && e.Value != null) e.CellStyle.ForeColor = String.Equals(Convert.ToString(e.Value), EstadosTraslado.Completado, StringComparison.OrdinalIgnoreCase) ? EstiloAplicacion.Acento : Color.FromArgb(210, 126, 48); };
-            _gridTrasladosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirTrasladoExistente((TrasladosEntidad)_gridTrasladosVista.Rows[e.RowIndex].Tag); };
+            _gridTrasladosVista.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) AbrirTrasladoExistente(ObtenerTrasladoVista(_gridTrasladosVista.Rows[e.RowIndex])); };
             ContextMenuStrip menuFila = new ContextMenuStrip();
-            menuFila.Items.Add("Ver / editar traslado", null, (s, e) => { if (_gridTrasladosVista.CurrentRow != null) AbrirTrasladoExistente((TrasladosEntidad)_gridTrasladosVista.CurrentRow.Tag); });
+            menuFila.Items.Add("Consultar traslado", null, (s, e) => { if (_gridTrasladosVista.CurrentRow != null) AbrirTrasladoExistente(ObtenerTrasladoVista(_gridTrasladosVista.CurrentRow)); });
             _gridTrasladosVista.ContextMenuStrip = menuFila;
             _gridTrasladosVista.CellMouseDown += (s, e) => { if (e.Button == MouseButtons.Right && e.RowIndex >= 0) _gridTrasladosVista.CurrentCell = _gridTrasladosVista.Rows[e.RowIndex].Cells[0]; };
 
@@ -176,7 +178,7 @@ namespace Presentacion
         private void EliminarTrasladoVista()
         {
             if (_gridTrasladosVista == null || _gridTrasladosVista.CurrentRow == null) { AyudaForms.MtdAviso("Selecciona primero un traslado."); return; }
-            TrasladosEntidad item = _gridTrasladosVista.CurrentRow.Tag as TrasladosEntidad;
+            TrasladosEntidad item = ObtenerTrasladoVista(_gridTrasladosVista.CurrentRow);
             if (item == null) return;
             MtdCargarEnCampos(item);
             _codigoSeleccionado = item.CodigoTraslado;
@@ -258,10 +260,12 @@ namespace Presentacion
             _paginaTraslados = Math.Max(1, Math.Min(_paginaTraslados, paginas));
             List<TrasladosEntidad> pagina = _trasladosVisibles.Skip((_paginaTraslados - 1) * TrasladosPorPagina).Take(TrasladosPorPagina).ToList();
             DataTable tabla = new DataTable();
+            tabla.Columns.Add("CodigoTraslado", typeof(int));
             tabla.Columns.Add("Numero"); tabla.Columns.Add("Origen"); tabla.Columns.Add("Destino"); tabla.Columns.Add("Fecha"); tabla.Columns.Add("Estado");
             foreach (TrasladosEntidad item in pagina)
-                tabla.Rows.Add("TR-" + item.FechaTraslado.ToString("yyyy") + "-" + item.CodigoTraslado.ToString("000"), item.NombreOrigen, item.NombreDestino, item.FechaTraslado.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("es-MX")), item.Estado);
+                tabla.Rows.Add(item.CodigoTraslado, "TR-" + item.FechaTraslado.ToString("yyyy") + "-" + item.CodigoTraslado.ToString("000"), item.NombreOrigen, item.NombreDestino, item.FechaTraslado.ToString("dd MMM yyyy", CultureInfo.GetCultureInfo("es-MX")), item.Estado);
             _gridTrasladosVista.DataSource = tabla;
+            _gridTrasladosVista.Columns["CodigoTraslado"].Visible = false;
             _gridTrasladosVista.Columns["Numero"].HeaderText = "TRASLADO"; _gridTrasladosVista.Columns["Numero"].FillWeight = 22;
             _gridTrasladosVista.Columns["Origen"].HeaderText = "ORIGEN"; _gridTrasladosVista.Columns["Origen"].FillWeight = 24;
             _gridTrasladosVista.Columns["Destino"].HeaderText = "DESTINO"; _gridTrasladosVista.Columns["Destino"].FillWeight = 24;
@@ -274,8 +278,16 @@ namespace Presentacion
             _paginaTrasladosVista.Text = _paginaTraslados + " de " + paginas;
             _anteriorTrasladosVista.Enabled = _paginaTraslados > 1;
             _siguienteTrasladosVista.Enabled = _paginaTraslados < paginas;
-            for (int i = 0; i < _gridTrasladosVista.Rows.Count; i++)
-                _gridTrasladosVista.Rows[i].Tag = pagina[i];
+        }
+
+        // El código permanece asociado al registro aunque se ordenen o reconstruyan las filas.
+        private TrasladosEntidad ObtenerTrasladoVista(DataGridViewRow fila)
+        {
+            if (fila == null) { AyudaForms.MtdAviso("Selecciona primero un traslado."); return null; }
+            int codigo = Convert.ToInt32(fila.Cells["CodigoTraslado"].Value);
+            TrasladosEntidad traslado = _trasladosCompletos.FirstOrDefault(x => x.CodigoTraslado == codigo);
+            if (traslado == null) AyudaForms.MtdAviso("No se encontró el traslado. Actualiza el listado e intenta de nuevo.");
+            return traslado;
         }
 
         // CAMBIAR PÁGINA: CambiarPaginaTraslados
@@ -294,9 +306,10 @@ namespace Presentacion
             try
             {
                 MtdCargarEnCampos(item);
-                bool editable = !String.Equals(item.Estado, EstadosTraslado.Completado, StringComparison.OrdinalIgnoreCase);
-                _modo = editable ? "Editar" : String.Empty;
-                MtdHabilitarCampos(editable);
+                _modo = String.Empty;
+                MtdHabilitarCampos(false);
+                btnGuardar.Visible = false;
+                btnLimpiar.Visible = false;
                 btnEditar.Visible = false;
                 btnNuevo.Visible = false;
                 MostrarDialogoTraslado(false);
@@ -519,7 +532,7 @@ namespace Presentacion
             MtdLimpiarCampos();
             MtdHabilitarCampos(false);
             btnNuevo.Visible = true;
-            btnEditar.Visible = true;
+            btnEditar.Visible = false;
             if (_dialogoTraslado != null && _dialogoTraslado.Visible) _dialogoTraslado.DialogResult = DialogResult.Cancel;
         }
 
@@ -585,6 +598,8 @@ namespace Presentacion
             MtdLimpiarCampos();
             _codigoSeleccionado = 0;
             _modo = "Agregar";
+            btnGuardar.Visible = true;
+            btnLimpiar.Visible = true;
             txtEstado.Text = EstadosTraslado.Pendiente;
             MtdHabilitarCampos(true);
             btnNuevo.Visible = false;

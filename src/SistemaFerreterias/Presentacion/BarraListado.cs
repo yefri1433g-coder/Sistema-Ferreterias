@@ -9,7 +9,7 @@ namespace Presentacion
     internal static class BarraListado
     {
         internal static void Configurar(DataGridView tabla, TextBox buscar, string titulo,
-            Action editar = null, Action eliminar = null)
+            Action editar = null, Action eliminar = null, bool mostrarEdicion = true)
         {
             FlowLayoutPanel barra = buscar.Parent as FlowLayoutPanel;
             if (barra == null) return;
@@ -48,8 +48,11 @@ namespace Presentacion
             barra.Controls.Add(seleccionar);
             barra.Controls.Add(Boton("Imprimir", () => AyudaForms.MtdImprimir(tabla, titulo)));
             barra.Controls.Add(Boton("Exportar", () => AyudaForms.MtdExportarCsv(tabla, titulo)));
-            barra.Controls.Add(modificar);
-            barra.Controls.Add(borrar);
+            if (mostrarEdicion)
+            {
+                barra.Controls.Add(modificar);
+                barra.Controls.Add(borrar);
+            }
             if (nuevo != null) { nuevo.Text = "+ Nuevo"; barra.Controls.Add(nuevo); }
             foreach (Button boton in barra.Controls.OfType<Button>())
             {

@@ -32,7 +32,7 @@ namespace Presentacion
         {
             InitializeComponent();
             PrepararDisenoVentas();
-            BarraListado.Configurar(_gridVentas, _buscarVentas, "Ventas");
+            BarraListado.Configurar(_gridVentas, _buscarVentas, "Ventas", mostrarEdicion: false);
             EstiloAplicacion.Aplicar(this);
         }
 
