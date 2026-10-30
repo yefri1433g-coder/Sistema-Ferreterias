@@ -72,6 +72,11 @@ proyecto `Presentacion`. También se puede compilar con MSBuild:
 
 ## Instalación y entrega por carpeta
 
+El ZIP fue autorizado para compartirse en GitHub:
+[descargar entrega preparada del 29 de octubre](entrega/ProyectoFinal_20261029.zip).
+Incluye la aplicación completa, el respaldo y las instrucciones. Su publicación
+no acredita las pruebas pendientes en otro equipo ni el cierre final del grupo.
+
 La preparación del 29 de octubre de 2026 está en
 [`docs/ENTREGA_FINAL.md`](docs/ENTREGA_FINAL.md). Se compiló Release con
 Visual Studio 2022 y se preparó `entrega/ProyectoFinal_20261029/aplicacion/`.
