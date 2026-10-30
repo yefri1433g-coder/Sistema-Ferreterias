@@ -6,11 +6,11 @@ namespace Presentacion
 {
     internal sealed class ConfirmacionForms : Form
     {
-        internal ConfirmacionForms(string mensaje)
+        internal ConfirmacionForms(string mensaje, bool soloAviso = false, string titulo = null)
         {
-            bool eliminar = mensaje.IndexOf("eliminar", StringComparison.OrdinalIgnoreCase) >= 0;
-            Text = eliminar ? "Eliminar registro" : "Confirmar operación";
-            Name = "confirmacionOperacion";
+            bool eliminar = !soloAviso && mensaje.IndexOf("eliminar", StringComparison.OrdinalIgnoreCase) >= 0;
+            Text = soloAviso ? titulo ?? "Aviso" : eliminar ? "Eliminar registro" : "Confirmar operación";
+            Name = soloAviso ? "avisoOperacion" : "confirmacionOperacion";
             Font = new Font("Segoe UI", 10F);
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.CenterParent;
@@ -37,20 +37,20 @@ namespace Presentacion
             FlowLayoutPanel acciones = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 66,
                 FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(16, 12, 16, 12), WrapContents = false,
                 BackColor = EstiloAplicacion.FondoSuave };
-            Button aceptar = new Button { Name = "aceptarConfirmacion", Text = eliminar ? "Eliminar" : "Confirmar",
+            Button aceptar = new Button { Name = "aceptarConfirmacion", Text = soloAviso ? "Aceptar" : eliminar ? "Eliminar" : "Confirmar",
                 Size = new Size(128, 38), FlatStyle = FlatStyle.Flat, BackColor = eliminar ? Color.FromArgb(185, 38, 48) : EstiloAplicacion.Acento,
                 ForeColor = Color.White, Font = new Font("Segoe UI", 10F, FontStyle.Bold), Cursor = Cursors.Hand,
-                DialogResult = DialogResult.Yes, Margin = new Padding(8, 0, 0, 0) };
+                DialogResult = soloAviso ? DialogResult.OK : DialogResult.Yes, Margin = new Padding(8, 0, 0, 0) };
             aceptar.FlatAppearance.BorderSize = 0;
             Button cancelar = new Button { Name = "cancelarConfirmacion", Text = "Cancelar", Size = new Size(116, 38),
                 FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = EstiloAplicacion.Tinta,
                 DialogResult = DialogResult.Cancel, Cursor = Cursors.Hand, Margin = Padding.Empty };
             cancelar.FlatAppearance.BorderColor = Color.FromArgb(211, 220, 232);
             acciones.Controls.Add(aceptar);
-            acciones.Controls.Add(cancelar);
+            if (!soloAviso) acciones.Controls.Add(cancelar);
             cuerpo.Controls.Add(acciones);
-            AcceptButton = cancelar;
-            CancelButton = cancelar;
+            AcceptButton = soloAviso ? aceptar : cancelar;
+            CancelButton = soloAviso ? aceptar : cancelar;
         }
     }
 }

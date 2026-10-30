@@ -49,8 +49,8 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudieron cargar los catálogos de Pagos. " + ex.Message,
-                    "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudieron cargar los catálogos de Pagos. " + ex.Message,
+                    "Pagos");
             }
         }
 
@@ -170,7 +170,7 @@ namespace Presentacion
         {
             if (_gridHistorial == null) return;
             try { _pagos = _negocio.MtdListarPagosRecientes(); _ventas = _negocio.MtdListarVentas(); MostrarHistorialPagos(); }
-            catch (Exception ex) { MessageBox.Show("No se pudo cargar el historial de pagos. " + ex.Message, "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex) { AyudaForms.MtdMensaje("No se pudo cargar el historial de pagos. " + ex.Message, "Pagos"); }
         }
 
         // PRESENTAR DATOS: MostrarHistorialPagos
@@ -258,8 +258,8 @@ namespace Presentacion
             catch (Exception ex)
             {
                 _idPagoEdicion = null;
-                MessageBox.Show("No se pudieron cargar los datos del pago seleccionado. " + ex.Message,
-                    "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudieron cargar los datos del pago seleccionado. " + ex.Message,
+                    "Pagos");
             }
         }
 
@@ -340,8 +340,7 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudieron cargar las ventas: " + ex.Message, "Pagos",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudieron cargar las ventas: " + ex.Message, "Pagos");
             }
             finally
             {
@@ -380,8 +379,8 @@ namespace Presentacion
             catch (Exception ex)
             {
                 dgvPagos.DataSource = null;
-                MessageBox.Show("No se pudieron consultar los pagos de esta venta. " + ex.Message,
-                    "Pagos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudieron consultar los pagos de esta venta. " + ex.Message,
+                    "Pagos");
             }
 
             bool pendiente = _saldo > 0;
@@ -433,8 +432,7 @@ namespace Presentacion
         {
             if (cmbVenta.SelectedValue == null || cmbMetodo.SelectedValue == null)
             {
-                MessageBox.Show("Seleccione una venta y un método de pago.", "Pagos",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje("Seleccione una venta y un método de pago.", "Pagos");
                 return;
             }
 
@@ -491,8 +489,7 @@ namespace Presentacion
                 }
             }
 
-            MessageBox.Show("No hay ventas con saldo pendiente.", "Pagos",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            AyudaForms.MtdMensaje("No hay ventas con saldo pendiente.", "Pagos");
         }
 
         private void btnCerrar_Click(object sender, EventArgs e)

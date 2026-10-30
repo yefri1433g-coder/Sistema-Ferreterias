@@ -24,7 +24,7 @@ namespace Presentacion
 
         public static void MtdAviso(string mensaje)
         {
-            MessageBox.Show(mensaje, "Ferreterias Multisucursal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MtdMensaje(mensaje, "Revisa los datos");
         }
 
         public static bool MtdConfirmar(string mensaje)
@@ -41,7 +41,14 @@ namespace Presentacion
 
         public static void MtdError(Exception ex)
         {
-            MessageBox.Show(ex.Message, "Ferreterias Multisucursal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MtdMensaje(ex.Message, "No se pudo completar la operación");
+        }
+
+        public static DialogResult MtdMensaje(string mensaje, string titulo)
+        {
+            Form propietario = Form.ActiveForm;
+            using (ConfirmacionForms dialogo = new ConfirmacionForms(mensaje, true, titulo))
+                return propietario == null ? dialogo.ShowDialog() : dialogo.ShowDialog(propietario);
         }
 
         // =====================================================

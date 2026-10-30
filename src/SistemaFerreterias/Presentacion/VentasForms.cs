@@ -145,7 +145,7 @@ namespace Presentacion
         private void CargarVentas()
         {
             try { _ventas = _negocio.ListarVentas(); MostrarVentas(); }
-            catch (Exception ex) { MessageBox.Show("No se pudo cargar el historial de ventas. " + ex.Message, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex) { AyudaForms.MtdMensaje("No se pudo cargar el historial de ventas. " + ex.Message, "Ventas"); }
         }
 
         // PRESENTAR DATOS: MostrarVentas
@@ -202,7 +202,7 @@ namespace Presentacion
                 Venta venta = _negocio.Consultar(idVenta);
                 if (venta == null)
                 {
-                    MessageBox.Show("No se encontró la venta seleccionada.", "Consulta de ventas", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    AyudaForms.MtdMensaje("No se encontró la venta seleccionada.", "Consulta de ventas");
                     return;
                 }
 
@@ -211,7 +211,7 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudo consultar la venta. " + ex.Message, "Consulta de ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudo consultar la venta. " + ex.Message, "Consulta de ventas");
             }
             finally
             {
@@ -318,7 +318,7 @@ namespace Presentacion
             if (idVenta <= 0) return;
             if (!pendiente)
             {
-                MessageBox.Show("Solo se pueden editar ventas pendientes, sin pagos registrados.", "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje("Solo se pueden editar ventas pendientes, sin pagos registrados.", "Ventas");
                 return;
             }
 
@@ -346,7 +346,7 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudo abrir la venta. " + ex.Message, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudo abrir la venta. " + ex.Message, "Ventas");
             }
         }
 
@@ -358,7 +358,7 @@ namespace Presentacion
             if (idVenta <= 0) return;
             if (!pendiente)
             {
-                MessageBox.Show("Solo se pueden eliminar ventas pendientes, sin pagos registrados.", "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje("Solo se pueden eliminar ventas pendientes, sin pagos registrados.", "Ventas");
                 return;
             }
 
@@ -374,7 +374,7 @@ namespace Presentacion
                 string error = _negocio.EliminarPendiente(idVenta, idSucursal);
                 if (error != "")
                 {
-                    MessageBox.Show(error, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    AyudaForms.MtdMensaje(error, "Ventas");
                     return;
                 }
                 CargarVentas();
@@ -382,7 +382,7 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudo eliminar la venta. " + ex.Message, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudo eliminar la venta. " + ex.Message, "Ventas");
             }
         }
 
@@ -493,7 +493,7 @@ namespace Presentacion
 
             if (p == null)
             {
-                MessageBox.Show("Selecciona un producto.", "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje("Selecciona un producto.", "Ventas");
                 return;
             }
 
@@ -504,9 +504,9 @@ namespace Presentacion
 
             if (cantidadFinal > p.Existencia)
             {
-                MessageBox.Show(
+                AyudaForms.MtdMensaje(
                     "Stock insuficiente. Disponible para esta venta: " + p.Existencia + ".",
-                    "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    "Ventas");
                 return;
             }
 
@@ -569,7 +569,7 @@ namespace Presentacion
 
             if (error != "")
             {
-                MessageBox.Show(error, "Ventas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje(error, "Ventas");
                 return;
             }
 

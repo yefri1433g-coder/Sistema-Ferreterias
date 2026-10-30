@@ -136,9 +136,9 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                AyudaForms.MtdMensaje(
                     "No se pudieron consultar los clientes. Comprueba la conexión con la base de datos.\n\n" + ex.Message,
-                    "Error al consultar clientes", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "Error al consultar clientes");
             }
         }
 
@@ -257,12 +257,12 @@ namespace Presentacion
                 try
                 {
                     string error = existente == null ? _negocio.Agregar(cliente) : _negocio.Editar(cliente);
-                    if (!String.IsNullOrEmpty(error)) { MessageBox.Show(error, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                    if (!String.IsNullOrEmpty(error)) { AyudaForms.MtdMensaje(error, "Clientes"); return; }
                     _filtroNombre = String.Empty; _paginaActual = 1; _paginaVistaClientes = 1; _buscarClientesVista.Text = "Buscar clientes"; CargarClientes();
                     dialogo.DialogResult = DialogResult.OK; dialogo.Close();
                     AyudaForms.MtdInfo("Cliente guardado correctamente.");
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+                catch (Exception ex) { AyudaForms.MtdMensaje(ex.Message, "Clientes"); }
             };
             titulo.Visible = false;
             dialogo.Controls.AddRange(new Control[] { titulo, lNombre, nombre, lNit, nit, lTelefono, telefono, lDireccion, direccion, guardar, cancelar });
@@ -273,12 +273,12 @@ namespace Presentacion
         // ELIMINAR: EliminarClienteVista
         private void EliminarClienteVista()
         {
-            if (_gridClientesVista.CurrentRow == null || !(_gridClientesVista.CurrentRow.Tag is Cliente)) { MessageBox.Show("Selecciona un cliente.", "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+            if (_gridClientesVista.CurrentRow == null || !(_gridClientesVista.CurrentRow.Tag is Cliente)) { AyudaForms.MtdMensaje("Selecciona un cliente.", "Clientes"); return; }
             Cliente cliente = (Cliente)_gridClientesVista.CurrentRow.Tag;
             DialogResult confirmar = AyudaForms.MtdConfirmacion("¿Deseas eliminar a " + cliente.Nombre + "?");
             if (confirmar != DialogResult.Yes) return;
             try { _negocio.Eliminar(cliente.IdCliente); ConsultarClientes(); AyudaForms.MtdInfo("Cliente eliminado correctamente."); }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+            catch (Exception ex) { AyudaForms.MtdMensaje(ex.Message, "Clientes"); }
         }
 
         // LIMPIAR: Limpiar
@@ -369,7 +369,7 @@ namespace Presentacion
 
                 if (error != "")
                 {
-                    MessageBox.Show(error, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    AyudaForms.MtdMensaje(error, "Clientes");
                     return;
                 }
 
@@ -379,7 +379,7 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error al agregar el cliente", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje(ex.Message, "Error al agregar el cliente");
             }
         }
 
@@ -412,8 +412,7 @@ namespace Presentacion
         {
             if (_idSeleccionado == 0)
             {
-                MessageBox.Show("Selecciona primero un cliente de la tabla.", "Clientes",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdMensaje("Selecciona primero un cliente de la tabla.", "Clientes");
                 return;
             }
 
@@ -431,7 +430,7 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Clientes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje(ex.Message, "Clientes");
             }
         }
     }

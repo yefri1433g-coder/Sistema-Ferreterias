@@ -409,7 +409,7 @@ namespace Presentacion
         // ELIMINAR: EliminarEmpleadoVista
         private void EliminarEmpleadoVista()
         {
-            if (_gridEmpleadosVista.CurrentRow == null || !(_gridEmpleadosVista.CurrentRow.Tag is Empleado)) { MessageBox.Show("Selecciona un empleado.", "Empleados", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+            if (_gridEmpleadosVista.CurrentRow == null || !(_gridEmpleadosVista.CurrentRow.Tag is Empleado)) { AyudaForms.MtdMensaje("Selecciona un empleado.", "Empleados"); return; }
             Empleado empleado = (Empleado)_gridEmpleadosVista.CurrentRow.Tag;
             if (AyudaForms.MtdConfirmacion("¿Deseas eliminar a " + empleado.Nombre + " " + empleado.Apellido + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(empleado.IdEmpleado); _empleadoSeleccionado = null; CargarEmpleados(); AyudaForms.MtdInfo("Empleado eliminado correctamente."); }
@@ -520,8 +520,7 @@ namespace Presentacion
         {
             if (_empleadoSeleccionado == null)
             {
-                MessageBox.Show("Selecciona un empleado de la tabla para editar.", "Empleados",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje("Selecciona un empleado de la tabla para editar.", "Empleados");
                 return;
             }
 
@@ -534,8 +533,7 @@ namespace Presentacion
         {
             if (_empleadoSeleccionado == null)
             {
-                MessageBox.Show("Selecciona un empleado de la tabla para eliminar.", "Empleados",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje("Selecciona un empleado de la tabla para eliminar.", "Empleados");
                 return;
             }
 
@@ -650,7 +648,7 @@ namespace Presentacion
         // PRESENTAR DATOS: MostrarError
         private void MostrarError(Exception ex)
         {
-            MessageBox.Show(ex.Message, "Empleados", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            AyudaForms.MtdMensaje(ex.Message, "Empleados");
         }
 
         // CLASE OpcionEmpleado: Representa una opción de empleado usada por los controles del formulario.

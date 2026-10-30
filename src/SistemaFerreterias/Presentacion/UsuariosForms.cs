@@ -158,7 +158,7 @@ namespace Presentacion
         private void BuscarUsuariosVista()
         {
             try { _usuarios = String.IsNullOrWhiteSpace(_buscarUsuariosVista.Text) ? _usuariosTotales : _negocio.Buscar(_buscarUsuariosVista.Text).OrderByDescending(u => u.IdUsuario).ToList(); _paginaVista = 1; MostrarUsuariosVista(); }
-            catch (Exception ex) { MessageBox.Show("No se pudo buscar usuarios. " + ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex) { AyudaForms.MtdMensaje("No se pudo buscar usuarios. " + ex.Message, "Usuarios"); }
         }
 
         // CAMBIAR PÁGINA: CambiarPaginaVista
@@ -184,8 +184,8 @@ namespace Presentacion
                 Usuario datos = new Usuario { IdUsuario = usuario == null ? 0 : usuario.IdUsuario, NombreUsuario = nombre.Text, Contrasena = contrasena.Text, Rol = Convert.ToString(rol.SelectedItem), Estado = activo.Checked };
                 string error;
                 try { error = usuario == null ? _negocio.Agregar(datos) : _negocio.Editar(datos); }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-                if (!String.IsNullOrEmpty(error)) { MessageBox.Show(error, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                catch (Exception ex) { AyudaForms.MtdMensaje(ex.Message, "Usuarios"); return; }
+                if (!String.IsNullOrEmpty(error)) { AyudaForms.MtdMensaje(error, "Usuarios"); return; }
                 _paginaVista = 1; CargarUsuarios(); dialogo.DialogResult = DialogResult.OK; dialogo.Close();
                 AyudaForms.MtdInfo("Usuario guardado correctamente.");
             };
@@ -202,7 +202,7 @@ namespace Presentacion
             Usuario usuario = (Usuario)_gridUsuariosVista.CurrentRow.Tag;
             if (AyudaForms.MtdConfirmacion("¿Deseas eliminar el usuario " + usuario.NombreUsuario + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(usuario.IdUsuario); CargarUsuarios(); AyudaForms.MtdInfo("Usuario eliminado correctamente."); }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+            catch (Exception ex) { AyudaForms.MtdMensaje(ex.Message, "Usuarios"); }
         }
 
         private void UsuariosForms_Load(object sender, EventArgs e)
@@ -289,8 +289,8 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudo buscar usuarios. " + ex.Message,
-                    "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AyudaForms.MtdMensaje("No se pudo buscar usuarios. " + ex.Message,
+                    "Usuarios");
             }
         }
 
@@ -342,8 +342,8 @@ namespace Presentacion
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("No se pudo agregar el usuario. " + ex.Message,
-                        "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    AyudaForms.MtdMensaje("No se pudo agregar el usuario. " + ex.Message,
+                        "Usuarios");
                     return;
                 }
             }
@@ -355,15 +355,15 @@ namespace Presentacion
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("No se pudo actualizar el usuario. " + ex.Message,
-                        "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    AyudaForms.MtdMensaje("No se pudo actualizar el usuario. " + ex.Message,
+                        "Usuarios");
                     return;
                 }
             }
 
             if (error != "")
             {
-                MessageBox.Show(error, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje(error, "Usuarios");
                 return;
             }
 
@@ -399,8 +399,7 @@ namespace Presentacion
         {
             if (_idSeleccionado == 0)
             {
-                MessageBox.Show("Selecciona primero un usuario de la tabla.", "Usuarios",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdMensaje("Selecciona primero un usuario de la tabla.", "Usuarios");
                 return;
             }
 
@@ -418,7 +417,7 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Usuarios", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje(ex.Message, "Usuarios");
             }
         }
 

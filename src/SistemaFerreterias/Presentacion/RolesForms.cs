@@ -164,7 +164,7 @@ namespace Presentacion
                 AyudaForms.MtdInfo("Rol y accesos guardados.");
                 CargarRoles();
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Roles y accesos", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+            catch (Exception ex) { AyudaForms.MtdMensaje(ex.Message, "Roles y accesos"); }
         }
 
         // ELIMINAR: EliminarRol
@@ -173,7 +173,7 @@ namespace Presentacion
             if (_seleccionado == null) return;
             if (AyudaForms.MtdConfirmacion("¿Eliminar el rol " + _seleccionado.NombreRol + "?") != DialogResult.Yes) return;
             try { _negocio.Eliminar(_seleccionado.CodigoRol); _seleccionado = null; CargarRoles(); AyudaForms.MtdInfo("Rol eliminado correctamente."); }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Roles y accesos", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+            catch (Exception ex) { AyudaForms.MtdMensaje(ex.Message, "Roles y accesos"); }
         }
     }
 }

@@ -323,7 +323,7 @@ namespace Presentacion
 
             if (usuario == null)
             {
-                MessageBox.Show(mensaje, "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje(mensaje, "Login");
                 return;
             }
 

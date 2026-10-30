@@ -264,7 +264,7 @@ namespace Presentacion
         {
             if (grid == null || grid.CurrentRow == null)
             {
-                MessageBox.Show("Selecciona primero el registro que deseas eliminar.", "Eliminar registro", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdMensaje("Selecciona primero el registro que deseas eliminar.", "Eliminar registro");
                 return;
             }
 
@@ -644,7 +644,7 @@ namespace Presentacion
                 : null;
             if (fila == null)
             {
-                MessageBox.Show("Selecciona primero el producto que deseas editar.", "Editar producto", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                AyudaForms.MtdMensaje("Selecciona primero el producto que deseas editar.", "Editar producto");
                 return;
             }
             CargarProductoParaEditar(fila);
@@ -1107,7 +1107,7 @@ namespace Presentacion
                 {
                     if (sucursal.SelectedItem == null)
                     {
-                        MessageBox.Show("Selecciona la sucursal correcta para continuar.", "Sucursal requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        AyudaForms.MtdMensaje("Selecciona la sucursal correcta para continuar.", "Sucursal requerida");
                         return;
                     }
                     dialogo.DialogResult = DialogResult.OK;
@@ -1359,7 +1359,7 @@ namespace Presentacion
         }
         private bool Ejecutar(Action accion){try{accion();return true;}catch(Exception ex){MostrarError(ex);return false;}}
         // PRESENTAR DATOS: MostrarError
-        private void MostrarError(Exception ex){MessageBox.Show(ex.Message,"No se pudo completar la operación",MessageBoxButtons.OK,MessageBoxIcon.Warning);}
+        private void MostrarError(Exception ex){AyudaForms.MtdMensaje(ex.Message,"No se pudo completar la operación");}
     }
 
 }

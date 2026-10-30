@@ -67,7 +67,7 @@ namespace Presentacion
         {
             if (_modulosPermitidos == null || !_modulosPermitidos.Contains(nombre))
             {
-                MessageBox.Show("Tu rol no tiene acceso a este módulo.", "Acceso restringido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                AyudaForms.MtdMensaje("Tu rol no tiene acceso a este módulo.", "Acceso restringido");
                 return;
             }
             // Un segundo clic conserva el formulario y los datos consultados.

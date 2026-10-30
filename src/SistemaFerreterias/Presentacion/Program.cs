@@ -1,4 +1,4 @@
-﻿using Negocio;
+using Negocio;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,9 +26,9 @@ namespace Presentacion
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                AyudaForms.MtdMensaje(
                     "No se pudo iniciar la aplicación porque falló la conexión a SQL Server.\n\n" + ex.Message,
-                    "Error de conexion", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "Error de conexion");
                 return;
             }
 
