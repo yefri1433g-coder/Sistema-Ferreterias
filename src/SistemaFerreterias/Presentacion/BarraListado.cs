@@ -96,7 +96,13 @@ namespace Presentacion
                 AyudaForms.MtdAviso("Selecciona un solo registro para esta operación.");
                 return;
             }
-            accion();
+            // La fila seleccionada puede diferir de CurrentRow al seleccionar con el teclado.
+            DataGridViewRow fila = tabla.SelectedRows[0];
+            DataGridViewCell celda = fila.Cells.Cast<DataGridViewCell>().FirstOrDefault(c => c.Visible);
+            if (celda == null) return;
+            tabla.CurrentCell = celda;
+            try { accion(); }
+            catch (Exception ex) { AyudaForms.MtdError(ex); }
         }
     }
 }

@@ -62,7 +62,8 @@ namespace Presentacion
         // PRESENTAR DATOS: MostrarDialogoTraslado
         private void MostrarDialogoTraslado(bool nuevo)
         {
-            _dialogoTraslado.Text = nuevo ? "Nuevo traslado" : "Consultar traslado";
+            _dialogoTraslado.Text = nuevo ? "Nuevo traslado" : _modo == "Editar" ? "Editar traslado" : "Consultar traslado";
+            _dialogoTraslado.DialogResult = DialogResult.None;
             EstiloAplicacion.AplicarDialogo(_dialogoTraslado);
             _dialogoTraslado.ShowDialog(this);
         }
@@ -293,7 +294,10 @@ namespace Presentacion
             try
             {
                 MtdCargarEnCampos(item);
-                btnEditar.Visible = true;
+                bool editable = !String.Equals(item.Estado, EstadosTraslado.Completado, StringComparison.OrdinalIgnoreCase);
+                _modo = editable ? "Editar" : String.Empty;
+                MtdHabilitarCampos(editable);
+                btnEditar.Visible = false;
                 btnNuevo.Visible = false;
                 MostrarDialogoTraslado(false);
             }
@@ -425,15 +429,7 @@ namespace Presentacion
                 return;
             }
 
-            try
-            {
-                MtdCargarEnCampos(item);
-                tabControl1.SelectedTab = tabPage2;
-            }
-            catch (Exception ex)
-            {
-                AyudaForms.MtdError(ex);
-            }
+            AbrirTrasladoExistente(item);
         }
 
         // =====================================================
